@@ -1,0 +1,7 @@
+.*
+*.pyc
+*.o
+*.a
+build
+Makefile
+CMakeCache.txt
