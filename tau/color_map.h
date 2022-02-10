@@ -19,13 +19,20 @@
 namespace tau
 {
 
-template<typename Map>
+template<typename ColorType>
 class ColorMap
 {
 public:
-    using OutputType = Map;
+    using Colors = ColorType;
+    
+    using ColorsTraits = MatrixTraits<Colors>;
 
-    ColorMap(const Map &map)
+    static_assert(ColorsTraits::columns != Eigen::Dynamic);
+
+    static constexpr auto pixelSizeBytes =
+        ColorsTraits::columns * sizeof(typename ColorsTraits::type);
+
+    ColorMap(const Colors &map)
         :
         map_(map)
     {
@@ -49,7 +56,7 @@ public:
     }
 
 protected:
-    Map map_;
+    Colors map_;
 };
 
 
@@ -118,15 +125,15 @@ using IndexMatrix = MatrixLike<Eigen::Index, Input>;
 
 
 template<
-    typename Map,
+    typename ColorType,
     typename Bound,
     typename Float = double>
-class ScaledColorMap: public ColorMap<Map>
+class ScaledColorMap: public ColorMap<ColorType>
 {
 public:
-    using Base = ColorMap<Map>;
+    using Base = ColorMap<ColorType>;
 
-    ScaledColorMap(const Map &map, Bound minimum, Bound maximum)
+    ScaledColorMap(const ColorType &map, Bound minimum, Bound maximum)
         :
         Base(map),
         rescale_(minimum, maximum)

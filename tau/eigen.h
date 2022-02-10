@@ -108,6 +108,10 @@ struct MatrixTraits<Eigen::Map<PlainMatrix, mapOptions, Stride>>
 };
 
 
+template<typename Derived>
+struct MatrixTraits<Eigen::DenseBase<Derived>>: MatrixTraits<Derived> {};
+
+
 template<typename T, typename MatrixType>
 using MatrixLike = Eigen::Matrix<
     T,
@@ -344,6 +348,36 @@ private:
 private:
     MatrixType &matrix_;
 };
+
+
+template<size_t alignment>
+constexpr auto GetEigenAlignment()
+{
+    if constexpr (alignment == 8)
+    {
+        return Eigen::Aligned8;
+    }
+    else if constexpr (alignment == 16)
+    {
+        return Eigen::Aligned16;
+    }
+    else if constexpr (alignment == 32)
+    {
+        return Eigen::Aligned32;
+    }
+    else if constexpr (alignment == 64)
+    {
+        return Eigen::Aligned64;
+    }
+    else if constexpr (alignment == 128)
+    {
+        return Eigen::Aligned128;
+    }
+    else
+    {
+        return Eigen::Unaligned;
+    }
+}
 
 
 } // end namespace tau
