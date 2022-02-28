@@ -22,6 +22,7 @@ namespace tau
 inline constexpr long double tau = 6.283185307179586476925286766559005L;
 inline constexpr long double pi = tau / 2.0L;
 inline constexpr long double tauDegrees = 360.0L;
+inline constexpr long double piDegrees = 180.0L;
 inline constexpr long double degreesPerRadian = tauDegrees / tau;
 inline constexpr long double radiansPerDegree = tau / tauDegrees;
 
@@ -37,6 +38,9 @@ struct Angles
 
     static constexpr T tauDegrees =
         static_cast<T>(::tau::tauDegrees);
+
+    static constexpr T piDegrees =
+        static_cast<T>(::tau::piDegrees);
 
     static constexpr T degreesPerRadian =
         static_cast<T>(::tau::degreesPerRadian);

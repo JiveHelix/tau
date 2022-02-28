@@ -4,6 +4,7 @@ target_link_libraries(tau_catch_main PRIVATE project_options)
 
 add_executable(
     tau_tests
+    angles_tests.cpp
     power_series_test.cpp
     color_map_test.cpp
     eigen_test.cpp)
