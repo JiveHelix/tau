@@ -82,10 +82,10 @@ void Constrain(Input &input, Bound minimum, Bound maximum)
 
 
 template<typename Bound, typename Float = double>
-class Rescale
+class FloatRescale
 {
 public:
-    Rescale(Bound minimum, Bound maximum)
+    FloatRescale(Bound minimum, Bound maximum)
         :
         minimum_(minimum),
         maximum_(maximum)
@@ -112,6 +112,32 @@ public:
         // Cast back to integral values to use as indices.
         // eval is used tp force evaluation before asFloat goes out of scope.
         return asFloat.array().round().template cast<Eigen::Index>().eval();
+    }
+
+private:
+    Bound minimum_;
+    Bound maximum_;
+};
+
+
+template<typename Bound>
+class Rescale
+{
+public:
+    Rescale(Bound minimum, Bound maximum)
+        :
+        minimum_(minimum),
+        maximum_(maximum)
+    {
+        assert(minimum < maximum);
+    }
+
+    template<typename Input>
+    auto operator()(Input input) const
+    {
+        Constrain(input, this->minimum_, this->maximum_);
+        input.array() -= this->minimum_;
+        return input;
     }
 
 private:
@@ -154,8 +180,42 @@ public:
     }
 
 private:
-    Rescale<Float> rescale_;
+    FloatRescale<Bound, Float> rescale_;
 };
+
+
+template<typename ColorType, typename Bound>
+class LimitedColorMap: public ColorMap<ColorType>
+{
+public:
+    using Base = ColorMap<ColorType>;
+
+    LimitedColorMap(const ColorType &map, Bound minimum, Bound maximum)
+        :
+        Base(map),
+        rescale_(minimum, maximum)
+    {
+        if ((maximum - minimum + 1) != map.rows())
+        {
+            throw std::invalid_argument(
+                "color map must match the size of the range.");
+        }
+    }
+
+    template<typename Input, typename Output>
+    void operator()(const Input &input, Output *output) const
+    {
+        *output = this->map_(
+            this->rescale_(input).template reshaped<Eigen::AutoOrder>(),
+            Eigen::all).eval();
+
+        assert(output->rows() == input.size());
+    }
+
+private:
+    Rescale<Bound> rescale_;
+};
+
 
 
 } // end namespace tau
