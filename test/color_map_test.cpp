@@ -106,7 +106,7 @@ TEST_CASE("Test Rescale.", "[tau]")
             {2, 5, 8},
             {11, 14, 17}});
     
-    auto rescale = tau::Rescale<int>(2, 17);
+    auto rescale = tau::FloatRescale<int>(2, 17);
     tau::IndexMatrix<TestMatrix> indices = rescale(6, test);
     
     tau::IndexMatrix<TestMatrix> expected(
