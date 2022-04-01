@@ -114,14 +114,11 @@ RgbMatrix<double> MakeRgbFloat(size_t count)
 inline
 RgbMatrix<uint8_t> MakeRgb8(size_t count)
 {
-    RgbMatrix<double> asFloat = MakeRgbFloat(count);
-
-    RgbMatrix<uint8_t> asRgb8{
-        (asFloat * 255).array().round().template cast<uint8_t>()};
-
-    return asRgb8;
+    return MakeRgb<uint8_t>(count, MakeRgbFloat);
 }
 
+
 } // end namespace turbo
+
 
 } // end namespace tau
