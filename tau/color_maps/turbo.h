@@ -15,6 +15,8 @@
 
 
 #include "tau/eigen.h"
+#include "tau/planar.h"
+#include "tau/color.h"
 #include "tau/power_series.h"
 #include "tau/color_maps/rgb.h"
 
@@ -100,14 +102,20 @@ RgbMatrix<double> MakeRgbFloat(size_t count)
         0.0,
         1.0);
 
-    auto reds = PowerSeries(x, factors::red, factors::linearMap);
-    auto greens = PowerSeries(x, factors::green, factors::linearMap);
-    auto blues = PowerSeries(x, factors::blue, factors::linearMap);
+    auto planar = Planar<3, double, Eigen::Dynamic, 1>(
+        static_cast<Eigen::Index>(count),
+        1);
 
-    RgbMatrix<double> result(count, 3);
-    result << reds, greens, blues;
-    
-    return result;
+    GetRed(planar) =
+        PowerSeries(x, factors::red, factors::linearMap);
+
+    GetGreen(planar) =
+        PowerSeries(x, factors::green, factors::linearMap);
+
+    GetBlue(planar) =
+        PowerSeries(x, factors::blue, factors::linearMap);
+
+    return planar.GetInterleaved<Eigen::RowMajor>();
 }
 
 

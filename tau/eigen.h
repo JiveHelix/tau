@@ -12,13 +12,17 @@
 
 #include <type_traits>
 #include <numeric>
-#include "Eigen/Dense"
-#include "jive/type_traits.h"
-#include "jive/future.h"
+#include <jive/create_exception.h>
+#include <Eigen/Dense>
+#include <jive/type_traits.h>
+#include <jive/future.h>
 
 
 namespace tau
 {
+
+
+CREATE_EXCEPTION(TauError, std::runtime_error);
 
 
 template<typename>
@@ -120,6 +124,28 @@ using MatrixLike = Eigen::Matrix<
     MatrixTraits<MatrixType>::options,
     MatrixTraits<MatrixType>::maxRows,
     MatrixTraits<MatrixType>::maxColumns>;
+
+
+template<typename MatrixType>
+using ArrayLike = Eigen::Array<
+    typename MatrixTraits<MatrixType>::type,
+    MatrixTraits<MatrixType>::rows,
+    MatrixTraits<MatrixType>::columns,
+    MatrixTraits<MatrixType>::options,
+    MatrixTraits<MatrixType>::maxRows,
+    MatrixTraits<MatrixType>::maxColumns>;
+
+
+/** Perform comma initialization with varidadic arguments. **/
+template<typename Result, typename First, typename ... Others>
+static void Fill(Result &result, First &&first, Others && ... others)
+{
+    (
+        (result << std::forward<First>(first)),
+        ...,
+        std::forward<Others>(others));
+}
+
 
 /** Eigen 3.4.0 does not support compile time checking of fixed-size array
  ** initialization. Brace and comma initialization
@@ -242,8 +268,6 @@ bool IsVector(const T &matrix)
 }
 
 
-
-
 /**
  ** Numpy, Matlab, and others support fancy indexing, where
  **     myArray[myArray > 2.0] = 2.0
@@ -257,8 +281,7 @@ bool IsVector(const T &matrix)
  ** intent more clearly:
  **     Select(myArray) > 2.0 = 2.0;
  **
- ** All six comparison operators are supported. Perfect forwarding is used for
- ** zero overhead.
+ ** All six comparison operators are supported.
  **/
 template<typename MatrixType>
 class Select
@@ -377,6 +400,58 @@ constexpr auto GetEigenAlignment()
     {
         return Eigen::Unaligned;
     }
+}
+
+
+namespace detail
+{
+
+template<typename Float, typename Integral, typename Matrix, typename T>
+Matrix Modulo(const Matrix &x, T y)
+{
+    using Traits = MatrixTraits<Matrix>;
+
+    auto multiplier = static_cast<Float>(1) / static_cast<Float>(y);
+
+    auto scaled = (
+        x.template cast<Float>().array()
+        * multiplier).template cast<Integral>();
+
+    auto subtrahend = y * scaled.template cast<T>();
+
+    return x.array() - subtrahend.template cast<typename Traits::type>();
+}
+
+} // end namespace detail
+
+
+template<typename Matrix, typename T>
+Matrix Modulo(const Matrix &x, T y)
+{
+    using Type = typename MatrixTraits<Matrix>::type;
+
+    if constexpr (std::is_integral_v<Type>)
+    {
+        return detail::Modulo<double, Type>(x, y);
+    }
+    else
+    {
+        return detail::Modulo<Type, ssize_t>(x, y);
+    }
+}
+
+
+template<typename T>
+constexpr Eigen::Index Index(T value)
+{
+    return static_cast<Eigen::Index>(value);    
+}
+
+
+template<typename Matrix, typename T>
+constexpr auto Scalar(T value)
+{
+    return static_cast<typename Matrix::Scalar>(value);
 }
 
 

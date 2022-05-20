@@ -45,8 +45,7 @@ TEST_CASE("Test short RGB8 turbo color map.", "[tau]")
     REQUIRE(turbo::shortMapRgb8.rows() == 8);
 
     auto map = tau::turbo::MakeRgb8(8);
-
-    REQUIRE((map - turbo::shortMapRgb8).array().abs().maxCoeff() == 0.0);
+    REQUIRE((map - turbo::shortMapRgb8).array().abs().maxCoeff() == 0);
     REQUIRE(map == turbo::shortMapRgb8);
 }
 

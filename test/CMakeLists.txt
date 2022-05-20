@@ -7,7 +7,9 @@ add_executable(
     angles_tests.cpp
     power_series_test.cpp
     color_map_test.cpp
-    eigen_test.cpp)
+    eigen_test.cpp
+    color_test.cpp
+    gradient_test.cpp)
 
 target_link_libraries(
     tau_tests

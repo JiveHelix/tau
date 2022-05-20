@@ -51,7 +51,7 @@ RgbMatrix<uint8_t> MakeRgb8(size_t count)
 }
 
 
-} // end namespace turbo
+} // end namespace gray
 
 
 } // end namespace tau

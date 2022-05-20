@@ -7,7 +7,6 @@
 
 
 using seedLimits = std::numeric_limits<unsigned int>;
-using Index = Eigen::Index;
 
 
 struct Random
@@ -30,9 +29,9 @@ public:
             static_cast<Scalar>(low),
             static_cast<Scalar>(high));
 
-        for (auto i: jive::Range<Index>(0, matrix.rows()))
+        for (auto i: jive::Range<Eigen::Index>(0, matrix.rows()))
         {
-            for (auto j: jive::Range<Index>(0, matrix.cols()))
+            for (auto j: jive::Range<Eigen::Index>(0, matrix.cols()))
             {
                 matrix(i, j) = distribution(this->generator_);
             }
@@ -56,7 +55,7 @@ TEST_CASE("Compute single value from power series.", "[power_series]")
 
     auto seed = GENERATE(take(8, random(seedLimits::min(), seedLimits::max())));
     
-    auto termCount = static_cast<Index>(degree + 1);
+    auto termCount = Index(degree + 1);
     Eigen::VectorXd coefficients(termCount);
 
     Random{seed}(coefficients);
@@ -66,7 +65,7 @@ TEST_CASE("Compute single value from power series.", "[power_series]")
 
     double result = 0.0;
 
-    for (auto index: jive::Range<Index>(0, termCount))
+    for (auto index: jive::Range<Eigen::Index>(0, termCount))
     {
         result += coefficients(index) * std::pow(x, index);
     }
@@ -113,13 +112,13 @@ TEST_CASE("Apply power series to random vectored input data.", "[power_series]")
     // catch2 random returns the same set of seeds on every run.
     // Use these seeds to create random coefficients.
     auto seed = GENERATE(take(8, random(seedLimits::min(), seedLimits::max())));
-    
-    auto termCount = static_cast<Index>(degree + 1);
+
+    auto termCount = Index(degree + 1);
     Eigen::VectorXd coefficients(termCount);
     Random{seed}(coefficients);
 
     static constexpr size_t count = 8;
-    
+
     // Compute the power series for 8 input values.
     auto x = GENERATE(take(8, chunk(count, random(-2.0, 2.0))));
 
@@ -127,7 +126,7 @@ TEST_CASE("Apply power series to random vectored input data.", "[power_series]")
 
     for (auto index: jive::Range<size_t>(0, count))
     {
-        for (auto factorIndex: jive::Range<Index>(0, termCount))
+        for (auto factorIndex: jive::Range<Eigen::Index>(0, termCount))
         {
             result[index] +=
                 coefficients(factorIndex) * std::pow(x[index], factorIndex);
@@ -139,7 +138,7 @@ TEST_CASE("Apply power series to random vectored input data.", "[power_series]")
         auto powerSeriesResult = 
             tau::PowerSeries(x, coefficients, LinearMap<double>{});
 
-        for (auto index: jive::Range<Index>(0, count))
+        for (auto index: jive::Range<Eigen::Index>(0, count))
         {
             REQUIRE(
                 result[static_cast<size_t>(index)]
@@ -159,7 +158,7 @@ TEST_CASE("Apply power series to random vectored input data.", "[power_series]")
 
         // REQUIRE(result == Approx(powerSeriesResult));
 
-        for (auto index: jive::Range<Index>(0, count))
+        for (auto index: jive::Range<Eigen::Index>(0, count))
         {
             REQUIRE(
                 result[static_cast<size_t>(index)]
@@ -217,13 +216,13 @@ TEMPLATE_TEST_CASE_SIG(
         STATIC_REQUIRE(MatrixTraits<Result>::rows == rows);
         STATIC_REQUIRE(MatrixTraits<Result>::columns == columns);
 
-        for (auto i: jive::Range<Index>(0, rows))
+        for (auto i: jive::Range<Eigen::Index>(0, rows))
         {
-            for (auto j: jive::Range<Index>(0, columns))
+            for (auto j: jive::Range<Eigen::Index>(0, columns))
             {
                 T check = 0;
 
-                for (auto k: jive::Range<Index>(0, degree + 1))
+                for (auto k: jive::Range<Eigen::Index>(0, degree + 1))
                 {    
                     auto power = static_cast<T>(k);
                     check += factors(k) * std::pow(independents(i, j), power);
@@ -247,13 +246,13 @@ TEMPLATE_TEST_CASE_SIG(
         STATIC_REQUIRE(MatrixTraits<Result>::rows == rows);
         STATIC_REQUIRE(MatrixTraits<Result>::columns == columns);
 
-        for (auto i: jive::Range<Index>(0, rows))
+        for (auto i: jive::Range<Eigen::Index>(0, rows))
         {
-            for (auto j: jive::Range<Index>(0, columns))
+            for (auto j: jive::Range<Eigen::Index>(0, columns))
             {
                 T check = 0;
 
-                for (auto k: jive::Range<Index>(0, degree + 1))
+                for (auto k: jive::Range<Eigen::Index>(0, degree + 1))
                 {    
                     auto power = static_cast<T>(k);
                     check += factors(k) * std::pow(independents(i, j), power);

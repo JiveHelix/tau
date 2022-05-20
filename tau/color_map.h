@@ -49,7 +49,7 @@ public:
             "Input must be integral");
 
         *output = this->map_(
-            input.template reshaped<Eigen::AutoOrder>().array(),
+            input.template reshaped<Eigen::AutoOrder>(),
             Eigen::all).eval();
 
         assert(output->rows() == input.size());
