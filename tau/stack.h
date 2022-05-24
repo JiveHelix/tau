@@ -55,7 +55,7 @@ auto VerticalStack(const Top &top, const Bottom &bottom)
     using TopTraits = tau::MatrixTraits<Top>;
     using BottomTraits = tau::MatrixTraits<Bottom>;
 
-    static_assert(TopTraits::columns == BottomTraits::rows);
+    static_assert(TopTraits::columns == BottomTraits::columns);
 
     using Result =
         Eigen::Matrix
