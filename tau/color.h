@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fields/fields.h>
+
 #include "tau/eigen.h"
 #include "tau/planar.h"
 #include "tau/angles.h"
@@ -19,6 +21,10 @@ namespace index
     static constexpr size_t green = 1;
     static constexpr size_t blue = 2;
 };
+
+
+template<typename T>
+using ColorVector = Eigen::Vector3<T>;
 
 
 /** 
@@ -65,6 +71,24 @@ auto GetValue(Planes &&planes) -> GetType<Planes>
     return std::get<index::value>(std::forward<Planes>(planes).planes);
 }
 
+template<typename T>
+auto GetHue(const ColorVector<T> &vector)
+{
+    return vector(index::hue);
+}
+
+template<typename T>
+auto GetSaturation(const ColorVector<T> &vector)
+{
+    return vector(index::saturation);
+}
+
+template<typename T>
+auto GetValue(const ColorVector<T> &vector)
+{
+    return vector(index::value);
+}
+
 template<typename Planes, typename Matrix>
 void SetHue(Planes &planes, const Matrix &hue)
 {
@@ -101,6 +125,24 @@ auto GetBlue(Planes &&planes) -> GetType<Planes>
     return std::get<index::blue>(std::forward<Planes>(planes).planes);
 }
 
+template<typename T>
+auto GetRed(const ColorVector<T> &vector)
+{
+    return vector(index::red);
+}
+
+template<typename T>
+auto GetGreen(const ColorVector<T> &vector)
+{
+    return vector(index::green);
+}
+
+template<typename T>
+auto GetBlue(const ColorVector<T> &vector)
+{
+    return vector(index::blue);
+}
+
 template<typename Planes, typename Matrix>
 void SetRed(Planes &planes, const Matrix &red)
 {
@@ -121,11 +163,11 @@ void SetBlue(Planes &planes, const Matrix &blue)
 
 
 template<typename F, typename I>
-Eigen::Vector3<F> RgbToHsv(const Eigen::Vector3<I> &rgb)
+ColorVector<F> RgbToHsv(const ColorVector<I> &rgb)
 {
     static_assert(std::is_floating_point_v<F>);
 
-    Eigen::Vector3<F> rgbFloat = rgb.template cast<F>();
+    ColorVector<F> rgbFloat = rgb.template cast<F>();
     
     if constexpr (std::is_integral_v<I>)
     {
@@ -137,7 +179,7 @@ Eigen::Vector3<F> RgbToHsv(const Eigen::Vector3<I> &rgb)
     auto Cmin = rgbFloat.minCoeff();
     auto delta = Cmax - Cmin;
     
-    Eigen::Vector3<F> hsv;
+    ColorVector<F> hsv;
 
     using namespace index;
 
@@ -270,7 +312,7 @@ auto RgbToHsv(const Planar<3, I, rows, columns, options> &rgb)
 
 
 template<typename I, typename F>
-Eigen::Vector3<I> HsvToRgb(const Eigen::Vector3<F> &hsv)
+ColorVector<I> HsvToRgb(const ColorVector<F> &hsv)
 {
     static_assert(std::is_floating_point_v<F>);
 
@@ -284,7 +326,7 @@ Eigen::Vector3<I> HsvToRgb(const Eigen::Vector3<F> &hsv)
     auto X = C * (1 - std::abs(std::fmod(hue, 2.0) - 1));
     auto m = value - C;
 
-    Eigen::Vector3<F> rgb;
+    ColorVector<F> rgb;
 
     int hueFloor = static_cast<int>(hue);
 
@@ -430,6 +472,121 @@ auto HsvToRgb(const Planar<3, T, rows, columns, options> &hsv)
     GetBlue(rgb) = GetBlue(rgb).array().round();
 
     return rgb.template Cast<Target>();
+}
+
+
+template<typename T>
+using Identity = T;
+
+
+template<typename T>
+struct HsvFields
+{
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&T::hue, "hue"),
+        fields::Field(&T::saturation, "saturation"),
+        fields::Field(&T::value, "value"));
+};
+
+template<typename U>
+struct HsvTemplate
+{
+    template<template<typename> typename V>
+    struct Template
+    {
+        V<U> hue;
+        V<U> saturation;
+        V<U> value;
+
+        static constexpr auto fields = HsvFields<Template>::fields;
+    };
+};
+
+
+template<typename T>
+struct Hsv: public HsvTemplate<T>::template Template<Identity>
+{
+    template<typename U>
+    static Hsv FromVector(const ColorVector<U> &hsv)
+    {
+        return {
+            static_cast<T>(GetHue(hsv)),
+            static_cast<T>(GetSaturation(hsv)),
+            static_cast<T>(GetValue(hsv))};
+    }
+
+    ColorVector<T> ToVector() const
+    {
+        return {this->hue, this->saturation, this->value};
+    }
+};
+
+
+DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<float>)
+
+
+template<typename T>
+struct RgbFields
+{
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&T::red, "red"),
+        fields::Field(&T::green, "green"),
+        fields::Field(&T::blue, "blue"));
+};
+
+
+template<typename U>
+struct RgbTemplate
+{
+    template<template<typename> typename V>
+    struct Template
+    {
+        V<U> red;
+        V<U> green;
+        V<U> blue;
+
+        static constexpr auto fields = RgbFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Rgb";
+    };
+};
+
+
+template<typename T>
+struct Rgb: public RgbTemplate<T>::template Template<Identity>
+{
+    template<typename U>
+    static Rgb FromVector(const ColorVector<U> &rgb)
+    {
+        return {
+            static_cast<T>(GetRed(rgb)),
+            static_cast<T>(GetGreen(rgb)),
+            static_cast<T>(GetBlue(rgb))};
+    }
+
+    ColorVector<T> ToVector() const
+    {
+        return {this->red, this->green, this->blue};
+    }
+};
+
+
+DECLARE_OUTPUT_STREAM_OPERATOR(Rgb<uint8_t>)
+
+
+template<typename R, typename H>
+Rgb<R> HsvToRgb(const Hsv<H> &hsv)
+{
+    ColorVector<R> rgbVector = HsvToRgb<R>(hsv.ToVector());
+
+    return Rgb<R>::FromVector(rgbVector);
+}
+
+template<typename H, typename R>
+Hsv<H> RgbToHsv(const Rgb<R> &rgb)
+{
+    ColorVector<H> hsvVector = RgbToHsv<H>(rgb.ToVector());
+
+    return Hsv<H>::FromVector(hsvVector);
 }
 
 
