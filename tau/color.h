@@ -318,13 +318,13 @@ ColorVector<I> HsvToRgb(const ColorVector<F> &hsv)
 
     static constexpr auto oneSixth = Angles<F>::tauDegrees / F{6};
 
-    auto hue = hsv(0) / oneSixth;
+    auto hue = static_cast<F>(hsv(0) / oneSixth);
     auto saturation = hsv(1);
     auto value = hsv(2);
 
-    auto C = value * saturation;
-    auto X = C * (1 - std::abs(std::fmod(hue, 2.0) - 1));
-    auto m = value - C;
+    auto C = static_cast<F>(value * saturation);
+    auto X = static_cast<F>(C * (1 - std::abs(std::fmod(hue, 2.0) - 1)));
+    auto m = static_cast<F>(value - C);
 
     ColorVector<F> rgb;
 

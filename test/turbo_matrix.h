@@ -9,12 +9,11 @@
   * Licensed under the MIT license. See LICENSE file.
 **/
 
-
 #pragma once
 
-#include "Eigen/Dense"
 
 #include "tau/eigen.h"
+
 
 namespace turbo
 {

@@ -12,8 +12,8 @@
 #pragma once
 
 
-#include <Eigen/Dense>
 #include <vector>
+#include "tau/eigen_shim.h"
 
 
 namespace tau

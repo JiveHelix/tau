@@ -15,8 +15,8 @@
 #include <string>
 #include <ostream>
 #include <fstream>
-#include "Eigen/Dense"
-#include "jive/create_exception.h"
+#include <jive/create_exception.h>
+#include "tau/eigen_shim.h"
 
 
 namespace tau

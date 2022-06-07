@@ -12,10 +12,14 @@
 
 #include <type_traits>
 #include <numeric>
+
+
 #include <jive/create_exception.h>
-#include <Eigen/Dense>
 #include <jive/type_traits.h>
 #include <jive/future.h>
+
+
+#include "tau/eigen_shim.h"
 
 
 namespace tau

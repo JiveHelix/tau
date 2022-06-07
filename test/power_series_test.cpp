@@ -1,9 +1,10 @@
 #include <catch2/catch.hpp>
 #include <limits>
 #include <random>
+#include <jive/range.h>
+
+#include "tau/eigen_shim.h"
 #include "tau/power_series.h"
-#include "Eigen/Dense"
-#include "jive/range.h"
 
 
 using seedLimits = std::numeric_limits<unsigned int>;
