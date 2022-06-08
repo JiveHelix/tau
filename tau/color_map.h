@@ -136,7 +136,7 @@ public:
     auto operator()(Input input) const
     {
         Constrain(input, this->minimum_, this->maximum_);
-        input.array() -= this->minimum_;
+        input.array() -= static_cast<typename Input::Scalar>(this->minimum_);
         return input;
     }
 

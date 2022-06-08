@@ -160,11 +160,11 @@ public:
 
         using Traits = MatrixTraits<Matrix>;
 
-        static constexpr int resultRows =
-            isColumnMajor ? count : Traits::size;
+        static constexpr int resultRows = static_cast<int>(
+            isColumnMajor ? count : Traits::size);
 
-        static constexpr int resultColumns =
-            isColumnMajor ? Traits::size : count;
+        static constexpr int resultColumns = static_cast<int>(
+            isColumnMajor ? Traits::size : count);
 
         using Result =
             Eigen::Matrix<T, resultRows, resultColumns, resultOptions>;
@@ -180,7 +180,13 @@ public:
             result = Result(size, count);
         }
 
+#if defined _MSC_VER && _MSC_VER <= 1932
+        // MSVC is confused by correct C++ syntax...
+        this->template Planar::Interleave_(result, std::make_index_sequence<count>{});
+#else
+        // Clang and GCC are not
         this->template Interleave_(result, std::make_index_sequence<count>{});
+#endif
 
         return result;
     }
