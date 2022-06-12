@@ -14,8 +14,8 @@
 
 #else
 
-#define EIGEN_SHIM_PUSH_IGNORES \
-#define EIGEN_SHIM_POP_IGNORES \
+#define EIGEN_SHIM_PUSH_IGNORES
+#define EIGEN_SHIM_POP_IGNORES
 
 #endif
 
