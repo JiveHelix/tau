@@ -161,10 +161,10 @@ public:
         using Traits = MatrixTraits<Matrix>;
 
         static constexpr int resultRows = static_cast<int>(
-            isColumnMajor ? count : Traits::size);
+            isColumnMajor ? static_cast<int>(count) : Traits::size);
 
         static constexpr int resultColumns = static_cast<int>(
-            isColumnMajor ? Traits::size : count);
+            isColumnMajor ? Traits::size : static_cast<int>(count));
 
         using Result =
             Eigen::Matrix<T, resultRows, resultColumns, resultOptions>;

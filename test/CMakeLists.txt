@@ -9,7 +9,8 @@ add_executable(
     color_map_test.cpp
     eigen_test.cpp
     color_test.cpp
-    gradient_test.cpp)
+    gradient_test.cpp
+    arithmetic_tests.cpp)
 
 target_link_libraries(
     tau_tests

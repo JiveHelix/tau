@@ -16,7 +16,7 @@ TEST_CASE("Create gradient along value", "[color]")
         tau::gradient::MakeColormap<uint8_t>(10, first, last);
     
     REQUIRE(rgbGradient.rows() == 10);
-    std::cout << rgbGradient << std::endl;
+    // std::cout << rgbGradient << std::endl;
 
     REQUIRE(rgbGradient.row(9) == green.transpose());
 }
