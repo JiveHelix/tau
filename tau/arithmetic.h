@@ -10,20 +10,55 @@
 namespace tau
 {
 
+struct Round {};
+struct Floor {};
+struct Ceil {};
 
-template<typename T, typename V>
+template<typename T, typename V, typename Style>
 std::enable_if_t<std::is_integral_v<T>, T>
-Convert(V value)
+DoConvert(V value)
 {
     if constexpr (std::is_floating_point_v<V>)
     {
-        return static_cast<T>(std::round(value));
+        if constexpr (std::is_same_v<Style, Round>)
+        {
+            return static_cast<T>(std::round(value));
+        }
+        else if constexpr (std::is_same_v<Style, Floor>)
+        {
+            return static_cast<T>(std::floor(value));
+        }
+        else if constexpr (std::is_same_v<Style, Ceil>)
+        {
+            return static_cast<T>(std::ceil(value));
+        }
+        else
+        {
+            return static_cast<T>(value);
+        }
     }
     else
     {
         return static_cast<T>(value);
     }
 }
+
+
+template<typename T, typename V, typename>
+std::enable_if_t<std::is_floating_point_v<T>, T>
+DoConvert(V value)
+{
+    return static_cast<T>(value);
+}
+
+
+template<typename T, typename V>
+std::enable_if_t<std::is_integral_v<T>, T>
+Convert(V value)
+{
+    return DoConvert<T, V, Round>(value);
+}
+
 
 template<typename T, typename V>
 std::enable_if_t<std::is_floating_point_v<T>, T>
@@ -33,14 +68,25 @@ Convert(V value)
 }
 
 
-template<template<typename> typename Fields, typename Result, typename Source>
+template
+<
+    template<typename> typename Fields,
+    typename Result,
+    typename T,
+    typename Style,
+    typename Source
+>
 Result ConvertFields(const Source &source)
 {
     Result result;
 
     auto convert = [&result, &source] (auto sourceField, auto resultField)
     {
-        result.*(resultField.member) = Convert(source.*(sourceField.member));
+        using Member = std::remove_reference_t<
+            decltype(source.*(sourceField.member))>;
+
+        result.*(resultField.member) =
+            DoConvert<T, Member, Style>(source.*(sourceField.member));
     };
 
     jive::ZipApply(convert, Fields<Source>::fields, Fields<Result>::fields);
@@ -69,10 +115,10 @@ struct Arithmetic
         return *static_cast<const This *>(this);
     }
 
-    template<typename U>
+    template<typename U, typename Style = Round>
     auto Convert() const
     {
-        return ConvertFields<Fields, Derived<U>>(this->Upcast());
+        return ConvertFields<Fields, Derived<U>, U, Style>(this->Upcast());
     }
 
     /***** Element-wise operators *****/
