@@ -5,6 +5,7 @@
 #include <fields/fields.h>
 #include <jive/for_each.h>
 #include <jive/zip_apply.h>
+#include <jive/overflow.h>
 
 
 namespace tau
@@ -18,6 +19,8 @@ template<typename T, typename V, typename Style>
 std::enable_if_t<std::is_integral_v<T>, T>
 DoConvert(V value)
 {
+    assert(jive::CheckConvertible<T>(value));
+
     if constexpr (std::is_floating_point_v<V>)
     {
         if constexpr (std::is_same_v<Style, Round>)
@@ -48,23 +51,18 @@ template<typename T, typename V, typename>
 std::enable_if_t<std::is_floating_point_v<T>, T>
 DoConvert(V value)
 {
+    // Converting to a floating-point value.
+    // No rounding is necessary.
+    assert(jive::CheckConvertible<T>(value));
+
     return static_cast<T>(value);
 }
 
 
 template<typename T, typename V>
-std::enable_if_t<std::is_integral_v<T>, T>
-Convert(V value)
+T Convert(V value)
 {
     return DoConvert<T, V, Round>(value);
-}
-
-
-template<typename T, typename V>
-std::enable_if_t<std::is_floating_point_v<T>, T>
-Convert(V value)
-{
-    return static_cast<T>(value);
 }
 
 

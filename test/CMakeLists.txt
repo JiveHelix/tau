@@ -11,7 +11,9 @@ add_executable(
     color_test.cpp
     gradient_test.cpp
     arithmetic_tests.cpp
-    bilinear_test.cpp)
+    bilinear_test.cpp
+    point_tests.cpp
+    size_tests.cpp)
 
 target_link_libraries(
     tau_tests
