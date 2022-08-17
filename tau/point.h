@@ -1,9 +1,10 @@
 #pragma once
 
 #include <fields/fields.h>
+#include <pex/group.h>
 
 #include "tau/arithmetic.h"
-#include "tau/comparisons.h"
+#include "tau/scale.h"
 
 
 namespace tau
@@ -84,6 +85,12 @@ struct Point
             return std::atan2(this->y, this->x);
         }
     }
+
+    T & Horizontal() { return this->x; }
+    T Horizontal() const { return this->x; }
+
+    T & Vertical() { return this->y; }
+    T Vertical() const { return this->y; }
 };
 
 
@@ -92,6 +99,11 @@ std::ostream & operator<<(std::ostream &output, const Point<T> &point)
 {
     return output << fields::DescribeCompact(point);
 }
+
+
+template<typename T>
+using PointGroup =
+    pex::Group<PointFields, PointTemplate<T>::template Template, Point<T>>;
 
 
 } // end namespace tau

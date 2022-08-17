@@ -13,7 +13,8 @@ add_executable(
     arithmetic_tests.cpp
     bilinear_test.cpp
     point_tests.cpp
-    size_tests.cpp)
+    size_tests.cpp
+    region_tests.cpp)
 
 target_link_libraries(
     tau_tests

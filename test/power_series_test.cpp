@@ -1,47 +1,10 @@
 #include <catch2/catch.hpp>
-#include <limits>
-#include <random>
-#include <jive/range.h>
 
-#include "tau/eigen_shim.h"
+#include "tau/random.h"
 #include "tau/power_series.h"
 
 
-using seedLimits = std::numeric_limits<unsigned int>;
-
-
-struct Random
-{
-public:
-    Random(unsigned int seed): generator_(seed)
-    {
-
-    }
-
-    template<typename Matrix, typename Range = double>
-    void operator()(
-        Matrix &matrix,
-        Range low = -1000.0,
-        Range high = 1000.0)
-    {
-        using Scalar = typename tau::MatrixTraits<Matrix>::type;
-
-        std::uniform_real_distribution<Scalar> distribution(
-            static_cast<Scalar>(low),
-            static_cast<Scalar>(high));
-
-        for (auto i: jive::Range<Eigen::Index>(0, matrix.rows()))
-        {
-            for (auto j: jive::Range<Eigen::Index>(0, matrix.cols()))
-            {
-                matrix(i, j) = distribution(this->generator_);
-            }
-        }
-    }
-
-private:
-    std::mt19937 generator_;
-};
+using Number = typename Eigen::VectorXd::Scalar;
 
 
 TEST_CASE("Compute single value from power series.", "[power_series]")
@@ -54,12 +17,12 @@ TEST_CASE("Compute single value from power series.", "[power_series]")
     // catch2 random returns the same set of seeds on every run.
     // Use these seeds to create random coefficients.
 
-    auto seed = GENERATE(take(8, random(seedLimits::min(), seedLimits::max())));
+    auto seed = GENERATE(take(8, random(SeedLimits::min(), SeedLimits::max())));
     
     auto termCount = Index(degree + 1);
     Eigen::VectorXd coefficients(termCount);
 
-    Random{seed}(coefficients);
+    tau::UniformRandom<Number>{seed}(coefficients);
     
     // Compute the power series for 8 input values.
     double x = GENERATE(take(8, random(-1.0, 1.0)));
@@ -103,7 +66,7 @@ TEST_CASE("Apply power series to vectored input data.", "[power_series]")
 }
 
 
-TEST_CASE("Apply power series to random vectored input data.", "[power_series]")
+TEST_CASE("Apply power series to random vector input data.", "[power_series]")
 {
     using namespace tau;
 
@@ -112,11 +75,11 @@ TEST_CASE("Apply power series to random vectored input data.", "[power_series]")
 
     // catch2 random returns the same set of seeds on every run.
     // Use these seeds to create random coefficients.
-    auto seed = GENERATE(take(8, random(seedLimits::min(), seedLimits::max())));
+    auto seed = GENERATE(take(8, random(SeedLimits::min(), SeedLimits::max())));
 
     auto termCount = Index(degree + 1);
     Eigen::VectorXd coefficients(termCount);
-    Random{seed}(coefficients);
+    tau::UniformRandom<Number>{seed}(coefficients);
 
     static constexpr size_t count = 8;
 
@@ -199,10 +162,12 @@ TEMPLATE_TEST_CASE_SIG(
 
     Eigen::Matrix<T, rows, columns> independents;
 
-    auto seed = GENERATE(take(8, random(seedLimits::min(), seedLimits::max())));
+    auto seed = GENERATE(take(8, random(SeedLimits::min(), SeedLimits::max())));
 
-    auto random = Random(seed);
-    random(independents, f(-1.0), f(1.0));
+    auto random = tau::UniformRandom<T>(seed, f(-1.0), f(1.0));
+    random(independents);
+
+    random.SetRange(f(-1000.0), f(1000.0));
 
     SECTION("Column vector coefficients")
     {

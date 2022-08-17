@@ -1,11 +1,11 @@
 #pragma once
 
 #include <fields/fields.h>
+#include <pex/group.h>
 
 #include "tau/eigen.h"
 #include "tau/arithmetic.h"
 #include "tau/point.h"
-#include "tau/comparisons.h"
 
 
 namespace tau
@@ -39,19 +39,19 @@ struct Size
       public tau::Arithmetic<T, SizeFields, Size>
 {
     static constexpr auto fields = SizeFields<Size>::fields;
-
+    
     using Type = T;
 
     using Base = typename SizeTemplate<T>::template Template<fields::Identity>;
 
-    Size()
+    constexpr Size()
         :
         Base{0, 0}
     {
 
     }
 
-    Size(Type height_, Type width_)
+    constexpr Size(Type height_, Type width_)
         :
         Base{height_, width_}
     {
@@ -71,7 +71,7 @@ struct Size
 
     }
 
-    Size(const Point<Type> &point)
+    constexpr Size(const Point<Type> &point)
         :
         Base{point.y, point.x}
     {
@@ -79,7 +79,7 @@ struct Size
     }
 
     template<typename U>
-    Size(const Point<U> &point)
+    constexpr Size(const Point<U> &point)
         :
         Size(point.template Convert<Type>())
     {
@@ -149,6 +149,17 @@ struct Size
             return std::atan2(this->height, this->width);
         }
     }
+
+    T GetArea() const
+    {
+        return this->height * this->width;
+    }
+
+    T & Horizontal() { return this->width; }
+    T Horizontal() const { return this->width; }
+
+    T & Vertical() { return this->height; }
+    T Vertical() const { return this->height; }
 };
 
 
@@ -157,6 +168,11 @@ std::ostream & operator<<(std::ostream &output, const Size<T> &size)
 {
     return output << fields::DescribeCompact(size);
 }
+
+
+template<typename T>
+using SizeGroup =
+    pex::Group<SizeFields, SizeTemplate<T>::template Template, Size<T>>;
 
 
 } // end namespace tau

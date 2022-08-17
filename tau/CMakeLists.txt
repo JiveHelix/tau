@@ -8,6 +8,7 @@ target_link_libraries(
     INTERFACE
     CONAN_PKG::jive
     CONAN_PKG::fields
+    CONAN_PKG::pex
     CONAN_PKG::eigen)
 
 install(

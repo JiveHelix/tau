@@ -47,3 +47,4 @@ class TauConan(ConanFile):
         self.requires("jive/[~1.0]")
         self.requires("fields/[~1]")
         self.requires("eigen/[~3.4]")
+        self.requires("pex/[>=0.6.3]")

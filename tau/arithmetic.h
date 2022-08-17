@@ -323,6 +323,42 @@ struct Arithmetic
     {
         return (other - this->Upcast()).Squared();
     }
+
+    friend bool operator==(const This &left, const This &right)
+    {
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            == fields::ComparisonTuple(right, Fields<This>::fields);
+    }
+
+    friend bool operator!=(const This &left, const This &right)
+    {
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            != fields::ComparisonTuple(right, Fields<This>::fields);
+    }
+
+    friend bool operator<(const This &left, const This &right)
+    {
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            < fields::ComparisonTuple(right, Fields<This>::fields);
+    }
+
+    friend bool operator>(const This &left, const This &right)
+    {
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            > fields::ComparisonTuple(right, Fields<This>::fields);
+    }
+
+    friend bool operator<=(const This &left, const This &right)
+    {
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            <= fields::ComparisonTuple(right, Fields<This>::fields);
+    }
+
+    friend bool operator>=(const This &left, const This &right)
+    {
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            >= fields::ComparisonTuple(right, Fields<This>::fields);
+    }
 };
 
 
