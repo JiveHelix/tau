@@ -180,9 +180,11 @@ public:
             result = Result(size, count);
         }
 
-#if defined _MSC_VER && _MSC_VER <= 1932
+#if defined _MSC_VER && _MSC_VER <= 1933
         // MSVC is confused by correct C++ syntax...
-        this->template Planar::Interleave_(result, std::make_index_sequence<count>{});
+        this->template Planar::Interleave_(
+            result,
+            std::make_index_sequence<count>{});
 #else
         // Clang and GCC are not
         this->template Interleave_(result, std::make_index_sequence<count>{});
