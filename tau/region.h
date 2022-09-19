@@ -78,7 +78,7 @@ struct Region
     {
         if (!this->Intersects(other))
         {
-            return {this->topLeft, {0, 0}};
+            return {{this->topLeft, {0, 0}}};
         }
 
         auto thisBottomRight = this->GetBottomRight();
@@ -107,9 +107,9 @@ struct Region
             resultBottomRight.y = otherBottomRight.y;
         }
         
-        return {
+        return {{
             resultTopLeft,
-            Size<T>(resultTopLeft, resultBottomRight)};
+            Size<T>(resultTopLeft, resultBottomRight)}};
     }
 
     template<typename U, typename Style = Round>
@@ -120,6 +120,16 @@ struct Region
         result.size = this->size.template Convert<U, Style>();
 
         return result;
+    }
+
+    T GetArea() const
+    {
+        return this->size.GetArea();
+    }
+
+    bool HasArea() const
+    {
+        return this->size.HasArea();
     }
 };
 

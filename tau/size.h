@@ -155,6 +155,11 @@ struct Size
         return this->height * this->width;
     }
 
+    bool HasArea() const
+    {
+        return this->GetArea() > 0;
+    }
+
     T & Horizontal() { return this->width; }
     T Horizontal() const { return this->width; }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "tau/region.h"
 #include "tau/scale.h"
 
@@ -11,6 +12,8 @@ namespace tau
 template<typename T, typename ScaleType = double>
 struct View
 {
+    static_assert(std::is_signed_v<T>, "View must use signed indices");
+
     Region<T> source;
     Region<T> target;
     Scale<ScaleType> scale;
@@ -36,24 +39,45 @@ struct View
         target{{view}},
         scale{{scale_}}
     {
-        auto scaledSourceRegion = this->source * scale_;
+        auto scaledSourceRegion = this->source * this->scale;
 
         // The view is a clipping window on the scaled source image.
         // The source image is at position (0, 0)
-        this->source = scaledSourceRegion.Intersect(view) / scale_;
+        this->source = scaledSourceRegion.Intersect(view) / this->scale;
+
+        // When the view is positive, start painting the target at zero.
+        // When the view is shifted negative, start painting the target at
+        // a positive shift of the same magnitude.
+        Point<T> targetTopLeft(
+            std::min(static_cast<T>(0), view.topLeft.y),
+            std::min(static_cast<T>(0), view.topLeft.x));
+
+        targetTopLeft *= -1;
+
+        // The size of the target is limited by the source data we have to
+        // paint it.
+        auto targetIntersection = view.Intersect(scaledSourceRegion);
 
         // When the source view is smaller than the target, the target is
         // clipped by the source.
-        this->target = view.Intersect(scaledSourceRegion);
+        this->target = Region<T>{{targetTopLeft, targetIntersection.size}};
 
-        assert(this->source.topLeft < sourceSize.ToPoint());
-        assert(this->source.GetBottomRight() <= sourceSize.ToPoint());
+        assert(this->source.topLeft.y < sourceSize.height);
+        assert(this->source.topLeft.x < sourceSize.width);
+
+        if constexpr (std::is_integral_v<T>)
+        {
+            // Floating-point types have rounding errors that make this check
+            // noisy.
+            assert(this->source.GetBottomRight().y <= sourceSize.height);
+            assert(this->source.GetBottomRight().x <= sourceSize.width);
+        }
     }
 
     bool HasArea() const
     {
-        return (this->source.size.GetArea() > 0)
-            && (this->target.size.GetArea() > 0);
+        return this->source.size.HasArea()
+            && this->target.size.HasArea();
     }
 };
 

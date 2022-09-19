@@ -52,15 +52,21 @@ TEMPLATE_TEST_CASE(
     uint64_t)
 {
     using Limits = GeneratorLimits<TestType>;
+    using Target = typename Limits::Target;
 
     auto values = GENERATE(
         take(
             8,
             chunk(
                 2,
-                random(Limits::Lowest(), Limits::Max()))));
+                random(
+                    static_cast<Target>(
+                        static_cast<double>(Limits::Lowest()) / 1.51),
+                    static_cast<Target>(
+                        static_cast<double>(Limits::Max()) / 1.51)))));
 
-    auto scalars = GENERATE(chunk(2, take(3, random(-1.5, 1.5))));
+    auto scalars =
+        GENERATE(chunk(2, take(3, random(0.0, 1.5))));
 
     auto point = tau::Point<TestType>{
         static_cast<TestType>(values.at(0)),
@@ -91,4 +97,15 @@ TEST_CASE("Point can be multiplied by a scalar", "[point]")
 
     REQUIRE(result.x == point.x * values.at(2));
     REQUIRE(result.y == point.y * values.at(2));
+}
+
+
+TEST_CASE("Strict comparison", "[point]")
+{
+    tau::Point<int> p(2, -3);
+    tau::Point<int> q(0, 0);
+
+    REQUIRE(!(p > q));
+    REQUIRE(!(p < q));
+    REQUIRE((p != q));
 }

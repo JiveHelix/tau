@@ -14,7 +14,8 @@ add_executable(
     bilinear_test.cpp
     point_tests.cpp
     size_tests.cpp
-    region_tests.cpp)
+    region_tests.cpp
+    view_tests.cpp)
 
 target_link_libraries(
     tau_tests

@@ -81,7 +81,11 @@ public:
 
     void SetRange(Scalar low, Scalar high)
     {
-        assert(high > low);
+        if (low >= high)
+        {
+            throw std::logic_error("low must be less than high");
+        }
+
         this->distribution_ = Distribution<Scalar>(low, high);
     }
 
