@@ -141,7 +141,7 @@ Region<T> & operator*=(Region<T> &left, const Scale<U> &scale)
 
     scaledRegion.topLeft *= scale;
     scaledRegion.size *= scale;
-    left = scaledRegion.template Convert<T>();
+    left = scaledRegion.template Convert<T, Floor>();
 
     return left;
 }
@@ -153,7 +153,7 @@ Region<T> & operator/=(Region<T> &left, const Scale<U> &scale)
 
     scaledRegion.topLeft /= scale;
     scaledRegion.size /= scale;
-    left = scaledRegion.template Convert<T>();
+    left = scaledRegion.template Convert<T, Floor>();
 
     return left;
 }

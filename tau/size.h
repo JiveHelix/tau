@@ -103,7 +103,7 @@ struct Size
     Size(const Eigen::DenseBase<Derived> &matrix)
         :
         Size(
-            Size<typename tau::MatrixTraits<Derived>::type>(
+            Size<typename Eigen::DenseBase<Derived>::Index>(
                 matrix.rows(),
                 matrix.cols()))
     {
