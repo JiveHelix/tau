@@ -59,14 +59,13 @@ struct UniformRandom
 {
 public:
     using Scalar = Scalar_;
-    using DefaultRange = DefaultRange<Scalar>;
 
     UniformRandom(Seed seed)
         :
         generator_(seed),
         distribution_(
-            static_cast<Scalar>(DefaultRange::low),
-            static_cast<Scalar>(DefaultRange::high))
+            static_cast<Scalar>(DefaultRange<Scalar>::low),
+            static_cast<Scalar>(DefaultRange<Scalar>::high))
     {
 
     }

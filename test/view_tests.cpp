@@ -31,7 +31,7 @@ TEMPLATE_TEST_CASE(
         tau::Point<TestType>{0, 0},
         sourceSize);
     
-    tau::Scale<double> scale{{1.0, 1.0}};
+    tau::Scale<double> scale(1.0, 1.0);
 
     auto view = tau::View(
         tau::Region<TestType>{{viewPosition, sourceSize}},
@@ -98,7 +98,7 @@ TEMPLATE_TEST_CASE(
         (sourceSize / -2).ToPoint(),
         sourceSize / 2);
     
-    tau::Scale<double> scale{{1.0, 1.0}};
+    tau::Scale<double> scale(1.0, 1.0);
 
     auto view = tau::View(
         tau::Region<TestType>{{viewPosition, sourceSize}},

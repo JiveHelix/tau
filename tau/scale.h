@@ -31,10 +31,15 @@ struct ScaleTemplate
 };
 
 
+template<typename T>
+using ScaleBase =
+    typename ScaleTemplate<T>::template Template<fields::Identity>;
+
+
 template<typename T = double>
 struct Scale
     :
-    public ScaleTemplate<T>::template Template<fields::Identity>,
+    public ScaleBase<T>,
     public tau::Arithmetic<T, ScaleFields, Scale>
 {
     using This = Scale<T>;
@@ -42,9 +47,16 @@ struct Scale
 
     static constexpr auto fields = ScaleFields<This>::fields;
 
-    static Scale<T> Default()
+    Scale(): ScaleBase<T>{1.0, 1.0}
     {
-        return {{1.0, 1.0}};
+
+    }
+
+    Scale(T vertical_, T horizontal_)
+        :
+        ScaleBase<T>{vertical_, horizontal_}
+    {
+
     }
 };
 

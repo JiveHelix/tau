@@ -25,7 +25,7 @@ struct Domain
     T first;
     T last;
 
-    Domain(T first, T last): first(first), last(last) {}
+    Domain(T first_, T last_): first(first_), last(last_) {}
 
     T GetLength() const
     {

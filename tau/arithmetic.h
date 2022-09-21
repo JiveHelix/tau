@@ -120,7 +120,7 @@ struct Arithmetic
     }
 
     /***** Element-wise operators *****/
-
+    // TODO: Add assertions (or exceptions?) when operators cause overflow.
     This & operator+=(const This &other)
     {
         auto & self = this->Upcast();
@@ -309,7 +309,9 @@ struct Arithmetic
         auto square = [&self, &result] (auto field)
         {
             auto member = self.*(field.member);
-            result += member * member;
+            auto memberSquared = member * member;
+            assert(memberSquared + result <= std::numeric_limits<T>::max());
+            result = static_cast<T>(result + memberSquared);
         };
 
         jive::ForEach(

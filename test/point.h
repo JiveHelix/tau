@@ -25,11 +25,19 @@ struct Point2dTemplate
 
 
 template<typename T>
+using Point2dBase = typename Point2dTemplate<T>::template Template<Identity>;
+
+
+template<typename T>
 struct Point2d:
-    public Point2dTemplate<T>::template Template<Identity>,
+    public Point2dBase<T>,
     public tau::Arithmetic<T, Point2dFields, Point2d>
 {
     static constexpr auto fields = Point2dFields<Point2d>::fields;
+
+    Point2d() = default;
+
+    Point2d(T x_, T y_): Point2dBase<T>{x_, y_} {}
 };
 
 
@@ -57,9 +65,22 @@ struct Point3dTemplate
 
 
 template<typename T>
+using Point3dBase = typename Point3dTemplate<T>::template Template<Identity>;
+
+
+template<typename T>
 struct Point3d:
-    public Point3dTemplate<T>::template Template<Identity>,
+    public Point3dBase<T>,
     public tau::Arithmetic<T, Point3dFields, Point3d>
 {
     static constexpr auto fields = Point3dFields<Point3d>::fields;
+
+    Point3d() = default;
+
+    Point3d(T x_, T y_, T z_)
+        :
+        Point3dBase<T>{x_, y_, z_}
+    {
+
+    }
 };

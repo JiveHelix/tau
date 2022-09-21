@@ -72,7 +72,7 @@ TEMPLATE_TEST_CASE(
         static_cast<TestType>(values.at(0)),
         static_cast<TestType>(values.at(1))};
 
-    auto scale = tau::Scale<double>{{scalars.at(0), scalars.at(1)}};
+    auto scale = tau::Scale<double>(scalars.at(0), scalars.at(1));
     
     auto expectedX = static_cast<TestType>(
         std::floor(scale.horizontal * static_cast<double>(point.x)));

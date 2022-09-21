@@ -33,26 +33,29 @@ struct PointTemplate
 
 
 template<typename T>
+using PointBase =
+    typename PointTemplate<T>::template Template<fields::Identity>;
+
+
+template<typename T>
 struct Point
-    : public PointTemplate<T>::template Template<fields::Identity>,
+    : public PointBase<T>,
       public tau::Arithmetic<T, PointFields, Point>
 {
     static constexpr auto fields = PointFields<Point>::fields;
 
     using Type = T;
 
-    using Base = typename PointTemplate<T>::template Template<fields::Identity>;
-
     Point()
         :
-        Base{0, 0}
+        PointBase<T>{0, 0}
     {
 
     }
 
     Point(T x_, T y_)
         :
-        Base{x_, y_}
+        PointBase<T>{x_, y_}
     {
 
     }

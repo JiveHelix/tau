@@ -36,8 +36,8 @@ struct View
         const Scale<ScaleType> &scale_)
         :
         source{{{0, 0}, sourceSize}},
-        target{{view}},
-        scale{{scale_}}
+        target{view},
+        scale{scale_}
     {
         auto scaledSourceRegion = this->source * this->scale;
 

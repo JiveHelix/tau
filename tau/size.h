@@ -32,28 +32,29 @@ struct SizeTemplate
     };
 };
 
+template<typename T>
+using SizeBase = typename SizeTemplate<T>::template Template<fields::Identity>;
+
 
 template<typename T>
 struct Size
-    : public SizeTemplate<T>::template Template<fields::Identity>,
+    : public SizeBase<T>,
       public tau::Arithmetic<T, SizeFields, Size>
 {
     static constexpr auto fields = SizeFields<Size>::fields;
     
     using Type = T;
 
-    using Base = typename SizeTemplate<T>::template Template<fields::Identity>;
-
     constexpr Size()
         :
-        Base{0, 0}
+        SizeBase<T>{0, 0}
     {
 
     }
 
     constexpr Size(Type height_, Type width_)
         :
-        Base{height_, width_}
+        SizeBase<T>{height_, width_}
     {
 
     }
@@ -73,7 +74,7 @@ struct Size
 
     constexpr Size(const Point<Type> &point)
         :
-        Base{point.y, point.x}
+        SizeBase<T>{point.y, point.x}
     {
         
     }
