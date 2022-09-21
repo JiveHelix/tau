@@ -371,7 +371,7 @@ TEMPLATE_TEST_CASE(
             // their magnitude. Dividing the range by 4 ensures no combination
             // will overflow.
             auto maximum = 
-                static_cast<TestType>(std::floor(std::sqrt(limit / 4.0)));
+                static_cast<TestType>(std::floor(std::sqrt(limit / 2.0) / 2.0));
 
             uniformRandom.SetRange(-maximum, maximum);
             left2d = Point2d<TestType>(uniformRandom(), uniformRandom());
@@ -446,7 +446,7 @@ TEMPLATE_TEST_CASE(
             // their magnitude. Because there are three such pairings,
             // divide the range by 6 to ensure no combination will overflow.
             auto maximum = 
-                static_cast<TestType>(std::floor(std::sqrt(limit / 6.0)));
+                static_cast<TestType>(std::floor(std::sqrt(limit / 3.0) / 3.0));
 
             uniformRandom.SetRange(-maximum, maximum);
 
