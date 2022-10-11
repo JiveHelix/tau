@@ -26,7 +26,12 @@ auto HorizontalStack(const Left &left, const Right &right)
     using LeftTraits = tau::MatrixTraits<Left>;
     using RightTraits = tau::MatrixTraits<Right>;
 
-    static_assert(LeftTraits::rows == RightTraits::rows);
+    if constexpr (
+            LeftTraits::rows != Eigen::Dynamic
+            && RightTraits::rows != Eigen::Dynamic)
+    {
+        static_assert(LeftTraits::rows == RightTraits::rows);
+    }
 
     using Result =
         Eigen::Matrix
@@ -55,7 +60,12 @@ auto VerticalStack(const Top &top, const Bottom &bottom)
     using TopTraits = tau::MatrixTraits<Top>;
     using BottomTraits = tau::MatrixTraits<Bottom>;
 
-    static_assert(TopTraits::columns == BottomTraits::columns);
+    if constexpr (
+            TopTraits::rows != Eigen::Dynamic
+            && BottomTraits::rows != Eigen::Dynamic)
+    {
+        static_assert(TopTraits::columns == BottomTraits::columns);
+    }
 
     using Result =
         Eigen::Matrix

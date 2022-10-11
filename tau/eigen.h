@@ -78,8 +78,7 @@ template<
     int options_,
     int maxRows_,
     int maxColumns_>
-struct MatrixTraits<
-    Eigen::Matrix<T_, rows_, columns_, options_, maxRows_, maxColumns_>>
+struct TraitBuilder
 {
     using type = T_;
     static constexpr int rows = rows_;
@@ -107,6 +106,75 @@ struct MatrixTraits<
 };
 
 
+template<
+    typename T_,
+    int rows_,
+    int columns_,
+    int options_,
+    int maxRows_,
+    int maxColumns_>
+struct MatrixTraits<
+    Eigen::Matrix<T_, rows_, columns_, options_, maxRows_, maxColumns_>>
+    :
+    TraitBuilder<T_, rows_, columns_, options_, maxRows_, maxColumns_>
+{
+
+};
+
+
+template<typename Derived, typename RowIndices, typename ColumnIndices>
+struct MatrixTraits<Eigen::IndexedView<Derived, RowIndices, ColumnIndices>>
+    : 
+    // Todo: The rows and columns may be known at compile time.
+    TraitBuilder
+    <
+        typename MatrixTraits<Derived>::type,
+        Eigen::Dynamic,
+        Eigen::Dynamic,
+        MatrixTraits<Derived>::options,
+        MatrixTraits<Derived>::maxColumns,
+        MatrixTraits<Derived>::maxRows
+    >
+{
+
+};
+
+
+template<typename Derived, int rows_, int columns_, bool innerPanel>
+struct MatrixTraits<Eigen::Block<Derived, rows_, columns_, innerPanel>>
+    : 
+    TraitBuilder
+    <
+        typename MatrixTraits<std::remove_cv_t<Derived>>::type,
+        rows_,
+        columns_,
+        MatrixTraits<std::remove_cv_t<Derived>>::options,
+        MatrixTraits<std::remove_cv_t<Derived>>::maxColumns,
+        MatrixTraits<std::remove_cv_t<Derived>>::maxRows
+    >
+{
+
+};
+
+
+/** For transposed matrices, the rows and columns must be swapped. **/
+template<typename Derived>
+struct MatrixTraits<Eigen::Transpose<Derived>>
+    : 
+    TraitBuilder
+    <
+        typename MatrixTraits<std::remove_cv_t<Derived>>::type,
+        MatrixTraits<std::remove_cv_t<Derived>>::columns,
+        MatrixTraits<std::remove_cv_t<Derived>>::rows,
+        MatrixTraits<std::remove_cv_t<Derived>>::options,
+        MatrixTraits<std::remove_cv_t<Derived>>::maxColumns,
+        MatrixTraits<std::remove_cv_t<Derived>>::maxRows
+    >
+{
+
+};
+
+
 template<typename PlainMatrix, int mapOptions, typename Stride>
 struct MatrixTraits<Eigen::Map<PlainMatrix, mapOptions, Stride>>
     : MatrixTraits<PlainMatrix>
@@ -116,7 +184,10 @@ struct MatrixTraits<Eigen::Map<PlainMatrix, mapOptions, Stride>>
 
 
 template<typename Derived>
-struct MatrixTraits<Eigen::DenseBase<Derived>>: MatrixTraits<Derived> {};
+struct MatrixTraits<Eigen::DenseBase<Derived>>: MatrixTraits<Derived>
+{
+
+};
 
 
 template<typename T, typename MatrixType>
