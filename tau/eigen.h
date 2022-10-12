@@ -122,6 +122,22 @@ struct MatrixTraits<
 };
 
 
+template<
+    typename T_,
+    int rows_,
+    int columns_,
+    int options_,
+    int maxRows_,
+    int maxColumns_>
+struct MatrixTraits<
+    Eigen::Array<T_, rows_, columns_, options_, maxRows_, maxColumns_>>
+    :
+    TraitBuilder<T_, rows_, columns_, options_, maxRows_, maxColumns_>
+{
+
+};
+
+
 template<typename Derived, typename RowIndices, typename ColumnIndices>
 struct MatrixTraits<Eigen::IndexedView<Derived, RowIndices, ColumnIndices>>
     : 
