@@ -40,6 +40,17 @@ template<typename PlainMatrix, int mapOptions, typename Stride>
 struct IsMatrix<Eigen::Map<PlainMatrix, mapOptions, Stride>>: std::true_type {};
 
 
+template<typename T, typename = std::void_t<>>
+struct HasScalar_: std::false_type {};
+
+template<typename T>
+struct HasScalar_<T, std::void_t<typename T::Scalar>>: std::true_type {};
+
+template<typename T>
+inline constexpr bool HasScalar = HasScalar_<T>::value;
+
+
+
 template<typename T, typename Enable = void>
 struct ValueType
 {

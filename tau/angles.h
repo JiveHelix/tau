@@ -13,6 +13,8 @@
 
 #include <tuple>
 #include <cmath>
+#include "tau/eigen.h"
+
 
 namespace tau
 {
@@ -50,11 +52,29 @@ struct Angles
 };
 
 
+template<typename T, typename Enable = void>
+struct AngleType_;
 
 template<typename T>
-auto ToDegrees(T radians) -> T
+struct AngleType_<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
-    return radians * Angles<T>::degreesPerRadian;
+    using Type = T;
+};
+
+template<typename T>
+struct AngleType_<T, std::enable_if_t<HasScalar<T>>>
+{
+    using Type = typename T::Scalar;
+};
+
+template<typename T>
+using AngleType = typename AngleType_<T>::Type;
+
+
+template<typename T>
+auto ToDegrees(T radians)
+{
+    return radians * Angles<AngleType<T>>::degreesPerRadian;
 }
 
 
@@ -66,14 +86,14 @@ auto ToDegrees(T radians, U ...otherRadians) -> std::tuple<T, U...>
 
 
 template<typename T>
-auto ToRadians(T degrees) -> T
+auto ToRadians(T degrees)
 {
-    return degrees * Angles<T>::radiansPerDegree;
+    return degrees * Angles<AngleType<T>>::radiansPerDegree;
 }
 
 
 template<typename T, typename ...U>
-auto ToRadians(T degrees, U ...otherDegrees) -> std::tuple<T, U...>
+auto ToRadians(T degrees, U ...otherDegrees)
 {
     return std::make_tuple(ToRadians(degrees), ToRadians(otherDegrees)...);
 }

@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-TEST_CASE("Change values with Select", "[power_series]")
+TEST_CASE("Change values with Select", "[eigen]")
 {
     using namespace tau;
 
@@ -19,4 +19,19 @@ TEST_CASE("Change values with Select", "[power_series]")
     REQUIRE(m(0, 0) == 42);
     REQUIRE(m(0, 1) == 42);
     REQUIRE(m(0, 2) == 42);
+}
+
+
+TEST_CASE("IsMatrix", "[eigen]")
+{
+    STATIC_REQUIRE(tau::IsMatrix<Eigen::Matrix3d>::value);
+    STATIC_REQUIRE(tau::IsMatrix<Eigen::Vector3f>::value);
+}
+
+
+TEST_CASE("HasValueType", "[eigen]")
+{
+    STATIC_REQUIRE(tau::HasScalar<Eigen::Matrix3d>);
+    STATIC_REQUIRE(tau::HasScalar<Eigen::Vector3f>);
+    STATIC_REQUIRE(tau::HasScalar<Eigen::ArrayWrapper<Eigen::Vector3f>>);
 }
