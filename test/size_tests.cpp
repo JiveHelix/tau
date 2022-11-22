@@ -17,14 +17,14 @@ TEST_CASE("Size converts to int", "[size]")
 
     tau::Size<double> size(values.at(0), values.at(1));
 
-    int expectedRoundedHeight = static_cast<int>(std::round(values.at(0)));
-    int expectedRoundedWidth = static_cast<int>(std::round(values.at(1)));
+    int expectedRoundedWidth = static_cast<int>(std::round(values.at(0)));
+    int expectedRoundedHeight = static_cast<int>(std::round(values.at(1)));
 
-    int expectedFlooredHeight = static_cast<int>(std::floor(values.at(0)));
-    int expectedFlooredWidth = static_cast<int>(std::floor(values.at(1)));
+    int expectedFlooredWidth = static_cast<int>(std::floor(values.at(0)));
+    int expectedFlooredHeight = static_cast<int>(std::floor(values.at(1)));
 
-    int expectedCeiledHeight = static_cast<int>(std::ceil(values.at(0)));
-    int expectedCeiledWidth = static_cast<int>(std::ceil(values.at(1)));
+    int expectedCeiledWidth = static_cast<int>(std::ceil(values.at(0)));
+    int expectedCeiledHeight = static_cast<int>(std::ceil(values.at(1)));
 
     auto rounded = size.template Convert<int, tau::Round>();
     auto floored = size.template Convert<int, tau::Floor>();
@@ -41,7 +41,7 @@ TEST_CASE("Size converts to int", "[size]")
 
 
 TEMPLATE_TEST_CASE(
-    "Round-trip succeeds to and from tau::Point",
+    "Round-trip succeeds to and from tau::Point2d",
     "[size]",
     int8_t,
     uint8_t,
@@ -67,7 +67,7 @@ TEMPLATE_TEST_CASE(
         static_cast<TestType>(values.at(0)),
         static_cast<TestType>(values.at(1)));
     
-    auto point = size.ToPoint();
+    auto point = size.ToPoint2d();
 
     auto roundTrip = tau::Size<TestType>(point);
 

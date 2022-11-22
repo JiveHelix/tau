@@ -151,7 +151,7 @@ struct MatrixTraits<
 
 template<typename Derived, typename RowIndices, typename ColumnIndices>
 struct MatrixTraits<Eigen::IndexedView<Derived, RowIndices, ColumnIndices>>
-    : 
+    :
     // Todo: The rows and columns may be known at compile time.
     TraitBuilder
     <
@@ -169,7 +169,7 @@ struct MatrixTraits<Eigen::IndexedView<Derived, RowIndices, ColumnIndices>>
 
 template<typename Derived, int rows_, int columns_, bool innerPanel>
 struct MatrixTraits<Eigen::Block<Derived, rows_, columns_, innerPanel>>
-    : 
+    :
     TraitBuilder
     <
         typename MatrixTraits<std::remove_cv_t<Derived>>::type,
@@ -187,7 +187,7 @@ struct MatrixTraits<Eigen::Block<Derived, rows_, columns_, innerPanel>>
 /** For transposed matrices, the rows and columns must be swapped. **/
 template<typename Derived>
 struct MatrixTraits<Eigen::Transpose<Derived>>
-    : 
+    :
     TraitBuilder
     <
         typename MatrixTraits<std::remove_cv_t<Derived>>::type,
@@ -325,7 +325,7 @@ template<typename T>
 bool IsRowVector(const T &matrix)
 {
     using traits = MatrixTraits<T>;
-    
+
     if constexpr (traits::isDynamic)
     {
         return matrix.rows() == 1;
@@ -341,7 +341,7 @@ template<typename T>
 bool IsColumnVector(const T &matrix)
 {
     using traits = MatrixTraits<T>;
-    
+
     if constexpr (traits::isDynamic)
     {
         return matrix.cols() == 1;
@@ -357,7 +357,7 @@ template<typename T>
 bool IsVector(const T &matrix)
 {
     using traits = MatrixTraits<T>;
-    
+
     if constexpr (traits::isDynamic)
     {
         return matrix.cols() == 1 || matrix.rows() == 1;
@@ -545,7 +545,7 @@ Matrix Modulo(const Matrix &x, T y)
 template<typename T>
 constexpr Eigen::Index Index(T value)
 {
-    return static_cast<Eigen::Index>(value);    
+    return static_cast<Eigen::Index>(value);
 }
 
 

@@ -3,10 +3,10 @@
 #include <jive/range.h>
 #include <jive/testing/generator_limits.h>
 
-#include "tau/point.h"
+#include "tau/vector2d.h"
 
 
-TEST_CASE("Point converts to int", "[point]")
+TEST_CASE("Point2d converts to int", "[point]")
 {
     auto values = GENERATE(
         take(
@@ -15,16 +15,16 @@ TEST_CASE("Point converts to int", "[point]")
                 2,
                 random(-100, 100))));
 
-    tau::Point<double> point(values.at(0), values.at(1));
+    tau::Point2d<double> point(values.at(0), values.at(1));
 
-    int expectedRoundedY = static_cast<int>(std::round(values.at(0)));
-    int expectedRoundedX = static_cast<int>(std::round(values.at(1)));
+    int expectedRoundedX = static_cast<int>(std::round(values.at(0)));
+    int expectedRoundedY = static_cast<int>(std::round(values.at(1)));
 
-    int expectedFlooredY = static_cast<int>(std::floor(values.at(0)));
-    int expectedFlooredX = static_cast<int>(std::floor(values.at(1)));
+    int expectedFlooredX = static_cast<int>(std::floor(values.at(0)));
+    int expectedFlooredY = static_cast<int>(std::floor(values.at(1)));
 
-    int expectedCeiledY = static_cast<int>(std::ceil(values.at(0)));
-    int expectedCeiledX = static_cast<int>(std::ceil(values.at(1)));
+    int expectedCeiledX = static_cast<int>(std::ceil(values.at(0)));
+    int expectedCeiledY = static_cast<int>(std::ceil(values.at(1)));
 
     auto rounded = point.template Convert<int, tau::Round>();
     auto floored = point.template Convert<int, tau::Floor>();
@@ -68,12 +68,12 @@ TEMPLATE_TEST_CASE(
     auto scalars =
         GENERATE(chunk(2, take(3, random(0.0, 1.5))));
 
-    auto point = tau::Point<TestType>{
+    auto point = tau::Point2d<TestType>{
         static_cast<TestType>(values.at(0)),
         static_cast<TestType>(values.at(1))};
 
     auto scale = tau::Scale<double>(scalars.at(0), scalars.at(1));
-    
+
     auto expectedX = static_cast<TestType>(
         std::floor(scale.horizontal * static_cast<double>(point.x)));
 
@@ -87,11 +87,11 @@ TEMPLATE_TEST_CASE(
 }
 
 
-TEST_CASE("Point can be multiplied by a scalar", "[point]")
+TEST_CASE("Point2d can be multiplied by a scalar", "[point]")
 {
     auto values = GENERATE(take(8, chunk(3, random(0.0, 100.0))));
-    
-    tau::Point<double> point{values.at(0), values.at(1)};
+
+    tau::Point2d<double> point{values.at(0), values.at(1)};
 
     auto result = point * values.at(2);
 
@@ -102,8 +102,8 @@ TEST_CASE("Point can be multiplied by a scalar", "[point]")
 
 TEST_CASE("Strict comparison", "[point]")
 {
-    tau::Point<int> p(2, -3);
-    tau::Point<int> q(0, 0);
+    tau::Point2d<int> p(2, -3);
+    tau::Point2d<int> q(0, 0);
 
     REQUIRE(!(p > q));
     REQUIRE(!(p < q));

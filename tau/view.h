@@ -48,7 +48,7 @@ struct View
         // When the view is positive, start painting the target at zero.
         // When the view is shifted negative, start painting the target at
         // a positive shift of the same magnitude.
-        Point<T> targetTopLeft(
+        Point2d<T> targetTopLeft(
             std::min(static_cast<T>(0), view.topLeft.y),
             std::min(static_cast<T>(0), view.topLeft.x));
 

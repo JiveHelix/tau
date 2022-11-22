@@ -23,14 +23,14 @@ TEMPLATE_TEST_CASE(
 
     auto sourceSize = MakeInterior<tau::Size, TestType>(
         uniformRandom,
-        tau::Point<TestType>{10, 10},
+        tau::Point2d<TestType>{10, 10},
         tau::Size<TestType>{2000, 2000});
 
-    auto viewPosition = MakeInterior<tau::Point, TestType>(
+    auto viewPosition = MakeInterior<tau::Point2d, TestType>(
         uniformRandom,
-        tau::Point<TestType>{0, 0},
+        tau::Point2d<TestType>{0, 0},
         sourceSize);
-    
+
     tau::Scale<double> scale(1.0, 1.0);
 
     auto view = tau::View(
@@ -90,14 +90,14 @@ TEMPLATE_TEST_CASE(
 
     auto sourceSize = MakeInterior<tau::Size, TestType>(
         uniformRandom,
-        tau::Point<TestType>{10, 10},
+        tau::Point2d<TestType>{10, 10},
         tau::Size<TestType>{2000, 2000});
 
-    auto viewPosition = MakeInterior<tau::Point, TestType>(
+    auto viewPosition = MakeInterior<tau::Point2d, TestType>(
         uniformRandom,
-        (sourceSize / -2).ToPoint(),
+        (sourceSize / -2).ToPoint2d(),
         sourceSize / 2);
-    
+
     tau::Scale<double> scale(1.0, 1.0);
 
     auto view = tau::View(

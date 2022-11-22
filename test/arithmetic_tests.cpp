@@ -32,7 +32,7 @@ struct Divide
 template<typename T, typename Operator>
 void Test2dOperator(const auto &values)
 {
-    using Point = Point2d<T>;
+    using Point = tautest::Point2d<T>;
 
     Point left(
         static_cast<T>(values.at(0)),
@@ -51,7 +51,7 @@ void Test2dOperator(const auto &values)
 template<typename T, typename Operator>
 void Test3dOperator(const auto &values)
 {
-    using Point = Point3d<T>;
+    using Point = tautest::Point3d<T>;
 
     Point left(
         static_cast<T>(values.at(0)),
@@ -73,7 +73,7 @@ void Test3dOperator(const auto &values)
 template<typename T, typename Operator>
 void Test2dWithScalarOperator(const auto &values)
 {
-    using Point = Point2d<T>;
+    using Point = tautest::Point2d<T>;
 
     auto scalar = static_cast<T>(values.at(0));
 
@@ -90,7 +90,7 @@ void Test2dWithScalarOperator(const auto &values)
 template<typename T, typename Operator>
 void Test3dWithScalarOperator(const auto &values)
 {
-    using Point = Point3d<T>;
+    using Point = tautest::Point3d<T>;
 
     auto scalar = static_cast<T>(values.at(0));
 
@@ -269,7 +269,7 @@ TEMPLATE_TEST_CASE(
         }
     }
 
-    Point2d<TestType> value2d(uniformRandom(), uniformRandom());
+    tautest::Point2d<TestType> value2d(uniformRandom(), uniformRandom());
 
     auto result2d = value2d.Squared();
 
@@ -319,7 +319,7 @@ TEMPLATE_TEST_CASE(
         }
     }
 
-    Point3d<TestType> value3d(
+    tautest::Point3d<TestType> value3d(
         uniformRandom(),
         uniformRandom(),
         uniformRandom());
@@ -355,8 +355,8 @@ TEMPLATE_TEST_CASE(
     // Default distribution is -1000 to 1000
     tau::UniformRandom<TestType> uniformRandom{seed};
 
-    Point2d<TestType> left2d;
-    Point2d<TestType> right2d;
+    tautest::Point2d<TestType> left2d;
+    tautest::Point2d<TestType> right2d;
     
     if constexpr (std::is_integral_v<TestType>)
     {
@@ -374,8 +374,8 @@ TEMPLATE_TEST_CASE(
                 static_cast<TestType>(std::floor(std::sqrt(limit / 2.0) / 2.0));
 
             uniformRandom.SetRange(-maximum, maximum);
-            left2d = Point2d<TestType>(uniformRandom(), uniformRandom());
-            right2d = Point2d<TestType>(uniformRandom(), uniformRandom());
+            left2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
+            right2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
         }
         else
         {
@@ -388,16 +388,16 @@ TEMPLATE_TEST_CASE(
             // For unsigned comparisons, right2d must be greater than left2d to
             // avoid overflow.
             uniformRandom.SetRange(0, maximum / 2);
-            left2d = Point2d<TestType>(uniformRandom(), uniformRandom());
+            left2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
 
             uniformRandom.SetRange(maximum / 2, maximum);
-            right2d = Point2d<TestType>(uniformRandom(), uniformRandom());
+            right2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
         }
     }
     else
     {
-        left2d = Point2d<TestType>(uniformRandom(), uniformRandom());
-        right2d = Point2d<TestType>(uniformRandom(), uniformRandom());
+        left2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
+        right2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
     }
 
     auto result2d = left2d.SquaredDistance(right2d);
@@ -430,8 +430,8 @@ TEMPLATE_TEST_CASE(
     // Default distribution is -1000 to 1000
     tau::UniformRandom<TestType> uniformRandom{seed};
     
-    Point3d<TestType> left3d;
-    Point3d<TestType> right3d;
+    tautest::Point3d<TestType> left3d;
+    tautest::Point3d<TestType> right3d;
 
     if constexpr (std::is_integral_v<TestType>)
     {
@@ -450,12 +450,12 @@ TEMPLATE_TEST_CASE(
 
             uniformRandom.SetRange(-maximum, maximum);
 
-            left3d = Point3d<TestType>(
+            left3d = tautest::Point3d<TestType>(
                 uniformRandom(),
                 uniformRandom(),
                 uniformRandom());
 
-            right3d = Point3d<TestType>(
+            right3d = tautest::Point3d<TestType>(
                 uniformRandom(),
                 uniformRandom(),
                 uniformRandom());
@@ -474,14 +474,14 @@ TEMPLATE_TEST_CASE(
             // avoid overflow.
             uniformRandom.SetRange(0, maximum / 2);
 
-            left3d = Point3d<TestType>(
+            left3d = tautest::Point3d<TestType>(
                 uniformRandom(),
                 uniformRandom(),
                 uniformRandom());
 
             uniformRandom.SetRange(maximum / 2, maximum);
 
-            right3d = Point3d<TestType>(
+            right3d = tautest::Point3d<TestType>(
                 uniformRandom(),
                 uniformRandom(),
                 uniformRandom());
@@ -489,12 +489,12 @@ TEMPLATE_TEST_CASE(
     }
     else
     {
-        left3d = Point3d<TestType>(
+        left3d = tautest::Point3d<TestType>(
             uniformRandom(),
             uniformRandom(),
             uniformRandom());
 
-        right3d = Point3d<TestType>(
+        right3d = tautest::Point3d<TestType>(
             uniformRandom(),
             uniformRandom(),
             uniformRandom());

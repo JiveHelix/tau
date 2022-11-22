@@ -59,7 +59,7 @@ auto Bilinear(
     auto xSourcesHigh =
         xSources.array().ceil().template cast<Eigen::Index>().eval();
 
-    IndexVector xWeights = xSources - xSourcesLowAsDoubles; 
+    IndexVector xWeights = xSources - xSourcesLowAsDoubles;
     IndexVector xCounterWeights = 1.0 - xWeights.array();
 
     auto yIndices =

@@ -1,8 +1,8 @@
 /**
   * @file filter.h
-  * 
+  *
   * @brief Return an Array containing only values selected by the mask.
-  * 
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 24 May 2022
   * @copyright Jive Helix

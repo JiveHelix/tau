@@ -11,7 +11,7 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
 {
     using Limits = std::numeric_limits<T>;
 
-    tau::Point<T> topLeft;
+    tau::Point2d<T> topLeft;
     tau::Size<T> size;
 
     {
@@ -25,7 +25,7 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
             uniformRandom.SetHigh(Limits::max() - 2);
         }
 
-        topLeft = tau::Point<T>{uniformRandom(), uniformRandom()};
+        topLeft = tau::Point2d<T>{uniformRandom(), uniformRandom()};
     }
 
     {
@@ -100,7 +100,7 @@ T CheckAdd(T left, U right)
 template<template <typename> typename Pair, typename T>
 Pair<T> MakeInterior(
     tau::UniformRandom<T> &uniformRandom,
-    const tau::Point<T> &topLeft,
+    const tau::Point2d<T> &topLeft,
     const tau::Size<T> &size)
 {
     assert(size.width > 0);
@@ -126,7 +126,7 @@ Pair<T> MakeInterior(
 
     REQUIRE(interiorY <= uniformRandom.GetHigh());
 
-    return {interiorY, interiorX};
+    return {interiorX, interiorY};
 }
 
 
@@ -139,8 +139,8 @@ tau::Region<T> MakeIntersectingRegion(
 
     auto topLeft = regionToIntersect.topLeft;
     auto size = regionToIntersect.size;
-    
-    auto interior = MakeInterior<tau::Point, T>(uniformRandom, topLeft, size);
+
+    auto interior = MakeInterior<tau::Point2d, T>(uniformRandom, topLeft, size);
 
     // Reduce size of intersecting region to keep it within the limits of the
     // type.
@@ -174,7 +174,7 @@ tau::Region<T> MakeInteriorRegion(
     auto topLeft = exteriorRegion.topLeft;
     auto size = exteriorRegion.size;
 
-    auto interior = MakeInterior<tau::Point, T>(uniformRandom, topLeft, size);
+    auto interior = MakeInterior<tau::Point2d, T>(uniformRandom, topLeft, size);
     auto maximumSize = tau::Size<T>(exteriorRegion.GetBottomRight() - interior);
 
     auto interiorSize = MakeInterior<tau::Size, T>(
@@ -203,21 +203,21 @@ tau::Region<T> MakeExteriorRegion(
 {
     auto rangeSize = tau::Size<T>{1000, 1000};
 
-    auto topLeft = interiorRegion.topLeft - rangeSize.ToPoint();
+    auto topLeft = interiorRegion.topLeft - rangeSize.ToPoint2d();
 
     topLeft.x = max(topLeft.x, 0);
     topLeft.y = max(topLeft.y, 0);
 
     auto exteriorTopLeft =
-        MakeInterior<tau::Point, T>(
+        MakeInterior<tau::Point2d, T>(
             uniformRandom,
             topLeft,
             rangeSize - tau::Size<T>{1, 1});
 
     auto exteriorBottomRight =
-        MakeInterior<tau::Point, T>(
+        MakeInterior<tau::Point2d, T>(
             uniformRandom,
-            interiorRegion.GetBottomRight() + tau::Point{1, 1},
+            interiorRegion.GetBottomRight() + tau::Point2d<T>(1, 1),
             rangeSize);
 
     return {{
@@ -232,20 +232,20 @@ tau::Region<T> MakeNonintersectingRegion(
     const tau::Region<T> &region)
 {
     auto rangeSize = tau::Size<T>{1000, 1000};
-    auto topLeft = region.topLeft - rangeSize.ToPoint();
+    auto topLeft = region.topLeft - rangeSize.ToPoint2d();
     topLeft.x = max(topLeft.x, 0);
     topLeft.y = max(topLeft.y, 0);
 
     auto actualRangeSize = tau::Size<T>(region.topLeft - topLeft);
-    
+
     actualRangeSize -= tau::Size<T>{1, 1};
 
     REQUIRE(actualRangeSize.GetArea() > 0);
 
-    auto bottomRight = MakeInterior<tau::Point, T>(
+    auto bottomRight = MakeInterior<tau::Point2d, T>(
         uniformRandom,
         topLeft + tau::Size<T>{1, 1},
         actualRangeSize);
-    
+
     REQUIRE(bottomRight < region.topLeft);
 }

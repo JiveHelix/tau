@@ -127,13 +127,13 @@ struct Arithmetic
 
         auto add = [&self, &other] (auto field)
         {
-            self.*(field.member) += other.*(field.member); 
+            self.*(field.member) += other.*(field.member);
         };
 
         jive::ForEach(
             Fields<This>::fields,
             add);
-        
+
         return self;
     }
 
@@ -149,13 +149,13 @@ struct Arithmetic
 
         auto subtract = [&self, &other] (auto field)
         {
-            self.*(field.member) -= other.*(field.member); 
+            self.*(field.member) -= other.*(field.member);
         };
 
         jive::ForEach(
             Fields<This>::fields,
             subtract);
-        
+
         return self;
     }
 
@@ -171,13 +171,13 @@ struct Arithmetic
 
         auto multiply = [&self, &other] (auto field)
         {
-            self.*(field.member) *= other.*(field.member); 
+            self.*(field.member) *= other.*(field.member);
         };
 
         jive::ForEach(
             Fields<This>::fields,
             multiply);
-        
+
         return self;
     }
 
@@ -193,13 +193,13 @@ struct Arithmetic
 
         auto divide = [&self, &other] (auto field)
         {
-            self.*(field.member) /= other.*(field.member); 
+            self.*(field.member) /= other.*(field.member);
         };
 
         jive::ForEach(
             Fields<This>::fields,
             divide);
-        
+
         return self;
     }
 
@@ -224,7 +224,7 @@ struct Arithmetic
         jive::ForEach(
             Fields<This>::fields,
             add);
-        
+
         return self;
     }
 
@@ -246,7 +246,7 @@ struct Arithmetic
         jive::ForEach(
             Fields<This>::fields,
             subtract);
-        
+
         return self;
     }
 
@@ -268,7 +268,7 @@ struct Arithmetic
         jive::ForEach(
             Fields<This>::fields,
             multiply);
-        
+
         return self;
     }
 
@@ -284,13 +284,13 @@ struct Arithmetic
 
         auto divide = [&self, scalar] (auto field)
         {
-            self.*(field.member) /= scalar; 
+            self.*(field.member) /= scalar;
         };
 
         jive::ForEach(
             Fields<This>::fields,
             divide);
-        
+
         return self;
     }
 

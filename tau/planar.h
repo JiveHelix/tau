@@ -24,7 +24,7 @@ public:
     using Index = Eigen::Index;
 
     std::array<Matrix, count> planes;
-    
+
     Planar() = default;
 
     Planar(Index rowCount, Index columnCount)

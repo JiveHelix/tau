@@ -3,7 +3,7 @@
 
 #include <fields/fields.h>
 #include <pex/group.h>
-#include "tau/point.h"
+#include "tau/vector2d.h"
 #include "tau/size.h"
 #include "tau/scale.h"
 
@@ -27,7 +27,7 @@ struct RegionTemplate
     template<template<typename> typename V>
     struct Template
     {
-        V<pex::MakeGroup<PointGroup<T>>> topLeft;
+        V<pex::MakeGroup<Point2dGroup<T>>> topLeft;
         V<pex::MakeGroup<SizeGroup<T>>> size;
     };
 };
@@ -38,9 +38,9 @@ struct Region
     :
     public RegionTemplate<T>::template Template<pex::Identity>
 {
-    Point<T> GetBottomRight() const
+    Point2d<T> GetBottomRight() const
     {
-        return this->topLeft + this->size.ToPoint();
+        return this->topLeft + this->size.ToPoint2d();
     }
 
     static constexpr auto fields = std::make_tuple(
@@ -84,10 +84,10 @@ struct Region
         auto thisBottomRight = this->GetBottomRight();
         auto otherBottomRight = other.GetBottomRight();
 
-        Point<T> resultTopLeft = this->topLeft;
-        Point<T> resultBottomRight = thisBottomRight;
+        Point2d<T> resultTopLeft = this->topLeft;
+        Point2d<T> resultBottomRight = thisBottomRight;
 
-        if (other.topLeft.x > this->topLeft.x) 
+        if (other.topLeft.x > this->topLeft.x)
         {
             resultTopLeft.x = other.topLeft.x;
         }
@@ -106,7 +106,7 @@ struct Region
         {
             resultBottomRight.y = otherBottomRight.y;
         }
-        
+
         return {{
             resultTopLeft,
             Size<T>(resultTopLeft, resultBottomRight)}};

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <fields/fields.h>
 #include <pex/group.h>
 
@@ -147,6 +148,9 @@ Derived<T> & operator/=(
         SupportsScaleOperators<Derived<T>>,
         "Missing required functions Horizontal() and Vertical()");
 
+    assert(scale.vertical != 0);
+    assert(scale.horizontal != 0);
+
     auto & derived = left.Upcast();
 
     auto result = derived.template Convert<U>();
@@ -217,9 +221,14 @@ std::ostream & operator<<(std::ostream &output, const Scale<T> &scale)
 }
 
 
-template<typename T>
+template<typename T, typename Minimum, typename Maximum>
 using ScaleGroup =
-    pex::Group<ScaleFields, ScaleTemplate<T>::template Template, Scale<T>>;
+    pex::Group
+    <
+        ScaleFields,
+        ScaleTemplate<pex::MakeRange<T, Minimum, Maximum>>::template Template,
+        Scale<T>
+    >;
 
 
 

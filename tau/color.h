@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fields/fields.h>
+#include <pex/group.h>
 
 #include "tau/eigen.h"
 #include "tau/planar.h"
@@ -27,7 +28,7 @@ template<typename T>
 using ColorVector = Eigen::Vector3<T>;
 
 
-/** 
+/**
  ** GetType returns by const reference or non-const reference depending on the
  ** const-ness of Planes.
  **/
@@ -168,24 +169,24 @@ ColorVector<F> RgbToHsv(const ColorVector<I> &rgb)
     static_assert(std::is_floating_point_v<F>);
 
     ColorVector<F> rgbFloat = rgb.template cast<F>();
-    
+
     if constexpr (std::is_integral_v<I>)
     {
         rgbFloat.array() /= std::numeric_limits<I>::max();
     }
-    
+
     Eigen::Index maxIndex;
     auto Cmax = rgbFloat.maxCoeff(&maxIndex);
     auto Cmin = rgbFloat.minCoeff();
     auto delta = Cmax - Cmin;
-    
+
     ColorVector<F> hsv;
 
     using namespace index;
 
     if (delta == 0.0)
     {
-        hsv(0) = 0.0;    
+        hsv(0) = 0.0;
     }
     else
     {
@@ -256,7 +257,7 @@ auto RgbToHsv(const Planar<3, I, rows, columns, options> &rgb)
     PlanarT hsv(rgb.GetRowCount(), rgb.GetColumnCount());
 
     PlanarT rgbFloat = rgb.template Cast<F>();
-    
+
     if constexpr (std::is_integral_v<I>)
     {
         GetRed(rgbFloat).array() /= std::numeric_limits<I>::max();
@@ -462,21 +463,17 @@ auto HsvToRgb(const Planar<3, T, rows, columns, options> &hsv)
     static_assert(std::is_integral_v<Target>);
 
     auto rgb = HsvToRgbFloat(hsv);
-    
+
     GetRed(rgb).array() *= std::numeric_limits<Target>::max();
     GetGreen(rgb).array() *= std::numeric_limits<Target>::max();
     GetBlue(rgb).array() *= std::numeric_limits<Target>::max();
-    
+
     GetRed(rgb) = GetRed(rgb).array().round();
     GetGreen(rgb) = GetGreen(rgb).array().round();
     GetBlue(rgb) = GetBlue(rgb).array().round();
 
     return rgb.template Cast<Target>();
 }
-
-
-template<typename T>
-using Identity = T;
 
 
 template<typename T>
@@ -494,9 +491,9 @@ struct HsvTemplate
     template<template<typename> typename V>
     struct Template
     {
-        V<U> hue;
-        V<U> saturation;
-        V<U> value;
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>> hue;
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> saturation;
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> value;
 
         static constexpr auto fields = HsvFields<Template>::fields;
     };
@@ -504,7 +501,7 @@ struct HsvTemplate
 
 
 template<typename T>
-struct Hsv: public HsvTemplate<T>::template Template<Identity>
+struct Hsv: public HsvTemplate<T>::template Template<pex::Identity>
 {
     template<typename U>
     static Hsv FromVector(const ColorVector<U> &hsv)
@@ -552,7 +549,7 @@ struct RgbTemplate
 
 
 template<typename T>
-struct Rgb: public RgbTemplate<T>::template Template<Identity>
+struct Rgb: public RgbTemplate<T>::template Template<pex::Identity>
 {
     template<typename U>
     static Rgb FromVector(const ColorVector<U> &rgb)
@@ -588,6 +585,24 @@ Hsv<H> RgbToHsv(const Rgb<R> &rgb)
 
     return Hsv<H>::FromVector(hsvVector);
 }
+
+
+template<typename T>
+using HsvGroup =
+    pex::Group
+    <
+        HsvFields,
+        HsvTemplate<T>::template Template, Hsv<T>
+    >;
+
+
+template<typename T>
+using RgbGroup =
+    pex::Group
+    <
+        RgbFields,
+        RgbTemplate<pex::MakeRange<T>>::template Template, Rgb<T>
+    >;
 
 
 } // end namespace tau

@@ -25,5 +25,18 @@ RgbMatrix<T> MakeRgb(size_t count, MakeFloat makeFloat)
     return converted;
 }
 
+template<typename T>
+struct RgbPixels
+{
+    RgbMatrix<T> data;
+
+    // The PixelMatrix is stored as a count x 3 matrix, where each row contains
+    // an RGB triplet.
+    // height and width store the dimensions the image.
+    // Expect height * width == data.rows()
+    Eigen::Index height;
+    Eigen::Index width;
+};
+
 
 } // end namespace tau

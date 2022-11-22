@@ -1,5 +1,10 @@
 #include "tau/arithmetic.h"
 
+
+namespace tautest
+{
+
+
 template<typename T>
 using Identity = T;
 
@@ -84,3 +89,6 @@ struct Point3d:
 
     }
 };
+
+
+} // end namespace tautest

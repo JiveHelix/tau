@@ -7,9 +7,11 @@ add_executable(
     angles_tests.cpp
     power_series_test.cpp
     color_map_test.cpp
+    convolve_tests.cpp
     eigen_test.cpp
     color_test.cpp
     gradient_test.cpp
+    harris_tests.cpp
     arithmetic_tests.cpp
     bilinear_test.cpp
     point_tests.cpp

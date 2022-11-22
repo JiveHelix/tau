@@ -5,7 +5,7 @@
 
 #include "tau/eigen.h"
 #include "tau/arithmetic.h"
-#include "tau/point.h"
+#include "tau/vector2d.h"
 
 
 namespace tau
@@ -16,8 +16,8 @@ template<typename T>
 struct SizeFields
 {
     static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::height, "height"),
-        fields::Field(&T::width, "width"));
+        fields::Field(&T::width, "width"),
+        fields::Field(&T::height, "height"));
 };
 
 
@@ -27,8 +27,8 @@ struct SizeTemplate
     template<template<typename> typename V>
     struct Template
     {
-        V<T> height;
         V<T> width;
+        V<T> height;
     };
 };
 
@@ -42,7 +42,7 @@ struct Size
       public tau::Arithmetic<T, SizeFields, Size>
 {
     static constexpr auto fields = SizeFields<Size>::fields;
-    
+
     using Type = T;
 
     constexpr Size()
@@ -72,19 +72,19 @@ struct Size
 
     }
 
-    constexpr Size(const Point<Type> &point)
+    constexpr Size(const Point2d<Type> &point)
         :
-        SizeBase<T>{point.y, point.x}
+        SizeBase<T>{point.x, point.y}
     {
-        
+
     }
 
     template<typename U>
-    constexpr Size(const Point<U> &point)
+    constexpr Size(const Point2d<U> &point)
         :
         Size(point.template Convert<Type>())
     {
-         
+
     }
 
     template<typename U>
@@ -94,7 +94,7 @@ struct Size
     }
 
     template<typename U>
-    Size & operator=(const Point<U> &point)
+    Size & operator=(const Point2d<U> &point)
     {
         *this = Size(std::move(point));
     }
@@ -105,18 +105,18 @@ struct Size
         :
         Size(
             Size<typename Eigen::DenseBase<Derived>::Index>(
-                matrix.rows(),
-                matrix.cols()))
+                matrix.cols(),
+                matrix.rows()))
     {
 
     }
 
     template<typename U>
-    Size(const Point<U> &first, const Point<U> &second)
+    Size(const Point2d<U> &first, const Point2d<U> &second)
     {
-        Point<U> topLeft;
-        Point<U> bottomRight;
-        
+        Point2d<U> topLeft;
+        Point2d<U> bottomRight;
+
         if (first < second)
         {
             topLeft = first;
@@ -128,14 +128,13 @@ struct Size
             bottomRight = first;
         }
 
-        Point<U> point = bottomRight - topLeft;
-
-        *this = Size<U>(point.y, point.x);
+        Point2d<U> point = bottomRight - topLeft;
+        *this = Size<U>(point.x, point.y);
     }
 
-    Point<Type> ToPoint() const
+    Point2d<Type> ToPoint2d() const
     {
-        return {this->height, this->width};
+        return {this->width, this->height};
     }
 
     auto GetAngle()
