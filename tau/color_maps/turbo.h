@@ -1,9 +1,9 @@
 /**
   * @file turbo.h
-  * 
+  *
   * @brief Uses polynomial coefficients to create the Turbo colormap with an
   * arbitrary number of steps.
-  * 
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 07 Feb 2022
   * @copyright Jive Helix
@@ -17,7 +17,7 @@
 #include "tau/eigen.h"
 #include "tau/planar.h"
 #include "tau/color.h"
-#include "tau/power_series.h"
+#include "tau/horner.h"
 #include "tau/color_maps/rgb.h"
 
 
@@ -107,14 +107,9 @@ RgbMatrix<double> MakeRgbFloat(size_t count)
         static_cast<Eigen::Index>(count),
         1);
 
-    GetRed(planar) =
-        PowerSeries(x, factors::red, factors::linearMap);
-
-    GetGreen(planar) =
-        PowerSeries(x, factors::green, factors::linearMap);
-
-    GetBlue(planar) =
-        PowerSeries(x, factors::blue, factors::linearMap);
+    GetRed(planar) = Horner(x, factors::red, factors::linearMap);
+    GetGreen(planar) = Horner(x, factors::green, factors::linearMap);
+    GetBlue(planar) = Horner(x, factors::blue, factors::linearMap);
 
     return planar.GetInterleaved<Eigen::RowMajor>();
 }

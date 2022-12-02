@@ -1,12 +1,18 @@
 #include <catch2/catch.hpp>
 
 #include <jive/range.h>
+#include <jive/equal.h>
 #include <jive/testing/generator_limits.h>
+#include <iomanip>
 
 #include "tau/vector2d.h"
+#include "tau/scale.h"
 
 
-TEST_CASE("Point2d converts to int", "[point]")
+static constexpr double tolerance = 1e-4;
+
+
+TEST_CASE("Point2d converts to int", "[vector2d]")
 {
     auto values = GENERATE(
         take(
@@ -41,7 +47,7 @@ TEST_CASE("Point2d converts to int", "[point]")
 
 TEMPLATE_TEST_CASE(
     "Integer Points are floored when multiplied by tau::Scale",
-    "[point]",
+    "[vector2d]",
     int8_t,
     uint8_t,
     int16_t,
@@ -87,7 +93,7 @@ TEMPLATE_TEST_CASE(
 }
 
 
-TEST_CASE("Point2d can be multiplied by a scalar", "[point]")
+TEST_CASE("Point2d can be multiplied by a scalar", "[vector2d]")
 {
     auto values = GENERATE(take(8, chunk(3, random(0.0, 100.0))));
 
@@ -100,7 +106,7 @@ TEST_CASE("Point2d can be multiplied by a scalar", "[point]")
 }
 
 
-TEST_CASE("Strict comparison", "[point]")
+TEST_CASE("Strict comparison", "[vector2d]")
 {
     tau::Point2d<int> p(2, -3);
     tau::Point2d<int> q(0, 0);
@@ -108,4 +114,57 @@ TEST_CASE("Strict comparison", "[point]")
     REQUIRE(!(p > q));
     REQUIRE(!(p < q));
     REQUIRE((p != q));
+}
+
+
+TEST_CASE("Rotate vector 90 degrees", "[vector2d]")
+{
+    tau::Vector2d<double> v(1, 0);
+    auto r = v.Rotate(90);
+
+    REQUIRE(jive::Roughly(r.x, tolerance) == 0);
+    REQUIRE(jive::Roughly(r.y, tolerance) == 1);
+
+    r = r.Rotate(90);
+    REQUIRE(jive::Roughly(r.x, tolerance) == -1);
+    REQUIRE(jive::Roughly(r.y, tolerance) == 0);
+
+    r = r.Rotate(90);
+    REQUIRE(jive::Roughly(r.x, tolerance) == 0);
+    REQUIRE(jive::Roughly(r.y, tolerance) == -1);
+
+    r = r.Rotate(90);
+    REQUIRE(jive::Roughly(r.x, tolerance) == 1);
+    REQUIRE(jive::Roughly(r.y, tolerance) == 0);
+}
+
+#if 0
+TEST_CASE("Rotate vector", "[vector2d]")
+{
+    // Generate values with a magnitude greater than 0.
+    auto values = GENERATE(
+        take(
+            16,
+            filter(
+                [] (auto &valuePair)
+                {
+                    return (valuePair[0] + valuePair[1]) > 1e-6;
+                },
+                chunk(
+                    2,
+                    random(0.0, 100.0)))));
+}
+#endif
+
+
+TEST_CASE("Rotate vector", "[vector2d]")
+{
+    // Generate values with a magnitude greater than 0.
+    auto angle_deg = GENERATE(take(16, random(-180.0, 180.0)));
+
+    tau::Vector2d<double> v(1, 0);
+    auto r = v.Rotate(angle_deg);
+
+    REQUIRE(jive::Roughly(v.GetAngle(), tolerance) == 0);
+    REQUIRE(jive::Roughly(r.GetAngle(), tolerance) == angle_deg);
 }

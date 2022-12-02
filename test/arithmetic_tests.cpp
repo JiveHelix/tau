@@ -42,7 +42,7 @@ void Test2dOperator(const auto &values)
         static_cast<T>(values.at(2)),
         static_cast<T>(values.at(3)));
 
-    auto result = Operator{}(left, right); 
+    auto result = Operator{}(left, right);
 
     REQUIRE(result.x == static_cast<T>(Operator{}(left.x, right.x)));
     REQUIRE(result.y == static_cast<T>(Operator{}(left.y, right.y)));
@@ -248,7 +248,7 @@ TEMPLATE_TEST_CASE(
 
     // Default distribution is -1000 to 1000
     tau::UniformRandom<TestType> uniformRandom{seed};
-    
+
     if constexpr (std::is_integral_v<TestType>)
     {
         double limit = std::min(
@@ -256,7 +256,7 @@ TEMPLATE_TEST_CASE(
             10.0e6);
 
         // Ensure that the sum of squares fits in the TestType.
-        auto maximum = 
+        auto maximum =
             static_cast<TestType>(std::floor(std::sqrt(limit / 2.0)));
 
         if constexpr (std::is_signed_v<TestType>)
@@ -271,7 +271,7 @@ TEMPLATE_TEST_CASE(
 
     tautest::Point2d<TestType> value2d(uniformRandom(), uniformRandom());
 
-    auto result2d = value2d.Squared();
+    auto result2d = value2d.SquaredSum();
 
     auto check2d = static_cast<TestType>(
         value2d.x * value2d.x + value2d.y * value2d.y);
@@ -298,7 +298,7 @@ TEMPLATE_TEST_CASE(
 
     // Default distribution is -1000 to 1000
     tau::UniformRandom<TestType> uniformRandom{seed};
-    
+
     if constexpr (std::is_integral_v<TestType>)
     {
         double limit = std::min(
@@ -306,7 +306,7 @@ TEMPLATE_TEST_CASE(
             10.0e6);
 
         // Ensure that the sum of squares fits in the TestType.
-        auto maximum = 
+        auto maximum =
             static_cast<TestType>(std::floor(std::sqrt(limit / 3.0)));
 
         if constexpr (std::is_signed_v<TestType>)
@@ -324,7 +324,7 @@ TEMPLATE_TEST_CASE(
         uniformRandom(),
         uniformRandom());
 
-    auto result3d = value3d.Squared();
+    auto result3d = value3d.SquaredSum();
 
     auto check3d = static_cast<TestType>(
         value3d.x * value3d.x
@@ -357,7 +357,7 @@ TEMPLATE_TEST_CASE(
 
     tautest::Point2d<TestType> left2d;
     tautest::Point2d<TestType> right2d;
-    
+
     if constexpr (std::is_integral_v<TestType>)
     {
         // Ensure that the sum of squares fits in the TestType.
@@ -382,7 +382,7 @@ TEMPLATE_TEST_CASE(
             // The TestType is unsigned, and so the difference of values can
             // only get smaller. Ensuring both values are less than half the
             // range when squared ensures no overflow.
-            auto maximum = 
+            auto maximum =
                 static_cast<TestType>(std::floor(std::sqrt(limit / 2.0)));
 
             // For unsigned comparisons, right2d must be greater than left2d to
@@ -400,7 +400,7 @@ TEMPLATE_TEST_CASE(
         right2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
     }
 
-    auto result2d = left2d.SquaredDistance(right2d);
+    auto result2d = (right2d - left2d).SquaredSum();
 
     auto check2d = static_cast<TestType>(
         (right2d.x - left2d.x) * (right2d.x - left2d.x)
@@ -429,7 +429,7 @@ TEMPLATE_TEST_CASE(
 
     // Default distribution is -1000 to 1000
     tau::UniformRandom<TestType> uniformRandom{seed};
-    
+
     tautest::Point3d<TestType> left3d;
     tautest::Point3d<TestType> right3d;
 
@@ -465,7 +465,7 @@ TEMPLATE_TEST_CASE(
             // The TestType is unsigned, and so the difference of values can
             // only get smaller. Require both values to be less than 1/3 the
             // range when squared to ensure no overflow.
-            auto maximum = 
+            auto maximum =
                 static_cast<TestType>(std::floor(std::sqrt(limit / 3.0)));
 
             uniformRandom.SetRange(0, maximum);
@@ -500,7 +500,7 @@ TEMPLATE_TEST_CASE(
             uniformRandom());
     }
 
-    auto result3d = left3d.SquaredDistance(right3d);
+    auto result3d = (right3d - left3d).SquaredSum();
 
     auto check3d = static_cast<TestType>(
         (right3d.x - left3d.x) * (right3d.x - left3d.x)

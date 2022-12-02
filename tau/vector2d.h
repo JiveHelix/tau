@@ -4,7 +4,7 @@
 #include <pex/group.h>
 
 #include "tau/arithmetic.h"
-#include "tau/scale.h"
+#include "tau/angles.h"
 
 
 namespace tau
@@ -37,7 +37,7 @@ struct Vector2dTemplate
 
 template<typename T>
 using Vector2dBase =
-    typename Vector2dTemplate<T>::template Template<fields::Identity>;
+    typename Vector2dTemplate<T>::template Template<pex::Identity>;
 
 
 template<typename T, template<typename> typename Derived>
@@ -86,13 +86,13 @@ struct Base2d
         {
             // Convert to double for the computation.
             auto asDouble = this->template Convert<double>();
-            return std::atan2(asDouble.y, asDouble.x);
+            return tau::ToDegrees(std::atan2(asDouble.y, asDouble.x));
         }
         else
         {
             // Already a floating-point type.
             // Do the calculation with the current precision.
-            return std::atan2(this->y, this->x);
+            return tau::ToDegrees(std::atan2(this->y, this->x));
         }
     }
 };
@@ -103,6 +103,18 @@ struct Vector2d: public Base2d<T, Vector2d>
 {
     using Base2d<T, Vector2d>::Base2d;
     static constexpr auto fieldsTypeName = "Vector2d";
+
+    Vector2d<T> Rotate(T rotation_deg)
+    {
+        auto rotation_rad = tau::ToRadians(rotation_deg);
+        auto sine = std::sin(rotation_rad);
+        auto cosine = std::cos(rotation_rad);
+
+        T x = cosine * this->x - sine * this->y;
+        T y = sine * this->x + cosine * this->y;
+
+        return {x, y};
+    }
 };
 
 

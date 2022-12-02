@@ -108,8 +108,8 @@ struct TraitBuilder
     static constexpr bool isVector = (rows == 1) || (columns == 1);
     static constexpr bool isRowVector = (rows == 1);
     static constexpr bool isColumnVector = (columns == 1);
-    static constexpr bool isRowMajor = (options & Eigen::RowMajor); 
-    static constexpr bool isColumnMajor = !(options & Eigen::RowMajor); 
+    static constexpr bool isRowMajor = (options & Eigen::RowMajor);
+    static constexpr bool isColumnMajor = !(options & Eigen::RowMajor);
     static constexpr int size = isDynamic ? -1 : rows * columns;
 
     static constexpr bool isMatrix = true;

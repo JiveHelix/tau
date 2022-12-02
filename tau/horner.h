@@ -1,8 +1,8 @@
 /**
-  * @file power_series.h
-  * 
-  * @brief Compute values of the power series from coefficients.
-  * 
+  * @file horner.h
+  *
+  * @brief Compute values of polynomials.
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 09 Nov 2021
   * @copyright Jive Helix
@@ -51,7 +51,7 @@ public:
 
     LinearMap(const Domain<T> &source, const Domain<T> &target)
     {
-        this->offset_ = 
+        this->offset_ =
             (source.last * target.first - source.first * target.last)
             / source.GetLength();
 
@@ -59,13 +59,15 @@ public:
     }
 
     template<typename U>
-    auto operator()(U value) const
+    auto operator()(const Eigen::ArrayBase<U> &value) const
     {
         return value * this->scale_ + this->offset_;
-#if 0
-        value.array() *= this->scale_;
-        value.array() += this->offset_;
-#endif
+    }
+
+    template<typename U>
+    auto operator()(const Eigen::DenseBase<U> &value) const
+    {
+        return value.derived().array() * this->scale_ + this->offset_;
     }
 
 private:
@@ -77,7 +79,6 @@ private:
 template<typename F, typename Enable = void>
 struct IndependentReplication;
 
-
 template<typename F>
 struct IndependentReplication<
     F,
@@ -88,7 +89,6 @@ struct IndependentReplication<
     static constexpr int rowFactor = 1;
     static constexpr int columnFactor = MatrixTraits<F>::size;
 };
-
 
 template<typename F>
 struct IndependentReplication<
@@ -105,7 +105,6 @@ struct IndependentReplication<
 template<typename I, typename F, typename Enable = void>
 struct PowersReplication;
 
-
 template<typename I, typename F>
 struct PowersReplication<
     I,
@@ -119,7 +118,6 @@ struct PowersReplication<
     static constexpr int rowFactor = MatrixTraits<I>::size;
     static constexpr int columnFactor = 1;
 };
-
 
 template<typename I, typename F>
 struct PowersReplication<
@@ -136,12 +134,8 @@ struct PowersReplication<
 };
 
 
-
-
-
 template<typename I, typename F, typename Enable = void>
 struct Expansion;
-
 
 template<typename I, typename F>
 struct Expansion<
@@ -158,7 +152,6 @@ struct Expansion<
         const Eigen::Vector<typename iTraits::type, Eigen::Dynamic>>;
 };
 
-
 template<typename I, typename F>
 struct Expansion<
     I,
@@ -173,7 +166,6 @@ struct Expansion<
     using type = typename Eigen::Map<
         const Eigen::RowVector<typename iTraits::type, Eigen::Dynamic>>;
 };
-            
 
 template<typename I, typename F>
 struct Expansion<
@@ -189,7 +181,6 @@ struct Expansion<
     using type = typename Eigen::Map<
         const Eigen::Vector<typename iTraits::type, iTraits::size>>;
 };
-
 
 template<typename I, typename F>
 struct Expansion<
@@ -239,7 +230,7 @@ auto ExpandIndependent(I &&independent, const F &factors)
             rowFactor = 1;
             columnFactor = factors.innerSize();
         }
-        else 
+        else
         {
             static_assert(fTraits::isColumnVector);
             rowFactor = factors.innerSize();
@@ -256,7 +247,7 @@ auto ExpandIndependent(I &&independent, const F &factors)
                 columnFactor,
                 independent);
         }
-        else 
+        else
         {
             static_assert(jive::IsValueContainer<iType>::value);
 
@@ -327,7 +318,7 @@ auto CreatePowers(const F &factors)
     if constexpr (traits::isDynamic)
     {
         assert(factors.outerSize() == 1);
-        
+
         if (IsRowVector(factors))
         {
             type result(1, factors.innerSize());
@@ -373,7 +364,7 @@ auto ExpandPowers(P &&powers, const I &independent)
                 <= static_cast<size_t>(
                     std::numeric_limits<Eigen::Index>::max()));
     }
-   
+
     if constexpr (std::is_arithmetic_v<I>)
     {
         return powers;
@@ -396,7 +387,7 @@ auto ExpandPowers(P &&powers, const I &independent)
             rowFactor = static_cast<Eigen::Index>(independent.size());
             columnFactor = 1;
         }
-        else 
+        else
         {
             static_assert(fTraits::isColumnVector);
             rowFactor = 1;
@@ -420,7 +411,7 @@ struct Sum<
     template<typename Terms>
     auto operator()(const Terms &terms)
     {
-        return terms.array().rowwise().sum(); 
+        return terms.rowwise().sum().eval();
     }
 };
 
@@ -433,16 +424,17 @@ struct Sum<
     template<typename Terms>
     auto operator()(const Terms &terms)
     {
-        return terms.array().colwise().sum(); 
+        return terms.colwise().sum().eval();
     }
 };
 
 
 template<typename I, typename F>
-auto PowerSeries(
+auto Polynomial(
     const I &independent,
     const F &factors,
-    const LinearMap<typename MatrixTraits<I>::type> &linearMap)
+    const LinearMap<typename MatrixTraits<I>::type> &linearMap =
+        LinearMap<typename MatrixTraits<I>::type>{})
 {
     static_assert(
         MatrixTraits<F>::isVector,
@@ -454,24 +446,23 @@ auto PowerSeries(
 
     auto expandedPowers = ExpandPowers<F>(powers, independent);
 
-    auto terms =
-        linearMap(
-            expandedIndependent.array()).pow(expandedPowers.array()).eval();
+    auto terms = linearMap(expandedIndependent.array())
+        .pow(expandedPowers.array()).eval();
 
-    using fTraits = MatrixTraits<F>;
+    using FactorTraits = MatrixTraits<F>;
 
-    if constexpr (fTraits::isColumnVector)
+    if constexpr (FactorTraits::isColumnVector)
     {
-        // Coefficients is a column vector.
+        // factors is a column vector.
         terms.array().colwise() *= factors.array();
     }
-    else if constexpr (fTraits::isRowVector)
+    else if constexpr (FactorTraits::isRowVector)
     {
         terms.array().rowwise() *= factors.array();
     }
     else
     {
-        static_assert(fTraits::isDynamic, "Factors must be column or row");
+        static_assert(FactorTraits::isDynamic, "Factors must be column or row");
 
         // Runtime decision about transposition.
         if (IsColumnVector(factors))
@@ -486,19 +477,19 @@ auto PowerSeries(
         }
     }
 
-    auto sum = Sum<F>{}(terms).eval();
+    auto sum = Sum<F>{}(terms);
 
     using iTraits = MatrixTraits<I>;
 
     if constexpr (iTraits::isDynamic && iTraits::isMatrix)
     {
         // Dynamic matrix or map.
-        using type =
+        using Result =
             typename Eigen::Map<Eigen::MatrixX<typename iTraits::type>>;
-        
+
         assert(sum.size() == independent.rows() * independent.cols());
 
-        return type(
+        return Result(
             sum.data(),
             independent.rows(),
             independent.cols()).eval();
@@ -507,27 +498,107 @@ auto PowerSeries(
     else if constexpr (iTraits::isMatrix && !iTraits::isDynamic)
     {
         // Static matrix or map.
-        using type = typename Eigen::Map<
+        using Result = typename Eigen::Map<
             Eigen::Matrix<
                 typename iTraits::type,
                 iTraits::rows,
                 iTraits::columns>>;
 
-        return type(sum.data()).eval();
+        return Result(sum.data()).eval();
     }
     else if constexpr (iTraits::isDynamic && !IsMatrix<iTraits>::value)
     {
         // Input is a value container. Return a column vector by default.
-        using type = 
+        using Result =
             typename Eigen::Map<Eigen::VectorX<typename iTraits::type>>;
 
-        return type(sum.data(), sum.size()).eval();
+        return Result(sum.data(), sum.size()).eval();
     }
     else
     {
         static_assert(std::is_arithmetic_v<std::remove_cvref_t<I>>);
         return sum(0);
     }
+}
+
+
+template<typename T>
+struct HornerResult_
+{
+    using Type = std::remove_cv_t<T>;
+};
+
+template<typename T>
+struct HornerResult_<Eigen::Map<T>>
+{
+    using Type = std::remove_cv_t<T>;
+};
+
+template<typename T>
+using HornerResult = typename HornerResult_<T>::Type;
+
+
+template<typename I, typename F>
+HornerResult<I> Horner(
+    const Eigen::DenseBase<I> &independent,
+    const Eigen::DenseBase<F> &factors)
+{
+    Eigen::Index lastIndex = factors.size() - 1;
+    using Result = HornerResult<I>;
+    Result result = Result(independent.rows(), independent.cols());
+    result.array() = factors(lastIndex);
+
+    for (Eigen::Index i = lastIndex - 1; i >= 0; --i)
+    {
+        result = independent.derived().array() * result.array() + factors(i);
+    }
+
+    return result;
+}
+
+
+template<typename I, typename F>
+std::enable_if_t<std::is_floating_point_v<I>, I> Horner(
+    I independent,
+    const Eigen::DenseBase<F> &factors)
+{
+    Eigen::Index lastIndex = factors.size() - 1;
+    I result = factors(lastIndex);
+
+    for (Eigen::Index i = lastIndex - 1; i >= 0; --i)
+    {
+        result = independent * result + factors(i);
+    }
+
+    return result;
+}
+
+
+template<typename I, typename F>
+I Horner(
+    const Eigen::DenseBase<I> &independent,
+    const Eigen::DenseBase<F> &factors,
+    const LinearMap<typename MatrixTraits<I>::type> &linearMap)
+{
+    return Horner(linearMap(independent).eval(), factors);
+}
+
+
+template<typename I, typename F>
+std::vector<I> Horner(
+    const std::vector<I> &independent,
+    const std::vector<F> &factors)
+{
+    using Independent = Eigen::Map<const Eigen::VectorX<I>>;
+    using Factors = Eigen::Map<const Eigen::VectorX<F>>;
+
+    auto result = Horner(
+        Independent(independent.data(), Eigen::Index(independent.size())),
+        Factors(factors.data(), Eigen::Index(factors.size())));
+
+    auto begin = result.data();
+    auto end = begin + independent.size();
+    return {begin, end};
 }
 
 

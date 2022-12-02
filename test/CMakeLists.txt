@@ -5,18 +5,19 @@ target_link_libraries(tau_catch_main PRIVATE project_options)
 add_executable(
     tau_tests
     angles_tests.cpp
-    power_series_test.cpp
-    color_map_test.cpp
-    convolve_tests.cpp
-    eigen_test.cpp
-    color_test.cpp
-    gradient_test.cpp
-    harris_tests.cpp
     arithmetic_tests.cpp
     bilinear_test.cpp
-    point_tests.cpp
+    color_map_test.cpp
+    convolve_tests.cpp
+    color_test.cpp
+    eigen_test.cpp
+    gradient_test.cpp
+    harris_tests.cpp
+    line_tests.cpp
+    polynomial_tests.cpp
     size_tests.cpp
     region_tests.cpp
+    vector2d_tests.cpp
     view_tests.cpp)
 
 target_link_libraries(

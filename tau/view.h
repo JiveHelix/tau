@@ -5,7 +5,7 @@
 #include "tau/scale.h"
 
 
-namespace tau 
+namespace tau
 {
 
 
@@ -49,8 +49,8 @@ struct View
         // When the view is shifted negative, start painting the target at
         // a positive shift of the same magnitude.
         Point2d<T> targetTopLeft(
-            std::min(static_cast<T>(0), view.topLeft.y),
-            std::min(static_cast<T>(0), view.topLeft.x));
+            std::min(static_cast<T>(0), view.topLeft.x),
+            std::min(static_cast<T>(0), view.topLeft.y));
 
         targetTopLeft *= -1;
 
@@ -69,8 +69,8 @@ struct View
         {
             // Floating-point types have rounding errors that make this check
             // noisy.
-            assert(this->source.GetBottomRight().y <= sourceSize.height);
             assert(this->source.GetBottomRight().x <= sourceSize.width);
+            assert(this->source.GetBottomRight().y <= sourceSize.height);
         }
     }
 

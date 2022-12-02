@@ -300,7 +300,7 @@ struct Arithmetic
         return result /= scalar;
     }
 
-    T Squared() const
+    T SquaredSum() const
     {
         T result = 0;
 
@@ -321,9 +321,30 @@ struct Arithmetic
         return result;
     }
 
-    T SquaredDistance(const This &other) const
+    This Squared() const
     {
-        return (other - this->Upcast()).Squared();
+        auto self = this->Upcast();
+
+        auto square = [&self](auto field) -> void
+        {
+            self.*(field.member) *= self.*(field.member);
+        };
+
+        jive::ForEach(
+            Fields<This>::fields,
+            square);
+
+        return self;
+    }
+
+    T Magnitude() const
+    {
+        return std::sqrt(this->SquaredSum());
+    }
+
+    This Normalize() const
+    {
+        return *this / this->Magnitude();
     }
 
     friend bool operator==(const This &left, const This &right)

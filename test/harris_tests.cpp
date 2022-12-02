@@ -32,12 +32,6 @@ TEST_CASE("Create Harris corner detection class", "[harris]")
 
     Matrix response = harris.Compute(gradient);
 
-    std::cout << "harris response:\n";
-    std::cout << response << std::endl;
-
-    std::cout << '\n' << harris.Threshold(response.block(1, 1, 8, 8))
-        << std::endl;
-
     REQUIRE(response.cols() == m.cols());
     REQUIRE(response.rows() == m.rows());
 }

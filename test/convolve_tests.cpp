@@ -34,9 +34,6 @@ TEMPLATE_TEST_CASE(
         {15, 23, 28, 25, 22, 30},
         {20, 25, 15, 20, 10, 15}};
 
-    std::cout << "kernel:\n" << kernel << std::endl;
-    std::cout << "convolve:\n" << tau::Convolve(input, kernel) << std::endl;
-
     // Convolve will normalize the result for us.
     Eigen::Matrix<int, 6, 6> result =
         tau::Normalize(tau::Convolve(input, kernel), kernel)
