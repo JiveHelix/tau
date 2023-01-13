@@ -14,15 +14,20 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
     tau::Point2d<T> topLeft;
     tau::Size<T> size;
 
+    // Require generated region to have sides of at least 2.
+    // topLeft must leave room for a size of at least 2x2.
+    // UniformRandom expects a range of values, so leave at least 3 for the
+    // size.
+    static constexpr auto minimumSize = 2;
+    static constexpr auto maximumTopLeft = minimumSize + 1;
+
     {
         // Generate topLeft point
         tau::RestoreDistribution restore(uniformRandom);
 
-        // Require generated region to have sides of at least 2.
-        // topLeft must leave room for a size of at least 2x2.
-        if (uniformRandom.GetHigh() > Limits::max() - 2)
+        if (uniformRandom.GetHigh() > Limits::max() - maximumTopLeft)
         {
-            uniformRandom.SetHigh(Limits::max() - 2);
+            uniformRandom.SetHigh(Limits::max() - maximumTopLeft);
         }
 
         topLeft = tau::Point2d<T>{uniformRandom(), uniformRandom()};
@@ -33,7 +38,7 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
         tau::RestoreDistribution restore(uniformRandom);
 
         // Require generated region to have sides of at least 2.
-        uniformRandom.SetLow(2);
+        uniformRandom.SetLow(minimumSize);
 
         // Size cannot cause the region to extend beyond the limits of the type.
         uniformRandom.SetHigh(
@@ -42,7 +47,7 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
                 Limits::max()
                     - std::max<T>(0, std::max(topLeft.x, topLeft.y))));
 
-        REQUIRE(static_cast<long>(uniformRandom.GetHigh()) >= 2);
+        REQUIRE(static_cast<long>(uniformRandom.GetHigh()) > minimumSize);
 
         size = tau::Size<T>{uniformRandom(), uniformRandom()};
     }

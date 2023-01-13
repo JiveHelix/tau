@@ -8,17 +8,18 @@ namespace tau
 {
 
 
-template<typename Derived, typename Kernel>
+template<typename Derived>
 struct Borders
 {
     using Index = typename Eigen::Index;
 
     Borders(
         const Eigen::MatrixBase<Derived> &input,
-        const Eigen::MatrixBase<Kernel> &kernel)
+        Eigen::Index kernelRows_,
+        Eigen::Index kernelColumns_)
         :
-        kernelRows(kernel.rows()),
-        kernelColumns(kernel.cols()),
+        kernelRows(kernelRows_),
+        kernelColumns(kernelColumns_),
         firstRow(this->kernelRows / 2),
         firstColumn(this->kernelColumns / 2),
         limitRow(input.rows() - this->firstRow),
@@ -41,6 +42,15 @@ struct Borders
 
 
 template<typename Derived, typename Kernel>
+Borders<Derived> BordersFromKernel(
+    const Eigen::MatrixBase<Derived> &input,
+    const Eigen::MatrixBase<Kernel> &kernel)
+{
+    return Borders<Derived>(input, kernel.rows(), kernel.cols());
+}
+
+
+template<typename Derived, typename Kernel>
 Derived DoConvolve(
     const Eigen::MatrixBase<Derived> &input,
     const Eigen::MatrixBase<Kernel> &reversedKernel)
@@ -52,7 +62,7 @@ Derived DoConvolve(
     typedef typename Derived::Scalar Scalar;
 
     // Leave the borders untouched
-    auto borders = Borders(input, reversedKernel);
+    auto borders = BordersFromKernel(input, reversedKernel);
 
     for (Index row = borders.firstRow; row < borders.limitRow; ++row)
     {
@@ -116,7 +126,7 @@ Derived Normalize(
         return input;
     }
 
-    auto borders = Borders(input, kernel);
+    auto borders = BordersFromKernel(input, kernel);
 
     if constexpr (std::is_integral_v<Scalar>)
     {

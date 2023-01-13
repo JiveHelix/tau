@@ -1,8 +1,8 @@
 /**
   * @file gray.h
-  * 
+  *
   * @brief Maps values to grayscale.
-  * 
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 07 Feb 2022
   * @copyright Jive Helix
@@ -14,7 +14,6 @@
 
 
 #include "tau/eigen.h"
-#include "tau/power_series.h"
 #include "tau/color_maps/rgb.h"
 
 
@@ -39,7 +38,7 @@ RgbMatrix<double> MakeRgbFloat(size_t count)
 
     RgbMatrix<double> result(count, 3);
     result << x, x, x;
-    
+
     return result;
 }
 

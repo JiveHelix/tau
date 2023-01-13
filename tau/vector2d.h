@@ -99,23 +99,10 @@ struct Base2d
 
 
 template<typename T>
-struct Vector2d: public Base2d<T, Vector2d>
-{
-    using Base2d<T, Vector2d>::Base2d;
-    static constexpr auto fieldsTypeName = "Vector2d";
+struct Vector2d;
 
-    Vector2d<T> Rotate(T rotation_deg)
-    {
-        auto rotation_rad = tau::ToRadians(rotation_deg);
-        auto sine = std::sin(rotation_rad);
-        auto cosine = std::cos(rotation_rad);
-
-        T x = cosine * this->x - sine * this->y;
-        T y = sine * this->x + cosine * this->y;
-
-        return {x, y};
-    }
-};
+template<typename T>
+struct Point2d;
 
 
 template<typename T>
@@ -134,6 +121,31 @@ struct Point2d: public Base2d<T, Point2d>
     Vector2d<T> ToVector() const
     {
         return {this->x, this->y};
+    }
+
+    T Distance(const Point2d<T> &point)
+    {
+        (point - *this).Magnitude();
+    }
+};
+
+
+template<typename T>
+struct Vector2d: public Base2d<T, Vector2d>
+{
+    using Base2d<T, Vector2d>::Base2d;
+    static constexpr auto fieldsTypeName = "Vector2d";
+
+    Vector2d<T> Rotate(T rotation_deg) const
+    {
+        auto rotation_rad = tau::ToRadians(rotation_deg);
+        auto sine = std::sin(rotation_rad);
+        auto cosine = std::cos(rotation_rad);
+
+        T rotatedX = cosine * this->x - sine * this->y;
+        T rotatedY = sine * this->x + cosine * this->y;
+
+        return {rotatedX, rotatedY};
     }
 };
 
@@ -170,6 +182,14 @@ using Point2dGroup =
         Vector2dTemplate<T>::template Template,
         Point2d<T>
     >;
+
+
+template<typename T>
+using Point2dCollection = std::vector<tau::Point2d<T>>;
+
+
+template<typename T>
+using Vector2dCollection = std::vector<tau::Vector2d<T>>;
 
 
 } // end namespace tau

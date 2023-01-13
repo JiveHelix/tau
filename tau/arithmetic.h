@@ -415,4 +415,16 @@ struct Arithmetic
 };
 
 
+template
+<
+    typename T,
+    template<typename> typename Fields,
+    template<typename> typename Derived
+>
+Derived<T> operator*(T scalar, const Arithmetic<T, Fields, Derived> &arithmetic)
+{
+    return (arithmetic * scalar).Upcast();
+}
+
+
 } // end namespace tau

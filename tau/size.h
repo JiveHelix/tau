@@ -52,9 +52,9 @@ struct Size
 
     }
 
-    constexpr Size(Type height_, Type width_)
+    constexpr Size(Type width_, Type height_)
         :
-        SizeBase<T>{height_, width_}
+        SizeBase<T>{width_, height_}
     {
 
     }

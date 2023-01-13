@@ -87,7 +87,8 @@ struct DerivativeSize
         }
     }
 
-    static signed GetWeight(Index size)
+    template<typename T>
+    static T GetWeight(Index size)
     {
         // Returns the sum of all (unscaled) positive terms of the kernel.
 
@@ -133,7 +134,9 @@ struct Differentiate
         horizontal(DerivativeSize::GetKernel<T>(this->size_, this->scale_)),
         vertical(this->horizontal.transpose())
     {
-        if (maximumInput * DerivativeSize::GetWeight(this->size_)
+        if (
+            (maximumInput
+                * DerivativeSize::GetWeight<T>(this->size_))
                 > std::numeric_limits<T>::max())
         {
             // Overflow may occur.
@@ -151,7 +154,7 @@ struct Differentiate
 
     T SetScale(T scale)
     {
-        auto weight = DerivativeSize::GetWeight(this->size_);
+        auto weight = DerivativeSize::GetWeight<T>(this->size_);
         auto weightedScale = scale * weight;
 
         if (std::numeric_limits<T>::max() / weightedScale < this->maximumInput_)
@@ -176,7 +179,7 @@ struct Differentiate
     T GetMaximum() const
     {
         return this->maximumInput_
-            * DerivativeSize::GetWeight(this->size_);
+            * DerivativeSize::GetWeight<T>(this->size_);
     }
 
     RowVector GetHorizontal() const

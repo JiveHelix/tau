@@ -63,7 +63,7 @@ void Test3dOperator(const auto &values)
         static_cast<T>(values.at(4)),
         static_cast<T>(values.at(5)));
 
-    auto result = Operator{}(left, right); 
+    auto result = Operator{}(left, right);
 
     REQUIRE(result.x == static_cast<T>(Operator{}(left.x, right.x)));
     REQUIRE(result.y == static_cast<T>(Operator{}(left.y, right.y)));
@@ -81,7 +81,7 @@ void Test2dWithScalarOperator(const auto &values)
         static_cast<T>(values.at(1)),
         static_cast<T>(values.at(2)));
 
-    auto result = Operator{}(point, scalar); 
+    auto result = Operator{}(point, scalar);
 
     REQUIRE(result.x == static_cast<T>(Operator{}(point.x, scalar)));
     REQUIRE(result.y == static_cast<T>(Operator{}(point.y, scalar)));
@@ -99,7 +99,7 @@ void Test3dWithScalarOperator(const auto &values)
         static_cast<T>(values.at(2)),
         static_cast<T>(values.at(3)));
 
-    auto result = Operator{}(point, scalar); 
+    auto result = Operator{}(point, scalar);
 
     REQUIRE(result.x == static_cast<T>(Operator{}(point.x, scalar)));
     REQUIRE(result.y == static_cast<T>(Operator{}(point.y, scalar)));
@@ -370,12 +370,16 @@ TEMPLATE_TEST_CASE(
             // A pair of values with opposite signs could subtract to twice
             // their magnitude. Dividing the range by 4 ensures no combination
             // will overflow.
-            auto maximum = 
+            auto maximum =
                 static_cast<TestType>(std::floor(std::sqrt(limit / 2.0) / 2.0));
 
             uniformRandom.SetRange(-maximum, maximum);
-            left2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
-            right2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
+
+            left2d =
+                tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
+
+            right2d =
+                tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
         }
         else
         {
@@ -388,10 +392,14 @@ TEMPLATE_TEST_CASE(
             // For unsigned comparisons, right2d must be greater than left2d to
             // avoid overflow.
             uniformRandom.SetRange(0, maximum / 2);
-            left2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
+
+            left2d =
+                tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
 
             uniformRandom.SetRange(maximum / 2, maximum);
-            right2d = tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
+
+            right2d =
+                tautest::Point2d<TestType>(uniformRandom(), uniformRandom());
         }
     }
     else
@@ -445,7 +453,7 @@ TEMPLATE_TEST_CASE(
             // A pair of values with opposite signs could subtract to twice
             // their magnitude. Because there are three such pairings,
             // divide the range by 6 to ensure no combination will overflow.
-            auto maximum = 
+            auto maximum =
                 static_cast<TestType>(std::floor(std::sqrt(limit / 3.0) / 3.0));
 
             uniformRandom.SetRange(-maximum, maximum);

@@ -16,8 +16,8 @@ template<typename T>
 struct RegionFields
 {
     static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::y, "topLeft"),
-        fields::Field(&T::x, "size"));
+        fields::Field(&T::topLeft, "topLeft"),
+        fields::Field(&T::size, "size"));
 };
 
 

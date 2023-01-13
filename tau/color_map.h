@@ -1,8 +1,8 @@
 /**
   * @file color_map.h
-  * 
+  *
   * @brief Apply color maps.
-  * 
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 07 Feb 2022
   * @copyright Jive Helix
@@ -24,7 +24,7 @@ class ColorMap
 {
 public:
     using Colors = ColorType;
-    
+
     using ColorsTraits = MatrixTraits<Colors>;
 
     static_assert(ColorsTraits::columns != Eigen::Dynamic);
@@ -110,8 +110,9 @@ public:
         asFloat.array() *= factor;
 
         // Cast back to integral values to use as indices.
-        // eval is used tp force evaluation before asFloat goes out of scope.
-        return asFloat.array().round().template cast<Eigen::Index>().eval();
+        // eval is used to force evaluation before asFloat goes out of scope.
+        return asFloat.array().round()
+            .template cast<typename Input::Scalar>().eval();
     }
 
 private:

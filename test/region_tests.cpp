@@ -23,7 +23,7 @@ TEMPLATE_TEST_CASE(
         take(16, random(tau::SeedLimits::min(), tau::SeedLimits::max())));
 
     tau::UniformRandom<TestType> uniformRandom{seed};
-    
+
     auto a = MakeRandomRegion(uniformRandom);
     auto b = MakeIntersectingRegion(uniformRandom, a);
 

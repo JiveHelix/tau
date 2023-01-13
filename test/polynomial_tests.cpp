@@ -9,12 +9,12 @@
 
 using Number = typename Eigen::VectorXd::Scalar;
 
-static constexpr size_t imprecision = 10;
+static constexpr size_t imprecision = 14;
 
 template<typename T>
 struct About: jive::About<T, imprecision>
 {
-    About(T value): jive::About<T, imprecision>(value)
+    About(T value_): jive::About<T, imprecision>(value_)
     {
 
     }
@@ -31,7 +31,8 @@ TEST_CASE("Compute single value of polynomial.", "[polynomial]")
     // catch2 random returns the same set of seeds on every run.
     // Use these seeds to create random coefficients.
 
-    auto seed = GENERATE(take(8, random(SeedLimits::min(), SeedLimits::max())));
+    auto seed =
+        GENERATE(take(16, random(SeedLimits::min(), SeedLimits::max())));
 
     auto termCount = Index(degree + 1);
     Eigen::VectorXd coefficients(termCount);
@@ -85,7 +86,7 @@ TEST_CASE("Compute polynomial from random vector input data.", "[polynomial]")
 
     // catch2 random returns the same set of seeds on every run.
     // Use these seeds to create random coefficients.
-    auto seed = GENERATE(take(8, random(SeedLimits::min(), SeedLimits::max())));
+    auto seed = GENERATE(take(16, random(SeedLimits::min(), SeedLimits::max())));
 
     auto termCount = Eigen::Index(degree + 1);
     Eigen::VectorXd coefficients(termCount);
@@ -179,7 +180,7 @@ void Check(
                     * std::pow(independents(i, j), power);
             }
 
-            REQUIRE(result(i, j) == Approx(check));
+            REQUIRE(About(result(i, j)) == check);
         }
     }
 }
@@ -298,7 +299,7 @@ TEMPLATE_TEST_CASE(
 
     Eigen::Vector<T, 20> independents;
 
-    auto seed = GENERATE(take(8, random(SeedLimits::min(), SeedLimits::max())));
+    auto seed = GENERATE(take(16, random(SeedLimits::min(), SeedLimits::max())));
 
     auto random = tau::UniformRandom<T>(seed, f(-1.0), f(1.0));
     random(independents);

@@ -84,7 +84,7 @@ TEST_CASE("Use ColorMap class to create RGB8 colors.", "[tau]")
     
     Eigen::Matrix<uint8_t, 6, 3> expected;
 
-    expected << 
+    expected <<
         turbo(7, Eigen::all),
         turbo(0, Eigen::all),
         turbo(4, Eigen::all),
@@ -104,15 +104,15 @@ TEST_CASE("Test Rescale.", "[tau]")
         {
             {2, 5, 8},
             {11, 14, 17}});
-    
+
     auto rescale = tau::FloatRescale<int>(2, 17);
-    tau::IndexMatrix<TestMatrix> indices = rescale(6, test);
-    
-    tau::IndexMatrix<TestMatrix> expected(
+    TestMatrix indices = rescale(6, test);
+
+    TestMatrix expected(
         {
             {0, 1, 2},
             {3, 4, 5}});
-   
+
     REQUIRE(indices == expected);
 }
 
