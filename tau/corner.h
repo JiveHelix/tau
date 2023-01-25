@@ -189,13 +189,15 @@ public:
         // Iterate over the window at this position.
         this->points_.clear();
 
+        auto windowSize = static_cast<Index>(this->windowSize_);
+
         if constexpr (MatrixTraits<Input>::isRowMajor)
         {
-            for (Index row = 0; row < this->windowSize_; ++row)
+            for (Index row = 0; row < windowSize; ++row)
             {
                 Index detectionRow = windowRow + row;
 
-                for (Index column = 0; column < this->windowSize_; ++column)
+                for (Index column = 0; column < windowSize; ++column)
                 {
                     MakePoints(detectionRow, windowColumn + column);
                 }
@@ -204,11 +206,11 @@ public:
         else
         {
             // Iterate in column-major order.
-            for (Index column = 0; column < this->windowSize_; ++column)
+            for (Index column = 0; column < windowSize; ++column)
             {
                 Index detectionColumn = windowColumn + column;
 
-                for (Index row = 0; row < this->windowSize_; ++row)
+                for (Index row = 0; row < windowSize; ++row)
                 {
                     MakePoints(windowRow + row, detectionColumn);
                 }

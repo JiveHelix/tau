@@ -168,3 +168,11 @@ TEST_CASE("Rotate vector", "[vector2d]")
     REQUIRE(jive::Roughly(v.GetAngle(), tolerance) == 0);
     REQUIRE(jive::Roughly(r.GetAngle(), tolerance) == angle_deg);
 }
+
+
+TEST_CASE("Compute distance between points", "[vector2d]")
+{
+    tau::Point2d<float> start(1, 1);
+    tau::Point2d<float> end(4, 5);
+    REQUIRE(start.Distance(end) == Approx(5.0f));
+}

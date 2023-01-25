@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fmt/core.h>
 #include <fields/fields.h>
 #include <pex/group.h>
 
@@ -95,6 +96,11 @@ struct Base2d
             return tau::ToDegrees(std::atan2(this->y, this->x));
         }
     }
+
+    std::string GetAsString() const
+    {
+        return fmt::format("({}, {})", this->x, this->y);
+    }
 };
 
 
@@ -123,9 +129,9 @@ struct Point2d: public Base2d<T, Point2d>
         return {this->x, this->y};
     }
 
-    T Distance(const Point2d<T> &point)
+    T Distance(const Point2d<T> &point) const
     {
-        (point - *this).Magnitude();
+        return (point - *this).Magnitude();
     }
 };
 

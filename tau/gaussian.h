@@ -44,7 +44,7 @@ Eigen::VectorX<T> Sample(T sigma, size_t size)
 
     if constexpr (order == 0)
     {
-        T divisor = sigma * std::sqrt(static_cast<float>(2.0) * tau::Angles<T>::pi);
+        T divisor = sigma * std::sqrt(static_cast<T>(2.0) * tau::Angles<T>::pi);
         return exponential.array() / divisor;
     }
     else if constexpr (order == 1)

@@ -115,8 +115,11 @@ static T LineAngleDifference(T firstDegrees, T secondDegrees)
     {
         // This angle is within ±45 degrees of 0/180.
         // Shift the values by 90 degrees.
-        firstDegrees = std::fmod(firstDegrees + quarterTurn, 180);
-        secondDegrees = std::fmod(secondDegrees + quarterTurn, 180);
+        firstDegrees = static_cast<T>(
+            std::fmod(firstDegrees + quarterTurn, 180));
+
+        secondDegrees = static_cast<T>(
+            std::fmod(secondDegrees + quarterTurn, 180));
     }
 
     return firstDegrees - secondDegrees;
@@ -282,6 +285,11 @@ struct Line2d: public Line2dBase<T>
     {
         auto perpendicular = Line2d<T>(point_, this->vector.Rotate(90));
         return std::abs(perpendicular.DistanceToIntersection(*this));
+    }
+
+    Line2d<T> GetRotated(T angleDegrees) const
+    {
+        return Line2d<T>(this->point, this->vector.Rotate(angleDegrees));
     }
 
     Point2d<T> GetEndPoint(T scale) const

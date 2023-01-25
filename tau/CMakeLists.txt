@@ -9,7 +9,8 @@ target_link_libraries(
     CONAN_PKG::jive
     CONAN_PKG::fields
     CONAN_PKG::pex
-    CONAN_PKG::eigen)
+    CONAN_PKG::eigen
+    CONAN_PKG::fmt)
 
 install(
     DIRECTORY ${PROJECT_SOURCE_DIR}/tau
