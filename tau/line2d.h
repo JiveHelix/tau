@@ -287,6 +287,13 @@ struct Line2d: public Line2dBase<T>
         return std::abs(perpendicular.DistanceToIntersection(*this));
     }
 
+    T DistanceToLine(const Line2d<T> &other) const
+    {
+        return std::min(
+            this->DistanceToPoint(other.point),
+            other.DistanceToPoint(this->point));
+    }
+
     Line2d<T> GetRotated(T angleDegrees) const
     {
         return Line2d<T>(this->point, this->vector.Rotate(angleDegrees));

@@ -80,9 +80,20 @@ public:
             const Line &first = group.lines[i];
             const Line &second = group.lines[i + 1];
 
-            group.spacings(static_cast<Index>(i)) =
+            auto spacing =
                 perpendicular.DistanceToIntersection(second)
                 - perpendicular.DistanceToIntersection(first);
+
+            if (spacing < lineSeparation)
+            {
+                std::cout << "unexpected spacing: " << spacing
+                    << "\n  first angle: " << first.GetAngleDegrees()
+                    << ", first point: " << first.point
+                    << "\n  second angle: " << second.GetAngleDegrees()
+                    << ", second point: " << second.point << std::endl;
+            }
+
+            group.spacings(static_cast<Index>(i)) = spacing;
         }
 
         group.minimumSpacing = group.spacings.minCoeff();
@@ -504,6 +515,67 @@ public:
         if (linesEnd != end(this->lines))
         {
             this->lines.erase(linesEnd, end(this->lines));
+        }
+
+        std::sort(
+            begin(this->lines),
+            end(this->lines),
+            [this](auto &first, auto &second) -> bool
+            {
+                auto angle = first.GetAngleDegrees();
+
+                if (
+                    CompareLineAngles(
+                        angle,
+                        second.GetAngleDegrees(),
+                        this->angleToleranceDegrees))
+                {
+                    Float perpendicularAngle = angle + 90;
+
+                    auto perpendicularAngle_rad = tau::ToRadians(perpendicularAngle);
+
+                    auto perpendicular = Line2d<Float>(
+                        Point2d<Float>(0, 0),
+                        Vector2d<Float>(
+                            std::cos(perpendicularAngle_rad),
+                            std::sin(perpendicularAngle_rad)));
+
+                    // Sort the lines by their position along the intersecting
+                    // line.
+                    return perpendicular.DistanceToIntersection(first)
+                        < perpendicular.DistanceToIntersection(second);
+                }
+            });
+
+        auto duplicate = begin(this->lines);
+
+        while (duplicate != end(this->lines))
+        {
+            duplicate = std::adjacent_find(
+                duplicate,
+                end(this->lines),
+                [this](const auto &first, const auto &second) -> bool
+                {
+                    if (
+                        !CompareLineAngles(
+                            first.GetAngleDegrees(),
+                            second.GetAngleDegrees(),
+                            this->angleToleranceDegrees))
+                    {
+                        return false;
+                    }
+
+                    return first.DistanceToLine(second) < this->lineSeparation;
+                });
+
+            if (duplicate != end(this->lines))
+            {
+                std::cout << "Duplicate lines:\n"
+                    << "  angle: " << duplicate->GetAngleDegrees()
+                    << "  point: " << duplicate->point
+                    << "  angle: " << (++duplicate)->GetAngleDegrees()
+                    << "  point: " << duplicate->point << std::endl;
+            }
         }
     }
 
