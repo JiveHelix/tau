@@ -25,7 +25,6 @@ public:
 
     static void SortGroup(Group &group, Float lineSeparation, bool isHorizontal)
     {
-
         if (group.lines.size() < 2)
         {
             // Not enough lines to sort.
@@ -81,7 +80,8 @@ public:
             const Line &first = group.lines[i];
             const Line &second = group.lines[i + 1];
 
-            group.spacings(static_cast<Index>(i)) = perpendicular.DistanceToIntersection(second)
+            group.spacings(static_cast<Index>(i)) =
+                perpendicular.DistanceToIntersection(second)
                 - perpendicular.DistanceToIntersection(first);
         }
 
@@ -89,14 +89,20 @@ public:
         group.maximumSpacing = group.spacings.maxCoeff();
         group.logicalIndices = std::vector<size_t>();
 
-        size_t logicalIndex = 0;
-        group.logicalIndices.push_back(logicalIndex);
-
         if (group.minimumSpacing < lineSeparation)
         {
-            throw std::runtime_error(
-                "minimum spacing is less than line separation");
+            // Unable to safely guess the logical indices.
+
+            std::cout << "Info: minimum spacing ("
+                << group.minimumSpacing
+                << ") is less than line separation ("
+                << lineSeparation << ")" << std::endl;
+
+            return;
         }
+
+        size_t logicalIndex = 0;
+        group.logicalIndices.push_back(logicalIndex);
 
         for (auto spacing: group.spacings)
         {
@@ -106,7 +112,6 @@ public:
             group.logicalIndices.push_back(logicalIndex);
         }
     }
-
 
     static std::optional<Point> FindPoint(
         const Point &candidate,
@@ -152,6 +157,16 @@ public:
 
         if (vertical.lines.empty() || horizontal.lines.empty())
         {
+            return result;
+        }
+
+        if (
+            vertical.logicalIndices.empty()
+            || horizontal.logicalIndices.empty())
+        {
+            // Previous stages may not have been able to guess the logical
+            // indices.
+            // We cannot label intersections.
             return result;
         }
 
@@ -229,7 +244,7 @@ public:
             // Check the previous group for a match
             --group;
 
-            if (CompareLineAngles( angle, group->angle, groupSeparationDegrees))
+            if (CompareLineAngles(angle, group->angle, groupSeparationDegrees))
             {
                 group->AddLine(line);
                 return;
@@ -261,6 +276,33 @@ public:
                 solution.groups,
                 solution.lines[index++],
                 groupSeparationDegrees);
+        }
+
+        // Combine the first and last group if they are within the group
+        // separation angular limit.
+        if (solution.groups.size() > 1)
+        {
+            // There are at least two groups.
+            auto &front = solution.groups.front();
+            auto &back = solution.groups.back();
+
+            if (CompareLineAngles(
+                    front.angle,
+                    back.angle,
+                    groupSeparationDegrees))
+            {
+                // Combine the groups.
+                for (auto &line: back.lines)
+                {
+                    front.lines.push_back(line);
+                }
+
+                front.angle =
+                    ToDegrees(GetAverageAngleRadians<Float>(front.lines));
+
+                // Remove back.
+                solution.groups.pop_back();
+            }
         }
 
         auto upperLimit = std::max(settings.rowCount, settings.columnCount);
