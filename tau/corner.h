@@ -54,13 +54,12 @@ struct CornerSettings
 };
 
 
-template<typename T>
 struct CornerPoint
 {
-    Point2d<T> point;
-    T count;
+    Point2d<double> point;
+    double count;
 
-    CornerPoint(T x, T y, T count_)
+    CornerPoint(double x, double y, double count_)
         :
         point(x, y),
         count(count_)
@@ -68,7 +67,7 @@ struct CornerPoint
 
     }
 
-    bool operator>(const CornerPoint<T> &other) const
+    bool operator>(const CornerPoint &other) const
     {
         if (this->point.template Convert<int>()
                 > other.point.template Convert<int>())
@@ -81,7 +80,7 @@ struct CornerPoint
 
     // For the purpose of determining unique corners, corners with the same
     // point compare equal, even if their counts differ.
-    bool operator==(const CornerPoint<T> &other) const
+    bool operator==(const CornerPoint &other) const
     {
         return (this->point.template Convert<int>()
             == other.point.template Convert<int>());
@@ -89,17 +88,16 @@ struct CornerPoint
 };
 
 
-template<typename T>
-using CornerPointsCollection = std::vector<CornerPoint<T>>;
+using CornerPointsCollection = std::vector<CornerPoint>;
 
 
-template<typename Float, typename Data>
-static CornerPointsCollection<Float> GetPoints(
+template<typename Data>
+static CornerPointsCollection GetPoints(
     const Eigen::MatrixBase<Data> &input)
 {
     using Eigen::Index;
 
-    CornerPointsCollection<Float> points;
+    CornerPointsCollection points;
 
     if constexpr (MatrixTraits<Data>::isRowMajor)
     {
@@ -110,8 +108,8 @@ static CornerPointsCollection<Float> GetPoints(
                 if (input(row, column) != 0)
                 {
                     points.emplace_back(
-                        static_cast<Float>(column),
-                        static_cast<Float>(row),
+                        static_cast<double>(column),
+                        static_cast<double>(row),
                         1);
                 }
             }
@@ -127,8 +125,8 @@ static CornerPointsCollection<Float> GetPoints(
                 if (input(row, column) != 0)
                 {
                     points.emplace_back(
-                        static_cast<Float>(column),
-                        static_cast<Float>(row),
+                        static_cast<double>(column),
+                        static_cast<double>(row),
                         1);
                 }
             }
@@ -143,15 +141,10 @@ namespace internal
 {
 
 
-template<typename Float>
 class CornerCollector
 {
 public:
     using Index = typename Eigen::Index;
-
-    static_assert(
-        std::is_floating_point_v<Float>,
-        "This class is designed for floating-point data.");
 
     CornerCollector(size_t windowSize, size_t count)
         :
@@ -163,7 +156,7 @@ public:
         this->points_.reserve(windowSize * windowSize);
     }
 
-    const CornerPointsCollection<Float> & GetCorners()
+    const CornerPointsCollection & GetCorners()
     {
         return this->corners_;
     }
@@ -181,8 +174,8 @@ public:
             if (input(row, column) != 0)
             {
                 this->points_.emplace_back(
-                    static_cast<Float>(column),
-                    static_cast<Float>(row));
+                    static_cast<double>(column),
+                    static_cast<double>(row));
             }
         };
 
@@ -222,9 +215,9 @@ public:
             return;
         }
 
-        Float centroidX = 0;
-        Float centroidY = 0;
-        auto pointCount = static_cast<Float>(this->points_.size());
+        double centroidX = 0;
+        double centroidY = 0;
+        auto pointCount = static_cast<double>(this->points_.size());
 
         for (auto &point: this->points_)
         {
@@ -245,15 +238,14 @@ public:
 private:
     size_t windowSize_;
     size_t count_;
-    Point2dCollection<Float> points_;
-    CornerPointsCollection<Float> corners_;
+    Point2dCollection<double> points_;
+    CornerPointsCollection corners_;
 };
 
 
 } // end namespace internal
 
 
-template<typename Float>
 class Corner
 {
 public:
@@ -267,8 +259,7 @@ public:
     }
 
     template<typename Data>
-    CornerPointsCollection<Float> Filter(
-        const Eigen::MatrixBase<Data> &input)
+    CornerPointsCollection Filter(const Eigen::MatrixBase<Data> &input)
     {
         using Eigen::Index;
 
@@ -281,7 +272,7 @@ public:
         Index limitRow = rowCount - this->windowSize_ + 1;
         Index limitColumn = columnCount - this->windowSize_ + 1;
 
-        internal::CornerCollector<Float> cornerCollector(
+        internal::CornerCollector cornerCollector(
             static_cast<size_t>(this->windowSize_),
             this->count_);
 

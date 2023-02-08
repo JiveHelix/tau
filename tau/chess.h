@@ -1,644 +1,195 @@
 #pragma once
 
 #include <optional>
+
+#include <tau/vector2d.h>
+#include <tau/line2d.h>
 #include <tau/corner.h>
 #include <tau/chess_settings.h>
-#include <tau/chess_solution.h>
 
 
 namespace tau
 {
 
 
-template<typename Float>
-class ChessMethods
+class ChessLine: public Line2d<double>
 {
 public:
-    using Point = Point2d<Float>;
-    using Solution = ChessSolution<Float>;
-    using Line = typename ChessLineGroup<Float>::Line;
-    using LineCollection = typename Solution::LineCollection;
-    using Intersections = typename Solution::Intersections;
-    using Group = typename Solution::LineGroup;
-    using GroupCollection = typename Solution::GroupCollection;
+    using Base = Line2d<double>;
+    using Point = Point2d<double>;
+    using Points = std::vector<Point>;
+
+    ChessLine(
+        double angleToleranceDegrees,
+        double lineSeparation,
+        const Point &first,
+        const Point &second);
+
+    double GetError(const Point &point_) const;
+
+    void Combine(const ChessLine &other);
+
+    bool AddPoint(const Point &point);
+
+    void RemoveOutliers(double maximumPointError);
+
+    size_t GetPointCount() const;
+
+    Points GetPoints() const;
+
+    bool operator<(const ChessLine &other) const;
+
+    bool operator==(const ChessLine &other) const;
+
+private:
+    using Iterator = typename Points::iterator;
+    std::optional<Iterator> GetInsertion_(const Point &point);
+
+private:
+    double angleToleranceDegrees_;
+    double lineSeparation_;
+    Points points_;
+};
 
 
-    static void SortGroup(Group &group, Float lineSeparation, bool isHorizontal)
-    {
-        if (group.lines.size() < 2)
-        {
-            // Not enough lines to sort.
-            return;
-        }
+struct ChessLineGroup
+{
+    using LineCollection = std::vector<ChessLine>;
 
-        // Get perpendicular line
-        // The range of values for group.angle is 0 to 180.
-        Float perpendicularAngle = group.angle + 90;
+    ChessLineGroup();
 
-        if (isHorizontal)
-        {
-            // We want the perpendicularAngle to be close to 90, not -90.
-            if (perpendicularAngle > 180)
-            {
-                perpendicularAngle -= 180;
-            }
-        }
-        else
-        {
-            // We want the perpendicularAngle to be close to 0, not
-            // 180
-            if (perpendicularAngle > 90)
-            {
-                perpendicularAngle -= 180;
-            }
-        }
+    ChessLineGroup(const ChessLine &line);
 
-        auto perpendicularAngle_rad = tau::ToRadians(perpendicularAngle);
+    void AddLine(const ChessLine &line);
 
-        auto perpendicular = Line2d<Float>(
-            group.lines[0].point,
-            Vector2d<Float>(
-                std::cos(perpendicularAngle_rad),
-                std::sin(perpendicularAngle_rad)));
+    double GetSpacingRatio() const;
 
-        // Sort the lines by their position along the intersecting line.
-        std::sort(
-            begin(group.lines),
-            end(group.lines),
-            [&](const Line &first, const Line &second) -> bool
-            {
-                return perpendicular.DistanceToIntersection(first)
-                    < perpendicular.DistanceToIntersection(second);
-            });
+    size_t GetLogicalIndex(size_t lineIndex) const;
 
-        using Eigen::Index;
+    void Sort(double lineSeparation, bool isHorizontal);
 
-        group.spacings = Eigen::VectorX<Float>(group.lines.size() - 1);
+    double angle;
+    LineCollection lines;
+    Eigen::VectorX<double> spacings;
+    double minimumSpacing;
+    double maximumSpacing;
+    std::vector<size_t> logicalIndices;
+};
 
-        for (size_t i = 0; i < group.lines.size() - 1; ++i)
-        {
-            const Line &first = group.lines[i];
-            const Line &second = group.lines[i + 1];
 
-            auto spacing =
-                perpendicular.DistanceToIntersection(second)
-                - perpendicular.DistanceToIntersection(first);
+struct ChessIntersection
+{
+    Point2d<size_t> logical;
+    Point2d<double> pixel;
 
-            if (spacing < lineSeparation)
-            {
-                std::cout << "unexpected spacing: " << spacing
-                    << "\n  first angle: " << first.GetAngleDegrees()
-                    << ", first point: " << first.point
-                    << "\n  second angle: " << second.GetAngleDegrees()
-                    << ", second point: " << second.point << std::endl;
-            }
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&ChessIntersection::logical, "logical"),
+        fields::Field(&ChessIntersection::pixel, "pixel"));
 
-            group.spacings(static_cast<Index>(i)) = spacing;
-        }
+    static constexpr auto fieldsTypeName = "ChessIntersection";
+};
 
-        group.minimumSpacing = group.spacings.minCoeff();
-        group.maximumSpacing = group.spacings.maxCoeff();
-        group.logicalIndices = std::vector<size_t>();
 
-        if (group.minimumSpacing < lineSeparation)
-        {
-            // Unable to safely guess the logical indices.
+struct ChessSolution
+{
+    using Point = typename ChessLine::Point;
+    using GroupCollection = std::list<ChessLineGroup>;
+    using LineCollection = typename ChessLineGroup::LineCollection;
+    using Intersections = std::vector<ChessIntersection>;
 
-            std::cout << "Info: minimum spacing ("
-                << group.minimumSpacing
-                << ") is less than line separation ("
-                << lineSeparation << ")" << std::endl;
+    ChessSolution() = default;
 
-            return;
-        }
+    static ChessSolution Create(
+        const LineCollection &lines_,
+        const ChessSettings &settings);
 
-        size_t logicalIndex = 0;
-        group.logicalIndices.push_back(logicalIndex);
+    void AddLine(
+        const ChessLine &line,
+        double groupSeparationDegrees);
 
-        for (auto spacing: group.spacings)
-        {
-            logicalIndex +=
-                static_cast<size_t>(std::round(spacing / group.minimumSpacing));
-
-            group.logicalIndices.push_back(logicalIndex);
-        }
-    }
+    Intersections FormIntersections(double maximumPointError);
 
     static std::optional<Point> FindPoint(
         const Point &candidate,
         const std::vector<Point> &horizontalPoints,
-        const Line &vertical,
-        Float maximumPointError)
-    {
-        if (horizontalPoints.empty())
-        {
-            throw std::logic_error("must have points");
-        }
+        const ChessLine &vertical,
+        double maximumPointError);
 
-        for (const auto &point: horizontalPoints)
-        {
-            auto distance = candidate.Distance(point);
-
-            if (distance < maximumPointError)
-            {
-                return {point};
-            }
-        }
-
-        for (const auto &point: vertical.GetPoints())
-        {
-            auto distance = candidate.Distance(point);
-
-            if (distance < maximumPointError)
-            {
-                return {point};
-            }
-        }
-
-        return {};
-    }
-
-
-    static Intersections FormIntersections(
-        const Group &vertical,
-        const Group &horizontal,
-        Float maximumPointError)
-    {
-        auto result = Intersections{};
-
-        if (vertical.lines.empty() || horizontal.lines.empty())
-        {
-            return result;
-        }
-
-        if (
-            vertical.logicalIndices.empty()
-            || horizontal.logicalIndices.empty())
-        {
-            // Previous stages may not have been able to guess the logical
-            // indices.
-            // We cannot label intersections.
-            return result;
-        }
-
-        size_t verticalCount = vertical.lines.size();
-        size_t horizontalCount = horizontal.lines.size();
-
-        // Iterate over the intersections of horizontal and vertical lines.
-        // If an intersection has a point within the maximumPointError
-        // threshold, consider that point a point on the chess board.
-        for (auto j: jive::Range<size_t>(0, horizontalCount))
-        {
-            const Line &horizontalLine = horizontal.lines[j];
-            const auto &horizontalPoints = horizontalLine.GetPoints();
-            auto logicalRow = horizontal.GetLogicalIndex(j);
-
-            for (auto i: jive::Range<size_t>(0, verticalCount))
-            {
-                const Line &verticalLine = vertical.lines[i];
-                auto intersection = verticalLine.Intersect(horizontalLine);
-
-                auto point = FindPoint(
-                    intersection,
-                    horizontalPoints,
-                    verticalLine,
-                    2 * maximumPointError);
-
-                if (point.has_value())
-                {
-                    auto logicalColumn = vertical.GetLogicalIndex(i);
-
-                    result.push_back(
-                        {{logicalColumn, logicalRow}, *point});
-                }
-            }
-        }
-
-        return result;
-    }
-
-
-    static void AddLine(
-        GroupCollection &groups,
-        const Line &line,
-        Float groupSeparationDegrees)
-    {
-        Float angle = line.GetAngleDegrees();
-
-        auto group = std::upper_bound(
-            begin(groups),
-            end(groups),
-            angle,
-            [](Float angle, const auto &group) -> bool
-            {
-                return angle < group.angle;
-            });
-
-        // The group iterator points to the first group for which
-        // angle < group.angle is false.
-        // It could also point to the end.
-
-        // Check the group found by upper_bound
-        if (group != end(groups))
-        {
-            // It is not the end, so it is safe to dereference.
-            if (CompareLineAngles(angle, group->angle, groupSeparationDegrees))
-            {
-                group->AddLine(line);
-                return;
-            }
-        }
-
-        // Check the preceding group
-        if (group != begin(groups))
-        {
-            // Check the previous group for a match
-            --group;
-
-            if (CompareLineAngles(angle, group->angle, groupSeparationDegrees))
-            {
-                group->AddLine(line);
-                return;
-            }
-
-            // Restore group to the upper_bound for insertion of a new group.
-            ++group;
-        }
-
-        // Insert a new group.
-        groups.insert(group, Group(line));
-    }
-
-
-    static Solution Create(
-        const LineCollection &lines_,
-        const ChessSettings<Float> &settings)
-    {
-        Solution solution{};
-        solution.lines = lines_;
-        solution.groups.emplace_back(solution.lines.at(0));
-
-        Float groupSeparationDegrees = settings.groupSeparationDegrees;
-        size_t index = 1;
-
-        while (index < solution.lines.size())
-        {
-            AddLine(
-                solution.groups,
-                solution.lines[index++],
-                groupSeparationDegrees);
-        }
-
-        // Combine the first and last group if they are within the group
-        // separation angular limit.
-        if (solution.groups.size() > 1)
-        {
-            // There are at least two groups.
-            auto &front = solution.groups.front();
-            auto &back = solution.groups.back();
-
-            if (CompareLineAngles(
-                    front.angle,
-                    back.angle,
-                    groupSeparationDegrees))
-            {
-                // Combine the groups.
-                for (auto &line: back.lines)
-                {
-                    front.lines.push_back(line);
-                }
-
-                front.angle =
-                    ToDegrees(GetAverageAngleRadians<Float>(front.lines));
-
-                // Remove back.
-                solution.groups.pop_back();
-            }
-        }
-
-        auto upperLimit = std::max(settings.rowCount, settings.columnCount);
-
-        // Remove groups that are outside the allowable range.
-        auto filteredEnd = std::remove_if(
-            begin(solution.groups),
-            end(solution.groups),
-            [&] (const auto &group) -> bool
-            {
-                return (group.lines.size() < settings.minimumLinesPerGroup)
-                    || (group.lines.size() > upperLimit);
-            });
-
-        if (filteredEnd != end(solution.groups))
-        {
-            solution.groups.erase(filteredEnd, end(solution.groups));
-        }
-
-        if (solution.groups.empty())
-        {
-            return solution;
-        }
-
-        // There is at least one group, and
-        // all remaining groups have the minimum number of lines.
-
-        // Sort descending by number of lines.
-        solution.groups.sort(
-            [](const Group &first, const Group &second) -> bool
-            {
-                return first.lines.size() > second.lines.size();
-            });
-
-        // Choose the largest group to be "vertical"...
-        auto group = begin(solution.groups);
-
-        solution.vertical = *group;
-        SortGroup(solution.vertical, settings.lineSeparation, false);
-
-        Float verticalAngle = solution.vertical.angle;
-
-        ++group;
-
-        if (group == end(solution.groups))
-        {
-            return solution;
-        }
-
-        GroupCollection theRest(group, end(solution.groups));
-
-        // Sort descending by number of lines and by how close the angle is to
-        // 90 from the vertical
-        solution.groups.sort(
-            [&](const Group &first, const Group &second) -> bool
-            {
-                auto sizeDifference = std::abs(
-                    static_cast<ssize_t>(first.lines.size())
-                        - static_cast<ssize_t>(second.lines.size()));
-
-                Float firstAngleDifference = std::abs(
-                    LineAngleDifference(first.angle, verticalAngle));
-
-                Float secondAngleDifference = std::abs(
-                    LineAngleDifference(second.angle, verticalAngle));
-
-                Float firstAngle = std::abs(
-                    LineAngleDifference(Float{90}, firstAngleDifference));
-
-                Float secondAngle = std::abs(
-                    LineAngleDifference(Float{90}, secondAngleDifference));
-
-                if (sizeDifference < 2)
-                {
-                    // The difference in size is minimal.
-                    // Prefer the line closest to 90 degrees with the vertical.
-                    return LineAngleDifference(firstAngle, secondAngle) < 0;
-                }
-
-                return first.lines.size() > second.lines.size();
-            });
-
-        group = begin(solution.groups);
-
-        while (group != end(solution.groups))
-        {
-            Float difference = std::abs(
-                LineAngleDifference(group->angle, verticalAngle));
-
-            if (difference > 70)
-            {
-                solution.horizontal = *group;
-                SortGroup(solution.horizontal, settings.lineSeparation, true);
-                break;
-            }
-
-            ++group;
-        }
-
-        solution.intersections = FormIntersections(
-            solution.vertical,
-            solution.horizontal,
-            settings.maximumPointError);
-
-        return solution;
-    }
+    LineCollection lines;
+    GroupCollection groups;
+    ChessLineGroup horizontal;
+    ChessLineGroup vertical;
+    Intersections intersections;
 };
 
 
-template<typename Float>
 class LineCollector
 {
 public:
-    using LineCollection = std::vector<ChessLine<Float>>;
+    using LineCollection = std::vector<ChessLine>;
 
     LineCollection lines;
-    Float maximumPointError;
-    Float angleToleranceDegrees;
-    Float lineSeparation;
+    double maximumPointError;
+    double angleToleranceDegrees;
+    double lineSeparation;
 
     size_t minimumPointsPerLine;
-    Float angleFilterLow;
-    Float angleFilterHigh;
+    double angleFilterLow;
+    double angleFilterHigh;
 
-    LineCollector(ChessSettings<Float> &settings)
-        :
-        lines{},
-        maximumPointError(settings.maximumPointError),
-        angleToleranceDegrees(settings.angleToleranceDegrees),
-        lineSeparation(settings.lineSeparation),
-        minimumPointsPerLine(settings.minimumPointsPerLine),
-        angleFilterLow(settings.angleFilter.low),
-        angleFilterHigh(settings.angleFilter.high)
-    {
-
-    }
+    LineCollector(const ChessSettings &settings);
 
     void AddToLines(
-        const Point2d<Float> &firstPoint,
-        const Point2d<Float> &secondPoint)
-    {
-        // Add points to any existing lines that are below the threshold.
-        bool exists = false;
-        ChessLine<Float> candidateLine(firstPoint, secondPoint);
-
-        for (auto &line: this->lines)
-        {
-            if (line.IsColinear(
-                    candidateLine,
-                    this->angleToleranceDegrees,
-                    this->lineSeparation))
-            {
-                exists = true;
-            }
-
-            if (line.GetError(firstPoint) <= this->maximumPointError)
-            {
-                line.AddPoint(firstPoint);
-            }
-
-            if (line.GetError(secondPoint) <= this->maximumPointError)
-            {
-                line.AddPoint(secondPoint);
-            }
-        }
-
-        if (!exists)
-        {
-            // The candidate line is not colinear with any of the other lines.
-            // Add it to the collection.
-            this->lines.push_back(candidateLine);
-        }
-    };
+        const Point2d<double> &firstPoint,
+        const Point2d<double> &secondPoint);
 
     // As lines are constructed, only the error from the newest point is
     // considered. The updated average line can be pulled away from earlier
     // points, leaving them as outliers that have too much point error.
-    void RemoveOutliers()
-    {
-        for (auto &line: this->lines)
-        {
-            line.RemoveOutliers(this->maximumPointError);
-        }
-    }
+    void RemoveOutliers();
 
     // Apply angle and minimum points filters.
-    void Filter()
-    {
-        auto linesEnd = std::remove_if(
-            begin(this->lines),
-            end(this->lines),
-            [this] (const auto &line) -> bool
-            {
-                return (line.GetPointCount() < this->minimumPointsPerLine)
-                    || (line.GetAngleDegrees() < this->angleFilterLow)
-                    || (line.GetAngleDegrees() > this->angleFilterHigh);
-            });
+    void Filter();
 
-        if (linesEnd != end(this->lines))
-        {
-            this->lines.erase(linesEnd, end(this->lines));
-        }
-
-        std::sort(
-            begin(this->lines),
-            end(this->lines),
-            [this](auto &first, auto &second) -> bool
-            {
-                auto angle = first.GetAngleDegrees();
-
-                if (
-                    CompareLineAngles(
-                        angle,
-                        second.GetAngleDegrees(),
-                        this->angleToleranceDegrees))
-                {
-                    Float perpendicularAngle = angle + 90;
-
-                    auto perpendicularAngle_rad = tau::ToRadians(perpendicularAngle);
-
-                    auto perpendicular = Line2d<Float>(
-                        Point2d<Float>(0, 0),
-                        Vector2d<Float>(
-                            std::cos(perpendicularAngle_rad),
-                            std::sin(perpendicularAngle_rad)));
-
-                    // Sort the lines by their position along the intersecting
-                    // line.
-                    return perpendicular.DistanceToIntersection(first)
-                        < perpendicular.DistanceToIntersection(second);
-                }
-            });
-
-        auto duplicate = begin(this->lines);
-
-        while (duplicate != end(this->lines))
-        {
-            duplicate = std::adjacent_find(
-                duplicate,
-                end(this->lines),
-                [this](const auto &first, const auto &second) -> bool
-                {
-                    if (
-                        !CompareLineAngles(
-                            first.GetAngleDegrees(),
-                            second.GetAngleDegrees(),
-                            this->angleToleranceDegrees))
-                    {
-                        return false;
-                    }
-
-                    return first.DistanceToLine(second) < this->lineSeparation;
-                });
-
-            if (duplicate != end(this->lines))
-            {
-                std::cout << "Duplicate lines:\n"
-                    << "  angle: " << duplicate->GetAngleDegrees()
-                    << "  point: " << duplicate->point
-                    << "  angle: " << (++duplicate)->GetAngleDegrees()
-                    << "  point: " << duplicate->point << std::endl;
-            }
-        }
-    }
-
-    LineCollection FormLines(const CornerPointsCollection<Float> &corners)
-    {
-        assert(!corners.empty());
-
-        for (size_t i = 0; i < corners.size() - 1; ++i)
-        {
-            const auto &firstCorner = corners[i];
-
-            for (size_t j = i + 1; j < corners.size(); ++j)
-            {
-                const auto &secondCorner = corners[j];
-                this->AddToLines(firstCorner.point, secondCorner.point);
-            }
-        }
-
-        this->RemoveOutliers();
-        this->Filter();
-
-        return this->lines;
-    }
+    LineCollection FormLines(const CornerPointsCollection &corners);
 };
 
 
-template<typename Float>
 class Chess
 {
 public:
-    using Methods = ChessMethods<Float>;
-    using LineCollection = typename Methods::LineCollection;
+    using LineCollection = typename LineCollector::LineCollection;
 
-    Chess(const ChessSettings<Float> &settings)
+    Chess(const ChessSettings &settings)
         :
         settings_(settings)
     {
 
     }
 
-    ChessSolution<Float> GroupLines(const LineCollection &lines)
+    ChessSolution GroupLines(const LineCollection &lines)
     {
         if (lines.empty())
         {
             return {};
         }
 
-        return Methods::Create(lines, this->settings_);
+        return ChessSolution::Create(lines, this->settings_);
     }
 
 
-    LineCollection FormLines(const CornerPointsCollection<Float> &corners)
+    LineCollection FormLines(const CornerPointsCollection &corners)
     {
         if (corners.empty())
         {
             return {};
         }
 
-        return LineCollector<Float>(this->settings_).FormLines(corners);
+        return LineCollector(this->settings_).FormLines(corners);
     }
 
 private:
-    ChessSettings<Float> settings_;
+    ChessSettings settings_;
 };
 
 

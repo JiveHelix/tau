@@ -28,12 +28,8 @@ struct ChessFields
 };
 
 
-
-template<typename Float>
 struct ChessTemplate
 {
-    static_assert(std::is_floating_point_v<Float>);
-
     using PointsLow = pex::Limit<3>;
     using PointsHigh = pex::Limit<32>;
 
@@ -43,7 +39,7 @@ struct ChessTemplate
     using AngleFilterRanges =
         pex::LinkedRanges
         <
-            float,
+            double,
             AngleFilterLow,
             AngleFilterLow,
             AngleFilterHigh,
@@ -54,11 +50,11 @@ struct ChessTemplate
     struct Template
     {
         T<pex::MakeRange<size_t, PointsLow, PointsHigh>> minimumPointsPerLine;
-        T<Float> maximumPointError;
-        T<Float> angleToleranceDegrees;
-        T<Float> lineSeparation;
+        T<double> maximumPointError;
+        T<double> angleToleranceDegrees;
+        T<double> lineSeparation;
         T<bool> enableGroup;
-        T<Float> groupSeparationDegrees;
+        T<double> groupSeparationDegrees;
         T<size_t> minimumLinesPerGroup;
         T<size_t> rowCount;
         T<size_t> columnCount;
@@ -70,20 +66,18 @@ struct ChessTemplate
 };
 
 
-template<typename Float>
 struct ChessSettings
     :
-    public ChessTemplate<Float>::template Template<pex::Identity>
+    public ChessTemplate::template Template<pex::Identity>
 {
     static ChessSettings Default()
     {
         static constexpr size_t defaultMinimumPointsPerLine = 5;
 
-        static constexpr Float defaultMaximumPointError =
-            static_cast<Float>(2.0);
+        static constexpr double defaultMaximumPointError = 2.0;
 
-        static constexpr Float defaultAngleTolerance = 2;
-        static constexpr Float defaultLineSeparation = 2;
+        static constexpr double defaultAngleTolerance = 2;
+        static constexpr double defaultLineSeparation = 2;
         static constexpr size_t defaultMinimumLinesPerGroup = 3;
         static constexpr size_t defaultRowCount = 6;
         static constexpr size_t defaultColumnCount = 8;
@@ -101,6 +95,9 @@ struct ChessSettings
             {{0, 180}}}};
     }
 };
+
+
+// DECLARE_COMPARISON_OPERATORS(ChessSettings)
 
 
 } // end namespace tau

@@ -20,13 +20,15 @@ namespace tau
 {
 
 
-
+namespace constants
+{
 inline constexpr long double tau = 6.283185307179586476925286766559005L;
 inline constexpr long double pi = tau / 2.0L;
 inline constexpr long double tauDegrees = 360.0L;
 inline constexpr long double piDegrees = 180.0L;
 inline constexpr long double degreesPerRadian = tauDegrees / tau;
 inline constexpr long double radiansPerDegree = tau / tauDegrees;
+} // end namespace constants
 
 
 template<typename T>
@@ -34,21 +36,21 @@ struct Angles
 {
     static_assert(std::is_floating_point_v<T>);
 
-    static constexpr T tau = static_cast<T>(::tau::tau);
+    static constexpr T tau = static_cast<T>(constants::tau);
 
-    static constexpr T pi = static_cast<T>(::tau::pi);
+    static constexpr T pi = static_cast<T>(constants::pi);
 
     static constexpr T tauDegrees =
-        static_cast<T>(::tau::tauDegrees);
+        static_cast<T>(constants::tauDegrees);
 
     static constexpr T piDegrees =
-        static_cast<T>(::tau::piDegrees);
+        static_cast<T>(constants::piDegrees);
 
     static constexpr T degreesPerRadian =
-        static_cast<T>(::tau::degreesPerRadian);
+        static_cast<T>(constants::degreesPerRadian);
 
     static constexpr T radiansPerDegree =
-        static_cast<T>(::tau::radiansPerDegree);
+        static_cast<T>(constants::radiansPerDegree);
 };
 
 

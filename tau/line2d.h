@@ -179,10 +179,10 @@ struct Line2d: public Line2dBase<T>
         T sumX = 0;
         T sumY = 0;
 
-        for (const auto &point: points)
+        for (const auto &point_: points)
         {
-            sumX += point.x;
-            sumY += point.y;
+            sumX += point_.x;
+            sumY += point_.y;
         }
 
         auto pointCount = static_cast<T>(points.size());
@@ -327,12 +327,43 @@ struct Line2d: public Line2dBase<T>
             return false;
         }
 
-        if (this->DistanceToPoint(other.point) > toleranceOffset)
+        if (this->DistanceToLine(other) > toleranceOffset)
         {
             return false;
         }
 
         return true;
+    }
+
+    bool LessThan(const Line2d<T> &other, T toleranceDegrees) const
+    {
+        auto thisAngle = this->GetAngleDegrees();
+        auto otherAngle = other.GetAngleDegrees();
+
+        if (!CompareLineAngles(thisAngle, otherAngle, toleranceDegrees))
+        {
+            // The line angles are sufficiently different to be considered not
+            // equal.
+            return thisAngle < otherAngle;
+        }
+
+        // Line angles are equal.
+        // Create a perpendicular line through the origin to sort this line
+        // against other.
+
+        double perpendicularAngle = thisAngle + 90;
+        auto perpendicularAngle_rad = tau::ToRadians(perpendicularAngle);
+
+        auto perpendicular = Line2d<double>(
+            Point2d<double>(0, 0),
+            Vector2d<double>(
+                std::cos(perpendicularAngle_rad),
+                std::sin(perpendicularAngle_rad)));
+
+        // Sort the lines by their position along the intersecting
+        // line.
+        return perpendicular.DistanceToIntersection(*this)
+            < perpendicular.DistanceToIntersection(other);
     }
 };
 
