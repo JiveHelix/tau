@@ -86,9 +86,9 @@ struct HarrisSettings
 {
     static HarrisSettings Default()
     {
-        static constexpr Float defaultAlpha = static_cast<float>(0.14);
-        static constexpr Float defaultSigma = 1.5;
-        static constexpr Float defaultThreshold = static_cast<Float>(0.01);
+        static constexpr Float defaultAlpha = static_cast<Float>(0.14);
+        static constexpr Float defaultSigma = static_cast<Float>(1.8);
+        static constexpr Float defaultThreshold = static_cast<Float>(0.04);
 
         return {{defaultAlpha, defaultSigma, defaultThreshold}};
     }

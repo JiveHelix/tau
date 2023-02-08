@@ -66,7 +66,10 @@ struct ChessLineGroup
 
     size_t GetLogicalIndex(size_t lineIndex) const;
 
-    void Sort(double lineSeparation, bool isHorizontal);
+    void Sort(
+        [[maybe_unused]] double spacingLimit,
+        double lineSeparation,
+        bool isHorizontal);
 
     double angle;
     LineCollection lines;

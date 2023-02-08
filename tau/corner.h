@@ -47,7 +47,7 @@ struct CornerSettings
 {
     static CornerSettings Default()
     {
-        static constexpr Eigen::Index defaultWindow = 12;
+        static constexpr Eigen::Index defaultWindow = 6;
         static constexpr Eigen::Index defaultCount = 4;
 
         return {{defaultWindow, defaultCount}};

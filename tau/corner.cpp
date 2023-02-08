@@ -237,27 +237,16 @@ CornerPointsCollection Corner::Filter(const ImageMatrixFloat &input)
         }
     }
 
+    return cornerCollector.GetCorners();
+
+#if 0
     auto corners = cornerCollector.GetCorners();
     std::sort(begin(corners), end(corners));
-
-
-    auto size = corners.size();
-
-    std::cout << "corners: " << size;
-
-    for (auto &corner: corners)
-    {
-        std::cout << "\n  " << fields::DescribeColorized(corner.point)
-            << std::endl;
-    }
-
     auto last = std::unique(begin(corners), end(corners));
-
     corners.erase(last, end(corners));
 
-    std::cout << "Removed " << size - corners.size() << " duplicate corners" << std::endl;
-
     return corners;
+#endif
 }
 
 

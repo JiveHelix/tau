@@ -182,7 +182,10 @@ size_t ChessLineGroup::GetLogicalIndex(size_t lineIndex) const
 }
 
 
-void ChessLineGroup::Sort(double lineSeparation, bool isHorizontal)
+void ChessLineGroup::Sort(
+    [[maybe_unused]] double spacingLimit,
+    double lineSeparation,
+    bool isHorizontal)
 {
     if (this->lines.size() < 2)
     {
@@ -242,15 +245,6 @@ void ChessLineGroup::Sort(double lineSeparation, bool isHorizontal)
         auto spacing =
             perpendicular.DistanceToIntersection(second)
             - perpendicular.DistanceToIntersection(first);
-
-        if (spacing < lineSeparation)
-        {
-            std::cout << "unexpected spacing: " << spacing
-                << "\n  first angle: " << first.GetAngleDegrees()
-                << ", first point: " << first.point
-                << "\n  second angle: " << second.GetAngleDegrees()
-                << ", second point: " << second.point << std::endl;
-        }
 
         this->spacings(static_cast<Index>(i)) = spacing;
     }
@@ -506,7 +500,11 @@ ChessSolution ChessSolution::Create(
     auto group = begin(solution.groups);
 
     solution.vertical = *group;
-    solution.vertical.Sort(settings.lineSeparation, false);
+
+    solution.vertical.Sort(
+        settings.spacingLimit,
+        settings.lineSeparation,
+        false);
 
     double verticalAngle = solution.vertical.angle;
 
@@ -560,7 +558,12 @@ ChessSolution ChessSolution::Create(
         if (difference > 70)
         {
             solution.horizontal = *group;
-            solution.horizontal.Sort(settings.lineSeparation, true);
+
+            solution.horizontal.Sort(
+                settings.spacingLimit,
+                settings.lineSeparation,
+                true);
+
             break;
         }
 
@@ -643,8 +646,6 @@ void LineCollector::RemoveOutliers()
 // Apply angle and minimum points filters, and remove duplicates.
 void LineCollector::Filter()
 {
-    std::cout << "pre Filter count: " << this->lines.size() << std::endl;
-
     auto linesEnd = std::remove_if(
         begin(this->lines),
         end(this->lines),
@@ -663,13 +664,6 @@ void LineCollector::Filter()
     // As points are added to lines, the lines shift slightly to fit the
     // new points. This leads to duplicate lines.
     std::sort(begin(this->lines), end(this->lines));
-
-    LineCollection sanity = this->lines;
-
-    auto sanityEnd = std::unique(begin(sanity), end(sanity));
-    sanity.erase(sanityEnd, end(sanity));
-
-    std::cout << "sanity count: " << sanity.size() << std::endl;
 
     // Remove duplicate lines.
     LineCollection filtered{};
@@ -706,13 +700,6 @@ void LineCollector::Filter()
         assert(adjacent != end(this->lines));
         filtered.push_back(*adjacent);
         line = duplicate;
-    }
-
-    std::cout << "filtered count: " << filtered.size() << std::endl;
-
-    if (filtered.size() != sanity.size())
-    {
-        throw std::logic_error("failed sanity check");
     }
 
     this->lines = filtered;
