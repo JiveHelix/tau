@@ -6,6 +6,7 @@ add_executable(
     tau_tests
     angles_tests.cpp
     arithmetic_tests.cpp
+    arithmetic_sort.cpp
     bilinear_test.cpp
     color_map_test.cpp
     convolve_tests.cpp

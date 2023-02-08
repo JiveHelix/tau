@@ -362,55 +362,30 @@ struct Arithmetic
     /*
         fields::ComparisonTuple uses std::tuple to perform a lexicographical
         compare, which returns after the first 'true' comparison.
-
-        For arithmetic types, we only want a 'true' result if ALL elements
-        compare true.
     */
-
-    template<template<typename> typename Operator>
-    static bool Compare(const This &left, const This &right)
-    {
-        bool result = true;
-
-        // Check the logical AND of all comparisons.
-        auto compare = [&result, &left, &right](auto field) -> void
-        {
-            using MemberType = typename std::remove_reference_t
-                <
-                    decltype(left.*(field.member))
-                >;
-
-            if (result)
-            {
-                result = Operator<MemberType>{}(
-                    left.*(field.member),
-                    right.*(field.member));
-            }
-        };
-
-        jive::ForEach(Fields<This>::fields, compare);
-
-        return result;
-    }
 
     friend bool operator<(const This &left, const This &right)
     {
-        return This::template Compare<std::less>(left, right);
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            < fields::ComparisonTuple(right, Fields<This>::fields);
     }
 
     friend bool operator>(const This &left, const This &right)
     {
-        return This::template Compare<std::greater>(left, right);
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            > fields::ComparisonTuple(right, Fields<This>::fields);
     }
 
     friend bool operator<=(const This &left, const This &right)
     {
-        return This::template Compare<std::less_equal>(left, right);
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            <= fields::ComparisonTuple(right, Fields<This>::fields);
     }
 
     friend bool operator>=(const This &left, const This &right)
     {
-        return This::template Compare<std::greater_equal>(left, right);
+        return fields::ComparisonTuple(left, Fields<This>::fields)
+            >= fields::ComparisonTuple(right, Fields<This>::fields);
     }
 };
 
@@ -424,6 +399,37 @@ template
 Derived<T> operator*(T scalar, const Arithmetic<T, Fields, Derived> &arithmetic)
 {
     return (arithmetic * scalar).Upcast();
+}
+
+
+template<typename Container>
+std::optional<typename Container::iterator>
+GetUniqueInsertion(
+    Container &container,
+    const typename Container::value_type &value)
+{
+    auto found = std::lower_bound(
+        begin(container),
+        end(container),
+        value);
+
+    if (found == end(container))
+    {
+        return found;
+    }
+
+    if (*found != value)
+    {
+        if (*found == value)
+        {
+            throw std::logic_error("Can't be true AND not true!");
+        }
+
+        // This value is not already in the list.
+        return found;
+    }
+
+    return {};
 }
 
 

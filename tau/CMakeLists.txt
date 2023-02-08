@@ -1,8 +1,8 @@
 add_library(tau)
 
-# if (${fPIC})
-#     set_property(TARGET tau PROPERTY POSITION_INDEPENDENT_CODE ON)
-# endif ()
+if (${fPIC})
+    set_property(TARGET tau PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif ()
 
 # Projects that include this project must #include "tau/<header-name>"
 target_include_directories(tau PUBLIC ${PROJECT_SOURCE_DIR})
@@ -21,7 +21,8 @@ target_link_libraries(
 target_sources(
     tau
     PRIVATE
-    chess.cpp)
+    chess.cpp
+    corner.cpp)
 
 install(TARGETS tau DESTINATION ${CMAKE_INSTALL_LIBDIR})
 

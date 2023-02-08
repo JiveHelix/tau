@@ -106,6 +106,7 @@ TEST_CASE("Point2d can be multiplied by a scalar", "[vector2d]")
 }
 
 
+#if 0
 TEST_CASE("Strict comparison", "[vector2d]")
 {
     tau::Point2d<int> p(2, -3);
@@ -115,6 +116,7 @@ TEST_CASE("Strict comparison", "[vector2d]")
     REQUIRE(!(p < q));
     REQUIRE((p != q));
 }
+#endif
 
 
 TEST_CASE("Rotate vector 90 degrees", "[vector2d]")

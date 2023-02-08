@@ -16,8 +16,12 @@ ChessLine::ChessLine(
     lineSeparation_(lineSeparation),
     points_()
 {
+    assert(first != second);
     this->points_.push_back(first);
     this->points_.push_back(second);
+
+    // points_ must remain sorted for later unique insertion to work.
+    std::sort(begin(this->points_), end(this->points_));
 }
 
 
@@ -44,18 +48,7 @@ double ChessLine::GetError(const Point &point_) const
 
 std::optional<ChessLine::Iterator> ChessLine::GetInsertion_(const Point &point_)
 {
-    auto found = std::lower_bound(
-        begin(this->points_),
-        end(this->points_),
-        point_);
-
-    if (found == end(this->points_) || (*found != point_))
-    {
-        // This point not already in the list.
-        return found;
-    }
-
-    return {};
+    return tau::GetUniqueInsertion(this->points_, point_);
 }
 
 
@@ -86,6 +79,14 @@ bool ChessLine::AddPoint(const Point &point_)
     {
         // This point is already a member of this line.
         return false;
+    }
+
+    auto sanity = std::find(begin(this->points_), end(this->points_), point_);
+
+    if (sanity != end(this->points_))
+    {
+        // Insanity!
+        throw std::runtime_error("point already exists!");
     }
 
     this->points_.insert(*insertion, point_);
@@ -612,7 +613,10 @@ void LineCollector::AddToLines(
             line.AddPoint(secondPoint);
         }
 
-        exists = (line == candidateLine);
+        if (line == candidateLine)
+        {
+            exists = true;
+        }
     }
 
     if (!exists)
@@ -639,6 +643,8 @@ void LineCollector::RemoveOutliers()
 // Apply angle and minimum points filters, and remove duplicates.
 void LineCollector::Filter()
 {
+    std::cout << "pre Filter count: " << this->lines.size() << std::endl;
+
     auto linesEnd = std::remove_if(
         begin(this->lines),
         end(this->lines),
@@ -656,10 +662,14 @@ void LineCollector::Filter()
 
     // As points are added to lines, the lines shift slightly to fit the
     // new points. This leads to duplicate lines.
-    //
-    // TODO: combine the duplicate lines, and deduplicate
-    // points in the new lines.
     std::sort(begin(this->lines), end(this->lines));
+
+    LineCollection sanity = this->lines;
+
+    auto sanityEnd = std::unique(begin(sanity), end(sanity));
+    sanity.erase(sanityEnd, end(sanity));
+
+    std::cout << "sanity count: " << sanity.size() << std::endl;
 
     // Remove duplicate lines.
     LineCollection filtered{};
@@ -696,6 +706,13 @@ void LineCollector::Filter()
         assert(adjacent != end(this->lines));
         filtered.push_back(*adjacent);
         line = duplicate;
+    }
+
+    std::cout << "filtered count: " << filtered.size() << std::endl;
+
+    if (filtered.size() != sanity.size())
+    {
+        throw std::logic_error("failed sanity check");
     }
 
     this->lines = filtered;

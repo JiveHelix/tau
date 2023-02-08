@@ -167,7 +167,10 @@ struct Line2d: public Line2dBase<T>
         :
         Line2dBase<T>{first, (second - first).ToVector().Normalize()}
     {
-
+        if (first == second)
+        {
+            throw std::runtime_error("Line is undefined");
+        }
     }
 
     Line2d(const std::vector<Point2d<T>> &points)
@@ -322,17 +325,41 @@ struct Line2d: public Line2dBase<T>
         T thisAngle = this->GetAngleDegrees();
         T otherAngle = other.GetAngleDegrees();
 
+        if (std::isnan(thisAngle))
+        {
+            std::cout << "thisAngle is nan: " << fields::DescribeColorized(*this) << std::endl;
+
+            return false;
+        }
+
+        if (std::isnan(otherAngle))
+        {
+            std::cout << "otherAngle is nan: "
+                << fields::DescribeColorized(other) << std::endl;
+
+            return false;
+        }
+
         if (!CompareLineAngles(thisAngle, otherAngle, toleranceDegrees))
         {
             return false;
         }
 
-        if (this->DistanceToLine(other) > toleranceOffset)
-        {
-            return false;
-        }
+        bool result = this->DistanceToLine(other) <= toleranceOffset;
 
-        return true;
+#if 0
+        if (!result)
+        {
+            std::cout << "IsColinear:"
+                << "\n  angle: " << thisAngle << ", point: " << this->point
+                << "\n  angle: " << otherAngle << ", point: " << other.point
+                << "\n  distance to line: " << this->DistanceToLine(other)
+                << "\n  distance tolerance: " << toleranceOffset
+                << std::endl;
+        }
+#endif
+
+        return result;
     }
 
     bool LessThan(const Line2d<T> &other, T toleranceDegrees) const

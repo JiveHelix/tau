@@ -6,6 +6,7 @@
 #include <pex/selectors.h>
 #include <pex/range.h>
 #include <tau/eigen.h>
+#include <tau/image.h>
 
 
 namespace tau
@@ -84,10 +85,9 @@ public:
     }
 
 public:
-    template<typename Data>
-    Data Filter(const Eigen::MatrixBase<Data> &input)
+    ImageMatrixFloat Filter(const ImageMatrixFloat &input)
     {
-        Data result = input;
+        ImageMatrixFloat result = input;
 
         Index rowCount = input.rows();
         Index columnCount = input.cols();
@@ -101,13 +101,13 @@ public:
             return result;
         }
 
-        using Float = typename Data::Scalar;
+        using Float = typename ImageMatrixFloat::Scalar;
         std::vector<Detection_<Float>> detections;
 
         detections.reserve(
             static_cast<size_t>(this->windowSize_ * this->windowSize_));
 
-        if constexpr (MatrixTraits<Data>::isRowMajor)
+        if constexpr (MatrixTraits<ImageMatrixFloat>::isRowMajor)
         {
             for (Index row = 0; row < limitRow; ++row)
             {
