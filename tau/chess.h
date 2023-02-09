@@ -66,10 +66,15 @@ struct ChessLineGroup
 
     size_t GetLogicalIndex(size_t lineIndex) const;
 
-    void Sort(
-        [[maybe_unused]] double spacingLimit,
-        double lineSeparation,
-        bool isHorizontal);
+    Line2d<double> GetPerpendicular(bool isHorizontal) const;
+
+    void Sort(bool isHorizontal);
+
+    std::vector<ChessLineGroup> Split(
+        double spacingLimit,
+        double lineSeparation);
+
+    void ComputeIndices(bool isHorizontal, double lineSeparation);
 
     double angle;
     LineCollection lines;

@@ -182,17 +182,8 @@ size_t ChessLineGroup::GetLogicalIndex(size_t lineIndex) const
 }
 
 
-void ChessLineGroup::Sort(
-    [[maybe_unused]] double spacingLimit,
-    double lineSeparation,
-    bool isHorizontal)
+Line2d<double> ChessLineGroup::GetPerpendicular(bool isHorizontal) const
 {
-    if (this->lines.size() < 2)
-    {
-        // Not enough lines to sort.
-        return;
-    }
-
     // Get perpendicular line
     // The range of values for this->angle is 0 to 180.
     double perpendicularAngle = this->angle + 90;
@@ -217,23 +208,74 @@ void ChessLineGroup::Sort(
 
     auto perpendicularAngle_rad = tau::ToRadians(perpendicularAngle);
 
-    auto perpendicular = Line2d<double>(
+    return Line2d<double>(
         this->lines[0].point,
         Vector2d<double>(
             std::cos(perpendicularAngle_rad),
             std::sin(perpendicularAngle_rad)));
+}
 
-    // Sort the lines by their position along the intersecting line.
-    std::sort(
-        begin(this->lines),
-        end(this->lines),
-        [&](const ChessLine &first, const ChessLine &second) -> bool
-        {
-            return perpendicular.DistanceToIntersection(first)
-                < perpendicular.DistanceToIntersection(second);
-        });
 
+std::vector<ChessLineGroup> ChessLineGroup::Split(
+    double spacingLimit,
+    double lineSeparation)
+{
     using Eigen::Index;
+
+    if (this->lines.empty())
+    {
+        return {};
+    }
+
+    std::vector<ChessLineGroup> result;
+
+    result.emplace_back(this->lines.at(0));
+
+    ChessLineGroup *current = &result.back();
+ 
+    auto perpendicular = this->GetPerpendicular(false);
+
+    for (size_t i = 0; i < this->lines.size() - 1; ++i)
+    {
+        const ChessLine &first = this->lines[i];
+        const ChessLine &second = this->lines[i + 1];
+
+        auto spacing =
+            perpendicular.DistanceToIntersection(second)
+            - perpendicular.DistanceToIntersection(first);
+
+        if (spacing < lineSeparation)
+        {
+            // Skip closely-spaced lines.
+            continue;
+        }
+
+        if (spacing < spacingLimit)
+        {
+            current->AddLine(second);
+        }
+        else
+        {
+            result.emplace_back(second);
+            current = &result.back();
+        }
+    }
+
+    return result;
+}
+
+
+void ChessLineGroup::ComputeIndices(bool isHorizontal, double lineSeparation)
+{
+    this->logicalIndices = std::vector<size_t>();
+
+    if (this->lines.size() < 2)
+    {
+        // Not enough lines to sort.
+        return;
+    }
+
+    auto perpendicular = this->GetPerpendicular(isHorizontal);
 
     this->spacings = Eigen::VectorX<double>(this->lines.size() - 1);
 
@@ -246,7 +288,7 @@ void ChessLineGroup::Sort(
             perpendicular.DistanceToIntersection(second)
             - perpendicular.DistanceToIntersection(first);
 
-        this->spacings(static_cast<Index>(i)) = spacing;
+        this->spacings(static_cast<Eigen::Index>(i)) = spacing;
     }
 
     this->minimumSpacing = this->spacings.minCoeff();
@@ -256,13 +298,13 @@ void ChessLineGroup::Sort(
     if (this->minimumSpacing < lineSeparation)
     {
         // Unable to safely guess the logical indices.
-
         std::cout << "Info: minimum spacing ("
             << this->minimumSpacing
             << ") is less than line separation ("
             << lineSeparation << ")" << std::endl;
 
-        return;
+        throw std::runtime_error(
+            "Closely-spaced lines should have been removed");
     }
 
     size_t logicalIndex = 0;
@@ -275,6 +317,28 @@ void ChessLineGroup::Sort(
 
         this->logicalIndices.push_back(logicalIndex);
     }
+}
+
+
+void ChessLineGroup::Sort(bool isHorizontal)
+{
+    if (this->lines.size() < 2)
+    {
+        // Not enough lines to sort.
+        return;
+    }
+
+    auto perpendicular = this->GetPerpendicular(isHorizontal);
+
+    // Sort the lines by their position along the intersecting line.
+    std::sort(
+        begin(this->lines),
+        end(this->lines),
+        [&](const ChessLine &first, const ChessLine &second) -> bool
+        {
+            return perpendicular.DistanceToIntersection(first)
+                < perpendicular.DistanceToIntersection(second);
+        });
 }
 
 
@@ -464,6 +528,23 @@ ChessSolution ChessSolution::Create(
         }
     }
 
+    GroupCollection splitGroups;
+
+    for (auto &group: solution.groups)
+    {
+        // For this pass, we are not concerned with the orientation of the
+        // sort, only that they are consistently sorted.
+        group.Sort(false);
+
+        auto split = group.Split(
+            settings.spacingLimit,
+            settings.lineSeparation);
+
+        splitGroups.insert(begin(splitGroups), begin(split), end(split));
+    }
+
+    solution.groups = splitGroups;
+
     auto upperLimit = std::max(settings.rowCount, settings.columnCount);
 
     // Remove groups that are outside the allowable range.
@@ -501,10 +582,8 @@ ChessSolution ChessSolution::Create(
 
     solution.vertical = *group;
 
-    solution.vertical.Sort(
-        settings.spacingLimit,
-        settings.lineSeparation,
-        false);
+    solution.vertical.Sort(false);
+    solution.vertical.ComputeIndices(false, settings.lineSeparation);
 
     double verticalAngle = solution.vertical.angle;
 
@@ -558,11 +637,8 @@ ChessSolution ChessSolution::Create(
         if (difference > 70)
         {
             solution.horizontal = *group;
-
-            solution.horizontal.Sort(
-                settings.spacingLimit,
-                settings.lineSeparation,
-                true);
+            solution.horizontal.Sort(true);
+            solution.horizontal.ComputeIndices(true, settings.lineSeparation);
 
             break;
         }
