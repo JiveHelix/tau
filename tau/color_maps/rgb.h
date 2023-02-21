@@ -28,7 +28,9 @@ RgbMatrix<T> MakeRgb(size_t count, MakeFloat makeFloat)
 template<typename T>
 struct RgbPixels
 {
-    RgbMatrix<T> data;
+    using Data = RgbMatrix<T>;
+
+    Data data;
 
     // The PixelMatrix is stored as a count x 3 matrix, where each row contains
     // an RGB triplet.

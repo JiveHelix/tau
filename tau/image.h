@@ -22,5 +22,4 @@ using ImageMatrixInt = ImageMatrix<int32_t>;
 using ImageMatrixFloat = ImageMatrix<float>;
 
 
-
 } // end namespace tau
