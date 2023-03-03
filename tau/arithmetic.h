@@ -387,6 +387,63 @@ struct Arithmetic
         return fields::ComparisonTuple(left, Fields<This>::fields)
             >= fields::ComparisonTuple(right, Fields<This>::fields);
     }
+
+
+    /*
+        fields::ComparisonTuple uses std::tuple to perform a lexicographical
+        compare, which returns after the first 'true' comparison.
+
+        Sometimes it is necessary to check whether all members compare 'true';
+        for example, when checking array bounds.
+    */
+
+    // Check the logical AND of all comparisons.
+    template<template<typename> typename Operator>
+    bool AndCompare(const This &other) const
+    {
+       bool result = true;
+
+       const This &self = this->Upcast();
+
+       auto compare = [&result, &self, &other](auto field) -> void
+       {
+           using MemberType = typename std::remove_reference_t
+               <
+                   decltype(self.*(field.member))
+               >;
+
+           if (result)
+           {
+               result = Operator<MemberType>{}(
+                   self.*(field.member),
+                   other.*(field.member));
+           }
+       };
+
+       jive::ForEach(Fields<This>::fields, compare);
+
+       return result;
+    }
+
+    bool AndLess(const This &other) const
+    {
+        return this->template AndCompare<std::less>(other);
+    }
+
+    bool AndGreater(const This &other) const
+    {
+        return this->template AndCompare<std::greater>(other);
+    }
+
+    bool AndLessEqual(const This &other) const
+    {
+        return this->template AndCompare<std::less_equal>(other);
+    }
+
+    bool AndGreaterEqual(const This &other) const
+    {
+        return this->template AndCompare<std::greater_equal>(other);
+    }
 };
 
 

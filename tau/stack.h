@@ -1,8 +1,8 @@
 /**
   * @file stack.h
-  * 
+  *
   * @brief Stack matrices vertically or horizontally.
-  * 
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 23 May 2022
   * @copyright Jive Helix
@@ -45,7 +45,7 @@ auto HorizontalStack(const Left &left, const Right &right)
             LeftTraits::options
         >;
 
-    Result result(left.rows(), left.cols() + right.cols()); 
+    Result result(left.rows(), left.cols() + right.cols());
     result << left, right;
 
     return result;
