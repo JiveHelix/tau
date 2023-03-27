@@ -6,6 +6,7 @@
 #include "tau/eigen.h"
 #include "tau/arithmetic.h"
 #include "tau/vector2d.h"
+#include "tau/orthogonal.h"
 
 
 namespace tau

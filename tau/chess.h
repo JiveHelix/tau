@@ -2,14 +2,19 @@
 
 #include <optional>
 
-#include <tau/vector2d.h>
-#include <tau/line2d.h>
-#include <tau/corner.h>
-#include <tau/chess_settings.h>
+#include "tau/eigen.h"
+#include "tau/vector2d.h"
+#include "tau/line2d.h"
+#include "tau/size.h"
+#include "tau/corner.h"
+#include "tau/chess_settings.h"
 
 
 namespace tau
 {
+
+
+CREATE_EXCEPTION(ChessError, TauError);
 
 
 class ChessLine: public Line2d<double>

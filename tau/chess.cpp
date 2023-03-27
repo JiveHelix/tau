@@ -1,4 +1,5 @@
 #include <tau/chess.h>
+#include <jive/range.h>
 
 
 namespace tau
@@ -803,6 +804,8 @@ LineCollector::FormLines(const CornerPointsCollection &corners)
 
     return this->lines;
 }
+
+
 
 
 } // end namespace tau

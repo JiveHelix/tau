@@ -62,49 +62,6 @@ struct Scale
 };
 
 
-template<typename T, typename Enable = void>
-struct HasHorizontal_: std::false_type {};
-
-template<typename T>
-struct HasHorizontal_
-<
-    T,
-    std::void_t<decltype(std::declval<T>().Horizontal())>
->: std::true_type {};
-
-template<typename T>
-inline constexpr bool HasHorizontal = HasHorizontal_<T>::value;
-
-
-template<typename T, typename Enable = void>
-struct HasVertical_: std::false_type {};
-
-template<typename T>
-struct HasVertical_
-<
-    T,
-    std::void_t<decltype(std::declval<T>().Vertical())>
->: std::true_type {};
-
-template<typename T>
-inline constexpr bool HasVertical = HasVertical_<T>::value;
-
-
-template<typename T, typename Enable = void>
-struct SupportsScaleOperators_: std::false_type {};
-
-template<typename T>
-struct SupportsScaleOperators_
-<
-    T,
-    std::enable_if_t<HasHorizontal<T> && HasVertical<T>>
->: std::true_type {};
-
-template<typename T>
-inline constexpr bool SupportsScaleOperators =
-    SupportsScaleOperators_<T>::value;
-
-
 template
 <
     typename T,
@@ -117,7 +74,7 @@ Derived<T> & operator*=(
     const Scale<U> &scale)
 {
     static_assert(
-        SupportsScaleOperators<Derived<T>>,
+        HasOrthogonals<Derived<T>>,
         "Missing required functions Horizontal() and Vertical()");
 
     auto & derived = left.Upcast();
@@ -145,7 +102,7 @@ Derived<T> & operator/=(
     const Scale<U> &scale)
 {
     static_assert(
-        SupportsScaleOperators<Derived<T>>,
+        HasOrthogonals<Derived<T>>,
         "Missing required functions Horizontal() and Vertical()");
 
     assert(scale.vertical != 0);
@@ -176,7 +133,7 @@ Derived<T> operator*(
     const Scale<U> &scale)
 {
     static_assert(
-        SupportsScaleOperators<Derived<T>>,
+        HasOrthogonals<Derived<T>>,
         "Missing required functions Horizontal() and Vertical()");
 
     // Make a copy
@@ -201,7 +158,7 @@ Derived<T> operator/(
     const Scale<U> &scale)
 {
     static_assert(
-        SupportsScaleOperators<Derived<T>>,
+        HasOrthogonals<Derived<T>>,
         "Missing required functions Horizontal() and Vertical()");
 
     // Make a copy

@@ -66,7 +66,7 @@ TEMPLATE_TEST_CASE(
     tau::Size<TestType> size(
         static_cast<TestType>(values.at(0)),
         static_cast<TestType>(values.at(1)));
-    
+
     auto point = size.ToPoint2d();
 
     auto roundTrip = tau::Size<TestType>(point);

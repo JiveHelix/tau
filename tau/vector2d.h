@@ -5,6 +5,7 @@
 #include <pex/group.h>
 
 #include "tau/arithmetic.h"
+#include "tau/orthogonal.h"
 #include "tau/angles.h"
 
 

@@ -31,7 +31,6 @@ struct Line2dTemplate
         V<Vector2d<T>> vector;
 
         static constexpr auto fields = Line2dFields<Template>::fields;
-
     };
 };
 
@@ -39,18 +38,6 @@ struct Line2dTemplate
 template<typename T>
 using Line2dBase =
     typename Line2dTemplate<T>::template Template<pex::Identity>;
-
-
-template<typename T>
-T Factorial(T value)
-{
-    if (value <= 0)
-    {
-        return 1;
-    }
-
-    return value * Factorial(value - 1);
-}
 
 
 template<typename T, typename Lines>
@@ -345,21 +332,7 @@ struct Line2d: public Line2dBase<T>
             return false;
         }
 
-        bool result = this->DistanceToLine(other) <= toleranceOffset;
-
-#if 0
-        if (!result)
-        {
-            std::cout << "IsColinear:"
-                << "\n  angle: " << thisAngle << ", point: " << this->point
-                << "\n  angle: " << otherAngle << ", point: " << other.point
-                << "\n  distance to line: " << this->DistanceToLine(other)
-                << "\n  distance tolerance: " << toleranceOffset
-                << std::endl;
-        }
-#endif
-
-        return result;
+        return this->DistanceToLine(other) <= toleranceOffset;
     }
 
     bool LessThan(const Line2d<T> &other, T toleranceDegrees) const
