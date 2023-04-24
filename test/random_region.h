@@ -2,8 +2,8 @@
 
 #include <catch2/catch.hpp>
 
-#include "tau/region.h"
-#include "tau/random.h"
+#include <tau/region.h>
+#include <tau/random.h>
 
 
 template<typename T>

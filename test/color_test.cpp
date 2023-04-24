@@ -32,7 +32,7 @@ Hsv MakeHsvInputs()
         1, 1, 1, 1,
         0.75, 0.5, 0.5, 0.5,
         0.5, 0.5, 0.5, 0.5;
-    
+
     return hsv;
 }
 
@@ -86,7 +86,7 @@ Hsv MakeHsvOutputs()
         1, 1, 1, 1,
         0.749, 0.502, 0.502, 0.502,
         0.502, 0.502, 0.502, 0.502;
-    
+
     return hsv;
 }
 
@@ -98,7 +98,7 @@ TEST_CASE("Convert column-major HSV to RGB 8", "[color]")
 
     auto hsv = MakeHsvInputs<HsvT>();
     auto expected = MakeRgbOutputs<RgbT>();
-    
+
     auto result = tau::HsvToRgb<uint8_t>(hsv);
 
     auto interleaved = result.GetInterleaved();
@@ -119,7 +119,7 @@ TEST_CASE("Convert column-major HSV to RGB 8", "[color]")
             for (auto k: jive::Range<size_t>(0, channels))
             {
                 auto rowIndex = static_cast<size_t>(j) * stride + static_cast<size_t>(i);
-                
+
                 auto colorIndex = rowIndex * channels + k;
 
                 uint8_t *color = data + colorIndex;
@@ -134,7 +134,7 @@ TEST_CASE("Convert column-major HSV to RGB 8", "[color]")
 
 TEST_CASE("Convert row-major HSV to RGB 8", "[color]")
 {
-    using HsvT = 
+    using HsvT =
         tau::Planar
         <
             channels,
@@ -156,7 +156,7 @@ TEST_CASE("Convert row-major HSV to RGB 8", "[color]")
 
     auto hsv = MakeHsvInputs<HsvT>();
     auto expected = MakeRgbOutputs<RgbT>();
-    
+
     auto result = tau::HsvToRgb<uint8_t>(hsv);
 
     auto interleaved = result.GetInterleaved();
@@ -176,8 +176,9 @@ TEST_CASE("Convert row-major HSV to RGB 8", "[color]")
 
             for (auto k: jive::Range<size_t>(0, channels))
             {
-                auto columnIndex = static_cast<size_t>(i) * stride + static_cast<size_t>(j);
-                
+                auto columnIndex =
+                    static_cast<size_t>(i) * stride + static_cast<size_t>(j);
+
                 auto colorIndex = columnIndex * channels + k;
 
                 uint8_t *color = data + colorIndex;
@@ -200,7 +201,7 @@ TEST_CASE("Convert single Planar HSV to RGB 8", "[color]")
 
     auto hsv = MakeHsvInputs<HsvMatrix>();
     auto expected = MakeRgbOutputs<RgbMatrix>();
-    
+
     for (auto j: jive::Range<Eigen::Index>(0, 4))
     {
         for (auto i: jive::Range<Eigen::Index>(0, 4))
@@ -231,7 +232,7 @@ TEST_CASE("Convert single Vector HSV to RGB 8", "[color]")
     auto hsvInputs = MakeHsvInputs<HsvMatrix>();
     auto expected = MakeRgbOutputs<RgbMatrix>();
     auto hsvOutputs = MakeHsvOutputs<HsvMatrix>();
-    
+
     for (auto j: jive::Range<Eigen::Index>(0, 4))
     {
         for (auto i: jive::Range<Eigen::Index>(0, 4))
@@ -254,7 +255,7 @@ TEST_CASE("Convert RGB 8 to HSV", "[color]")
 
     auto rgb = MakeRgbOutputs<RgbT>();
     auto expected = MakeHsvOutputs<HsvT>();
-    
+
     auto hsv = tau::RgbToHsv<double>(rgb);
 
     auto interleaved = hsv.GetInterleaved();
@@ -271,4 +272,14 @@ TEST_CASE("Convert RGB 8 to HSV", "[color]")
             REQUIRE(GetValue(hsv)(i, j) == GetValue(expected)(i, j));
         }
     }
+}
+
+
+TEST_CASE("HasAlpha", "[color]")
+{
+    STATIC_REQUIRE(tau::HasAlpha<tau::Rgba<uint8_t>>);
+    STATIC_REQUIRE(!tau::HasAlpha<tau::Rgb<uint8_t>>);
+
+    STATIC_REQUIRE(tau::HasAlpha<tau::Hsva<double>>);
+    STATIC_REQUIRE(!tau::HasAlpha<tau::Hsv<double>>);
 }

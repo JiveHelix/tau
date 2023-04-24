@@ -3,7 +3,7 @@ from conans import ConanFile, CMake
 
 class TauConan(ConanFile):
     name = "tau"
-    version = "1.7.2"
+    version = "1.8.0"
 
     scm = {
         "type": "git",
@@ -16,6 +16,7 @@ class TauConan(ConanFile):
     author = "Jive Helix (jivehelix@gmail.com)"
     url = "https://github.com/JiveHelix/tau"
     description = "Utilities for numerical computing."
+
     topics = (
         "Matrix Algebra",
         "Numerical Computing",
@@ -26,27 +27,10 @@ class TauConan(ConanFile):
 
     generators = "cmake"
 
-    options = {
-        "CMAKE_TRY_COMPILE_TARGET_TYPE":
-            ["EXECUTABLE", "STATIC_LIBRARY", None],
-        "fPIC": [True, False]}
-
-    default_options = {
-        "CMAKE_TRY_COMPILE_TARGET_TYPE": None,
-        "fPIC": False}
-
     no_copy_source = True
 
     def build(self):
         cmake = CMake(self)
-
-        if (self.options.CMAKE_TRY_COMPILE_TARGET_TYPE):
-            cmake.definitions["CMAKE_TRY_COMPILE_TARGET_TYPE"] = \
-                self.options.CMAKE_TRY_COMPILE_TARGET_TYPE
-
-        if (self.options.fPIC):
-            cmake.definitions["fPIC"] = self.options.fPIC
-
         cmake.configure()
         cmake.build()
 
@@ -54,8 +38,8 @@ class TauConan(ConanFile):
         cmake = CMake(self)
         cmake.install()
 
-    def package_info(self):
-        self.cpp_info.libs = ["tau"]
+    def package_id(self):
+        self.info.header_only()
 
     def build_requirements(self):
         self.test_requires("catch2/2.13.9")

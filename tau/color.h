@@ -21,11 +21,17 @@ namespace index
     static constexpr size_t red = 0;
     static constexpr size_t green = 1;
     static constexpr size_t blue = 2;
+
+    static constexpr size_t alpha = 3;
 };
 
 
 template<typename T>
 using ColorVector = Eigen::Vector3<T>;
+
+
+template<typename T>
+using AlphaVector = Eigen::Vector<T, 4>;
 
 
 /**
@@ -72,40 +78,35 @@ auto GetValue(Planes &&planes) -> GetType<Planes>
     return std::get<index::value>(std::forward<Planes>(planes).planes);
 }
 
-template<typename T>
-auto GetHue(const ColorVector<T> &vector)
+template<typename Planes>
+auto GetAlpha(Planes &&planes) -> GetType<Planes>
+{
+    return std::get<index::alpha>(std::forward<Planes>(planes).planes);
+}
+
+template<typename T, int count>
+auto GetHue(const Eigen::Vector<T, count> &vector)
 {
     return vector(index::hue);
 }
 
-template<typename T>
-auto GetSaturation(const ColorVector<T> &vector)
+template<typename T, int count>
+auto GetSaturation(const Eigen::Vector<T, count> &vector)
 {
     return vector(index::saturation);
 }
 
-template<typename T>
-auto GetValue(const ColorVector<T> &vector)
+template<typename T, int count>
+auto GetValue(const Eigen::Vector<T, count> &vector)
 {
     return vector(index::value);
 }
 
-template<typename Planes, typename Matrix>
-void SetHue(Planes &planes, const Matrix &hue)
+template<typename T, int count>
+auto GetAlpha(const Eigen::Vector<T, count> &vector)
 {
-    std::get<index::hue>(planes.planes) = hue;
-}
-
-template<typename Planes, typename Matrix>
-void SetSaturation(Planes &planes, const Matrix &saturation)
-{
-    std::get<index::saturation>(planes.planes) = saturation;
-}
-
-template<typename Planes, typename Matrix>
-void SetValue(Planes &planes, const Matrix &value)
-{
-    std::get<index::value>(planes.planes) = value;
+    static_assert(count == 4);
+    return vector(index::alpha);
 }
 
 template<typename Planes>
@@ -126,20 +127,20 @@ auto GetBlue(Planes &&planes) -> GetType<Planes>
     return std::get<index::blue>(std::forward<Planes>(planes).planes);
 }
 
-template<typename T>
-auto GetRed(const ColorVector<T> &vector)
+template<typename T, int count>
+auto GetRed(const Eigen::Vector<T, count> &vector)
 {
     return vector(index::red);
 }
 
-template<typename T>
-auto GetGreen(const ColorVector<T> &vector)
+template<typename T, int count>
+auto GetGreen(const Eigen::Vector<T, count> &vector)
 {
     return vector(index::green);
 }
 
-template<typename T>
-auto GetBlue(const ColorVector<T> &vector)
+template<typename T, int count>
+auto GetBlue(const Eigen::Vector<T, count> &vector)
 {
     return vector(index::blue);
 }
@@ -163,12 +164,12 @@ void SetBlue(Planes &planes, const Matrix &blue)
 }
 
 
-template<typename F, typename I>
-ColorVector<F> RgbToHsv(const ColorVector<I> &rgb)
+template<typename F, typename I, int count>
+Eigen::Vector<F, count> RgbToHsv(const Eigen::Vector<I, count> &rgb)
 {
     static_assert(std::is_floating_point_v<F>);
 
-    ColorVector<F> rgbFloat = rgb.template cast<F>();
+    Eigen::Vector<F, count> rgbFloat = rgb.template cast<F>();
 
     if constexpr (std::is_integral_v<I>)
     {
@@ -176,32 +177,34 @@ ColorVector<F> RgbToHsv(const ColorVector<I> &rgb)
     }
 
     Eigen::Index maxIndex;
-    auto Cmax = rgbFloat.maxCoeff(&maxIndex);
-    auto Cmin = rgbFloat.minCoeff();
+    auto Cmax = rgbFloat.template head<3>().maxCoeff(&maxIndex);
+    auto Cmin = rgbFloat.template head<3>().minCoeff();
     auto delta = Cmax - Cmin;
 
-    ColorVector<F> hsv;
+    Eigen::Vector<F, count> hsv;
 
     using namespace index;
 
     if (delta == 0.0)
     {
-        hsv(0) = 0.0;
+        hsv(index::hue) = 0.0;
     }
     else
     {
         switch (maxIndex)
         {
             case 0:
-                hsv(hue) = ((rgbFloat(green) - rgbFloat(blue)) / delta);
+                hsv(index::hue) = ((rgbFloat(green) - rgbFloat(blue)) / delta);
                 break;
 
             case 1:
-                hsv(hue) = 2 + ((rgbFloat(blue) - rgbFloat(red)) / delta);
+                hsv(index::hue)
+                    = 2 + ((rgbFloat(blue) - rgbFloat(red)) / delta);
                 break;
 
             case 2:
-                hsv(hue) = 4 + ((rgbFloat(red) - rgbFloat(green)) / delta);
+                hsv(index::hue) =
+                    4 + ((rgbFloat(red) - rgbFloat(green)) / delta);
                 break;
 
             default:
@@ -209,18 +212,23 @@ ColorVector<F> RgbToHsv(const ColorVector<I> &rgb)
         }
     }
 
-    hsv(hue) = 60.0 * (std::fmod(hsv(hue) + 6.0, 6.0));
+    hsv(index::hue) = 60.0 * (std::fmod(hsv(index::hue) + 6.0, 6.0));
 
     if (Cmax == 0.0)
     {
-        hsv(saturation) = 0.0;
+        hsv(index::saturation) = 0.0;
     }
     else
     {
-        hsv(saturation) = delta / Cmax;
+        hsv(index::saturation) = delta / Cmax;
     }
 
-    hsv(value) = Cmax;
+    hsv(index::value) = Cmax;
+
+    if constexpr (count == 4)
+    {
+        hsv(index::alpha) = rgbFloat(index::alpha);
+    }
 
     if constexpr (std::is_integral_v<I>)
     {
@@ -245,12 +253,20 @@ ColorVector<F> RgbToHsv(const ColorVector<I> &rgb)
 }
 
 
-template<typename F, typename I, int rows, int columns, int options>
-auto RgbToHsv(const Planar<3, I, rows, columns, options> &rgb)
+template
+<
+    typename F,
+    size_t count,
+    typename I,
+    int rows,
+    int columns,
+    int options
+>
+auto RgbToHsv(const Planar<count, I, rows, columns, options> &rgb)
 {
     static_assert(std::is_floating_point_v<F>);
 
-    using PlanarT = Planar<3, F, rows, columns, options>;
+    using PlanarT = Planar<count, F, rows, columns, options>;
     using Matrix = typename PlanarT::Matrix;
     using Array = ArrayLike<Matrix>;
 
@@ -263,13 +279,29 @@ auto RgbToHsv(const Planar<3, I, rows, columns, options> &rgb)
         GetRed(rgbFloat).array() /= std::numeric_limits<I>::max();
         GetGreen(rgbFloat).array() /= std::numeric_limits<I>::max();
         GetBlue(rgbFloat).array() /= std::numeric_limits<I>::max();
+
+        if constexpr (count == 4)
+        {
+            GetAlpha(rgbFloat).array() /= std::numeric_limits<I>::max();
+        }
     }
 
     typename PlanarT::ExtremaIndices indices(
         rgb.GetRowCount(),
         rgb.GetColumnCount());
 
-    auto extrema = rgbFloat.GetExtrema(&indices);
+    typename PlanarT::Extrema extrema;
+
+    if constexpr (count == 4)
+    {
+        // Only the first three planes (red, green, and blue) are used in the
+        // conversion.
+        extrema = rgbFloat.GetExtrema(std::index_sequence<0, 1, 2>(), &indices);
+    }
+    else
+    {
+        extrema = rgbFloat.GetExtrema(&indices);
+    }
 
     Array delta = extrema.planes[1] - extrema.planes[0];
 
@@ -294,6 +326,11 @@ auto RgbToHsv(const Planar<3, I, rows, columns, options> &rgb)
 
     GetValue(hsv) = extrema.planes[1];
 
+    if constexpr (count == 4)
+    {
+        GetAlpha(hsv) = GetAlpha(rgbFloat);
+    }
+
     if constexpr (std::is_integral_v<I>)
     {
         if constexpr (sizeof(I) == 1)
@@ -312,8 +349,8 @@ auto RgbToHsv(const Planar<3, I, rows, columns, options> &rgb)
 }
 
 
-template<typename I, typename F>
-ColorVector<I> HsvToRgb(const ColorVector<F> &hsv)
+template<typename I, typename F, int count>
+Eigen::Vector<I, count> HsvToRgb(const Eigen::Vector<F, count> &hsv)
 {
     static_assert(std::is_floating_point_v<F>);
 
@@ -327,42 +364,47 @@ ColorVector<I> HsvToRgb(const ColorVector<F> &hsv)
     auto X = static_cast<F>(C * (1 - std::abs(std::fmod(hue, 2.0) - 1)));
     auto m = static_cast<F>(value - C);
 
-    ColorVector<F> rgb;
+    Eigen::Vector<F, count> rgb;
 
     int hueFloor = static_cast<int>(hue);
 
     switch (hueFloor)
     {
         case 0:
-            rgb << C, X, 0;
+            rgb.template head<3>() << C, X, 0;
             break;
 
         case 1:
-            rgb << X, C, 0;
+            rgb.template head<3>() << X, C, 0;
             break;
 
         case 2:
-            rgb << 0, C, X;
+            rgb.template head<3>() << 0, C, X;
             break;
 
         case 3:
-            rgb << 0, X, C;
+            rgb.template head<3>() << 0, X, C;
             break;
 
         case 4:
-            rgb << X, 0, C;
+            rgb.template head<3>() << X, 0, C;
             break;
 
         case 5:
         case 6:
-            rgb << C, 0, X;
+            rgb.template head<3>() << C, 0, X;
             break;
 
         default:
             throw std::logic_error("Hue must be 360 or less");
     }
 
-    rgb.array() += m;
+    rgb.template head<3>().array() += m;
+
+    if constexpr (count == 4)
+    {
+        rgb(index::alpha) = hsv(index::alpha);
+    }
 
     if constexpr (std::is_floating_point_v<I>)
     {
@@ -378,14 +420,14 @@ ColorVector<I> HsvToRgb(const ColorVector<F> &hsv)
 }
 
 
-template<typename T, int rows, int columns, int options>
-auto HsvToRgbFloat(const Planar<3, T, rows, columns, options> &hsv)
+template<size_t count, typename T, int rows, int columns, int options>
+auto HsvToRgbFloat(const Planar<count, T, rows, columns, options> &hsv)
 {
     static_assert(
         std::is_floating_point_v<T>,
         "Data must be floating point.");
 
-    using PlanarT = Planar<3, T, rows, columns, options>;
+    using PlanarT = Planar<count, T, rows, columns, options>;
     using Matrix = typename PlanarT::Matrix;
     using Array = ArrayLike<Matrix>;
 
@@ -446,6 +488,11 @@ auto HsvToRgbFloat(const Planar<3, T, rows, columns, options> &hsv)
     GetGreen(rgb).array() += m;
     GetBlue(rgb).array() += m;
 
+    if constexpr (count == 4)
+    {
+        GetAlpha(rgb) = GetAlpha(hsv);
+    }
+
     return rgb;
 }
 
@@ -453,12 +500,13 @@ auto HsvToRgbFloat(const Planar<3, T, rows, columns, options> &hsv)
 template
 <
     typename Target,
+    size_t count,
     typename T,
     int rows,
     int columns,
     int options
 >
-auto HsvToRgb(const Planar<3, T, rows, columns, options> &hsv)
+auto HsvToRgb(const Planar<count, T, rows, columns, options> &hsv)
 {
     static_assert(std::is_integral_v<Target>);
 
@@ -471,6 +519,12 @@ auto HsvToRgb(const Planar<3, T, rows, columns, options> &hsv)
     GetRed(rgb) = GetRed(rgb).array().round();
     GetGreen(rgb) = GetGreen(rgb).array().round();
     GetBlue(rgb) = GetBlue(rgb).array().round();
+
+    if constexpr (count == 4)
+    {
+        GetAlpha(rgb).array() *= std::numeric_limits<Target>::max();
+        GetAlpha(rgb) = GetAlpha(rgb).array().round();
+    }
 
     return rgb.template Cast<Target>();
 }
@@ -520,6 +574,58 @@ struct Hsv: public HsvTemplate<T>::template Template<pex::Identity>
 
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<float>)
+DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<double>)
+
+
+template<typename T>
+struct HsvaFields
+{
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&T::hue, "hue"),
+        fields::Field(&T::saturation, "saturation"),
+        fields::Field(&T::value, "value"),
+        fields::Field(&T::alpha, "alpha"));
+};
+
+
+template<typename U>
+struct HsvaTemplate
+{
+    template<template<typename> typename V>
+    struct Template
+    {
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>> hue;
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> saturation;
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> value;
+        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> alpha;
+
+        static constexpr auto fields = HsvaFields<Template>::fields;
+    };
+};
+
+
+template<typename T>
+struct Hsva: public HsvaTemplate<T>::template Template<pex::Identity>
+{
+    template<typename U>
+    static Hsva FromVector(const AlphaVector<U> &hsva)
+    {
+        return {
+            static_cast<T>(GetHue(hsva)),
+            static_cast<T>(GetSaturation(hsva)),
+            static_cast<T>(GetValue(hsva)),
+            static_cast<T>(GetAlpha(hsva))};
+    }
+
+    AlphaVector<T> ToVector() const
+    {
+        return {this->hue, this->saturation, this->value, this->alpha};
+    }
+};
+
+
+DECLARE_OUTPUT_STREAM_OPERATOR(Hsva<float>)
+DECLARE_OUTPUT_STREAM_OPERATOR(Hsva<double>)
 
 
 template<typename T>
@@ -538,9 +644,9 @@ struct RgbTemplate
     template<template<typename> typename V>
     struct Template
     {
-        V<U> red;
-        V<U> green;
-        V<U> blue;
+        V<pex::MakeRange<U>> red;
+        V<pex::MakeRange<U>> green;
+        V<pex::MakeRange<U>> blue;
 
         static constexpr auto fields = RgbFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Rgb";
@@ -570,6 +676,57 @@ struct Rgb: public RgbTemplate<T>::template Template<pex::Identity>
 DECLARE_OUTPUT_STREAM_OPERATOR(Rgb<uint8_t>)
 
 
+template<typename T>
+struct RgbaFields
+{
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&T::red, "red"),
+        fields::Field(&T::green, "green"),
+        fields::Field(&T::blue, "blue"),
+        fields::Field(&T::alpha, "alpha"));
+};
+
+
+template<typename U>
+struct RgbaTemplate
+{
+    template<template<typename> typename V>
+    struct Template
+    {
+        V<pex::MakeRange<U>> red;
+        V<pex::MakeRange<U>> green;
+        V<pex::MakeRange<U>> blue;
+        V<pex::MakeRange<U>> alpha;
+
+        static constexpr auto fields = RgbaFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Rgba";
+    };
+};
+
+
+template<typename T>
+struct Rgba: public RgbaTemplate<T>::template Template<pex::Identity>
+{
+    template<typename U>
+    static Rgba FromVector(const AlphaVector<U> &rgba)
+    {
+        return {
+            static_cast<T>(GetRed(rgba)),
+            static_cast<T>(GetGreen(rgba)),
+            static_cast<T>(GetBlue(rgba)),
+            static_cast<T>(GetAlpha(rgba))};
+    }
+
+    AlphaVector<T> ToVector() const
+    {
+        return {this->red, this->green, this->blue, this->alpha};
+    }
+};
+
+
+DECLARE_OUTPUT_STREAM_OPERATOR(Rgba<uint8_t>)
+
+
 template<typename R, typename H>
 Rgb<R> HsvToRgb(const Hsv<H> &hsv)
 {
@@ -577,6 +734,16 @@ Rgb<R> HsvToRgb(const Hsv<H> &hsv)
 
     return Rgb<R>::FromVector(rgbVector);
 }
+
+
+template<typename R, typename H>
+Rgba<R> HsvToRgb(const Hsva<H> &hsva)
+{
+    AlphaVector<R> rgbVector = HsvToRgb<R>(hsva.ToVector());
+
+    return Rgba<R>::FromVector(rgbVector);
+}
+
 
 template<typename H, typename R>
 Hsv<H> RgbToHsv(const Rgb<R> &rgb)
@@ -587,12 +754,45 @@ Hsv<H> RgbToHsv(const Rgb<R> &rgb)
 }
 
 
+template<typename H, typename R>
+Hsva<H> RgbToHsv(const Rgba<R> &rgba)
+{
+    AlphaVector<H> hsvVector = RgbToHsv<H>(rgba.ToVector());
+
+    return Hsva<H>::FromVector(hsvVector);
+}
+
+
+template<typename Color, typename = int>
+struct HasAlpha_: std::false_type {};
+
+// For any type Color that does not declare alpha, the comma operator falls
+// back to 0.
+template<typename Color>
+struct HasAlpha_<Color, decltype((void)Color::alpha, 0)>: std::true_type {};
+
+
+template<typename Color>
+inline constexpr bool HasAlpha = HasAlpha_<Color>::value;
+
+
 template<typename T>
 using HsvGroup =
     pex::Group
     <
         HsvFields,
-        HsvTemplate<T>::template Template, Hsv<T>
+        HsvTemplate<T>::template Template,
+        Hsv<T>
+    >;
+
+
+template<typename T>
+using HsvaGroup =
+    pex::Group
+    <
+        HsvaFields,
+        HsvaTemplate<T>::template Template,
+        Hsva<T>
     >;
 
 
@@ -601,8 +801,32 @@ using RgbGroup =
     pex::Group
     <
         RgbFields,
-        RgbTemplate<pex::MakeRange<T>>::template Template, Rgb<T>
+        RgbTemplate<T>::template Template,
+        Rgb<T>
     >;
+
+template<typename T>
+using RgbaGroup =
+    pex::Group
+    <
+        RgbaFields,
+        RgbaTemplate<T>::template Template,
+        Rgba<T>
+    >;
+
+
+template
+<
+    typename T,
+    typename Enable = std::enable_if_t<std::is_floating_point_v<T>>
+>
+using HsvPlanes =
+    tau::Planar<3, T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
+
+template<typename T>
+using RgbPlanes =
+    tau::Planar<3, T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 
 } // end namespace tau

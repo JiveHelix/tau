@@ -40,7 +40,9 @@ public:
     }
 
     template<typename Input, typename Output>
-    void operator()(const Input &input, Output *output)
+    void operator()(
+        const Eigen::MatrixBase<Input> &input,
+        Eigen::MatrixBase<Output> *output)
     {
         using InputTraits = MatrixTraits<Input>;
 
@@ -48,8 +50,8 @@ public:
             std::is_integral_v<typename InputTraits::type>,
             "Input must be integral");
 
-        *output = this->map_(
-            input.template reshaped<Eigen::AutoOrder>(),
+        (*output).derived() = this->map_(
+            input.derived().template reshaped<Eigen::AutoOrder>(),
             Eigen::all).eval();
 
         assert(output->rows() == input.size());
@@ -85,29 +87,30 @@ template<typename Bound, typename Float = double>
 class FloatRescale
 {
 public:
-    FloatRescale(Bound minimum, Bound maximum)
+    FloatRescale(Eigen::Index count, Bound minimum, Bound maximum)
         :
         minimum_(minimum),
-        maximum_(maximum)
+        maximum_(maximum),
+        factor_()
     {
+        assert(count > 0);
         assert(minimum < maximum);
+
+        this->factor_ = static_cast<Float>(count - 1)
+            / static_cast<Float>(this->maximum_ - this->minimum_);
     }
 
     template<typename Input>
-    auto operator()(Eigen::Index count, const Input &input) const
+    auto operator()(const Eigen::MatrixBase<Input> &input) const
     {
-        assert(count > 0);
-
-        Float factor = static_cast<Float>(count - 1)
-            / static_cast<Float>(this->maximum_ - this->minimum_);
-
         // Convert to floating-point for the rescaling operations.
-        MatrixLike<Float, Input> asFloat = input.template cast<Float>();
+        MatrixLike<Float, Input> asFloat =
+            input.derived().template cast<Float>();
 
         Constrain(asFloat, this->minimum_, this->maximum_);
 
         asFloat.array() -= static_cast<Float>(this->minimum_);
-        asFloat.array() *= factor;
+        asFloat.array() *= this->factor_;
 
         // Cast back to integral values to use as indices.
         // eval is used to force evaluation before asFloat goes out of scope.
@@ -118,6 +121,7 @@ public:
 private:
     Bound minimum_;
     Bound maximum_;
+    Float factor_;
 };
 
 
@@ -163,7 +167,7 @@ public:
     ScaledColorMap(const ColorType &map, Bound minimum, Bound maximum)
         :
         Base(map),
-        rescale_(minimum, maximum)
+        rescale_(this->map_.rows(), minimum, maximum)
     {
 
     }
@@ -172,9 +176,7 @@ public:
     void operator()(const Input &input, Output *output) const
     {
         *output = this->map_(
-            this->rescale_(
-                this->map_.rows(),
-                input).template reshaped<Eigen::AutoOrder>(),
+            this->rescale_(input).template reshaped<Eigen::AutoOrder>(),
             Eigen::all).eval();
 
         assert(output->rows() == input.size());

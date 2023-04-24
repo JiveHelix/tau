@@ -12,12 +12,10 @@ add_executable(
     convolve_tests.cpp
     color_test.cpp
     eigen_test.cpp
-    gradient_test.cpp
-    harris_tests.cpp
     line_tests.cpp
     polynomial_tests.cpp
-    size_tests.cpp
     region_tests.cpp
+    size_tests.cpp
     vector2d_tests.cpp
     view_tests.cpp)
 

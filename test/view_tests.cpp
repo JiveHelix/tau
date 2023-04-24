@@ -2,14 +2,15 @@
 
 #include <jive/range.h>
 #include <jive/testing/generator_limits.h>
-#include "tau/view.h"
-#include "tau/view.h"
+#include <tau/region.h>
+#include <tau/view.h>
+
 #include "random_region.h"
 
 
 TEMPLATE_TEST_CASE(
     "Overlapping views",
-    "[region]",
+    "[view]",
     int16_t,
     int32_t,
     int64_t,
@@ -31,7 +32,7 @@ TEMPLATE_TEST_CASE(
         tau::Point2d<TestType>{0, 0},
         sourceSize);
 
-    tau::Scale<double> scale(1.0, 1.0);
+    tau::Scale scale(1.0, 1.0);
 
     auto view = tau::View(
         tau::Region<TestType>{{viewPosition, sourceSize}},
@@ -98,7 +99,7 @@ TEMPLATE_TEST_CASE(
         (sourceSize / -2).ToPoint2d(),
         sourceSize / 2);
 
-    tau::Scale<double> scale(1.0, 1.0);
+    tau::Scale scale(1.0, 1.0);
 
     auto view = tau::View(
         tau::Region<TestType>{{viewPosition, sourceSize}},

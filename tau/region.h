@@ -4,8 +4,8 @@
 #include <fields/fields.h>
 #include <pex/group.h>
 #include "tau/vector2d.h"
-#include "tau/size.h"
 #include "tau/scale.h"
+#include "tau/size.h"
 
 
 namespace tau
@@ -185,6 +185,10 @@ std::ostream & operator<<(std::ostream &outputStream, const Region<T> &region)
 template<typename T>
 using RegionGroup =
     pex::Group<RegionFields, RegionTemplate<T>::template Template, Region<T>>;
+
+
+using IntRegionGroup = RegionGroup<int>;
+using IntRegion = typename IntRegionGroup::Plain;
 
 
 } // end namespace tau

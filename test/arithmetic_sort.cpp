@@ -81,15 +81,6 @@ TEST_CASE("Sorted insertion", "[arithmetic]")
     REQUIRE(!insertion);
 
     REQUIRE(std::is_sorted(begin(points), end(points)));
-
-    std::cout << '\n';
-
-    for (const auto &p: points)
-    {
-        std::cout << p << '\n';
-    }
-
-    std::cout << '\n';
 }
 
 

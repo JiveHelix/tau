@@ -9,6 +9,9 @@ namespace tau
 {
 
 
+CREATE_EXCEPTION(PlanarError, TauError);
+
+
 template
 <
     size_t count,
@@ -63,6 +66,23 @@ public:
         return result;
     }
 
+    template<size_t...I>
+    Eigen::Vector<T, sizeof...(I)> GetVector(
+        Index row,
+        Index column,
+        std::index_sequence<I...> indices) const
+    {
+        Eigen::Vector<T, sizeof...(I)> result;
+
+        this->template GetVector_(
+            result,
+            row,
+            column,
+            indices);
+
+        return result;
+    }
+
     // First plane contains minima, and second plane contains maxima.
     using Extrema = Planar<2, T, rows, columns, options>;
 
@@ -70,13 +90,16 @@ public:
     // Second plane contains the plane index of the maxima.
     using ExtremaIndices = Planar<2, Index, rows, columns, options>;
 
+    template<size_t...I>
     void GetCoreSampleExtrema(
         Extrema &result,
         Index row,
         Index column,
-        ExtremaIndices *indices) const
+        ExtremaIndices *indices,
+        std::index_sequence<I...> planeIndices) const
     {
-        Eigen::Vector<T, count> coreSample = GetVector(row, column);
+        Eigen::Vector<T, sizeof...(I)> coreSample =
+            this->GetVector(row, column, planeIndices);
 
         if (indices)
         {
@@ -93,7 +116,29 @@ public:
         }
     }
 
+    void GetCoreSampleExtrema(
+        Extrema &result,
+        Index row,
+        Index column,
+        ExtremaIndices *indices) const
+    {
+        this->GetCoreSampleExtrema(
+            result,
+            row,
+            column,
+            indices,
+            std::make_index_sequence<count>());
+    }
+
     Extrema GetExtrema(ExtremaIndices *indices = nullptr) const
+    {
+        return this->GetExtrema(std::make_index_sequence<count>(), indices);
+    }
+
+    template<size_t...I>
+    Extrema GetExtrema(
+        std::index_sequence<I...> planeIndices,
+        ExtremaIndices *indices = nullptr) const
     {
         Extrema result(this->GetRowCount(), this->GetColumnCount());
 
@@ -106,7 +151,12 @@ public:
                     column < this->GetColumnCount();
                     ++column)
                 {
-                    GetCoreSampleExtrema(result, row, column, indices);
+                    this->GetCoreSampleExtrema(
+                        result,
+                        row,
+                        column,
+                        indices,
+                        planeIndices);
                 }
             }
         }
@@ -118,7 +168,12 @@ public:
             {
                 for ( Index row = 0; row < this->GetRowCount(); ++row)
                 {
-                    GetCoreSampleExtrema(result, row, column, indices);
+                    this->GetCoreSampleExtrema(
+                        result,
+                        row,
+                        column,
+                        indices,
+                        planeIndices);
                 }
             }
         }
@@ -142,6 +197,88 @@ public:
         return std::get<0>(this->planes).cols();
     }
 
+    template<typename Derived>
+    static Planar FromInterleaved(
+        Eigen::DenseBase<Derived> &interleaved,
+        Eigen::Index rowCount = rows,
+        Eigen::Index columnCount = columns)
+    {
+        static_assert(std::is_same_v<typename Derived::Scalar, T>);
+        using Eigen::Index;
+
+        if (rows == Eigen::Dynamic)
+        {
+            if (rowCount <= 0)
+            {
+                throw PlanarError("Dynamic rowCount must be specified");
+            }
+        }
+
+        if (columns == Eigen::Dynamic)
+        {
+            if (columnCount <= 0)
+            {
+                throw PlanarError("Dynamic columnCount must be specified");
+            }
+        }
+
+        Index channelCount;
+        Index pixelCount;
+        bool channelsInColumns;
+
+        if (interleaved.rows() > interleaved.cols())
+        {
+            pixelCount = interleaved.rows();
+            channelCount = interleaved.cols();
+            channelsInColumns = true;
+        }
+        else
+        {
+            pixelCount = interleaved.cols();
+            channelCount = interleaved.rows();
+            channelsInColumns = false;
+        }
+
+        Index expectedPixelCount = rowCount * columnCount;
+
+        if (expectedPixelCount != pixelCount)
+        {
+            throw PlanarError("pixel count mismatch");
+        }
+
+        if (channelCount != Index(count))
+        {
+            throw PlanarError("interleaved channelCount mismatch");
+        }
+
+        Planar result(rowCount, columnCount);
+
+        std::cout << "FromInterleaved rowCount: " << rowCount << ", columnCount: " << columnCount << std::endl;
+
+        std::cout << "interleaved.rows(): " << interleaved.rows() << std::endl;
+        std::cout << "interleaved.cols(): " << interleaved.cols() << std::endl;
+
+        if (channelsInColumns)
+        {
+            for (Index i = 0; i < channelCount; ++i)
+            {
+                result.planes.at(size_t(i)) =
+                    interleaved.col(i).template reshaped<options>(rowCount, columnCount);
+            }
+        }
+        else
+        {
+            // channels are in rows
+            for (Index i = 0; i < channelCount; ++i)
+            {
+                result.planes.at(size_t(i)) =
+                    interleaved.row(i).template reshaped<options>(rowCount, columnCount);
+            }
+        }
+
+        return result;
+    }
+
     template<int resultOptions = options>
     auto GetInterleaved() const
     {
@@ -151,7 +288,8 @@ public:
         {
             if (plane.size() != size)
             {
-                throw TauError("Planes to interleave have mismatched sizes.");
+                throw PlanarError(
+                    "Planes to interleave have mismatched sizes.");
             }
         }
 
@@ -168,7 +306,7 @@ public:
 
         using Result =
             Eigen::Matrix<T, resultRows, resultColumns, resultOptions>;
-            
+
         Result result;
 
         if constexpr (isColumnMajor)
@@ -225,7 +363,7 @@ private:
         using Result = Planar<count, U, rows, columns, options>;
 
         Result result;
-        
+
         (result.template AssignCast<I>(*this), ...);
 
         return result;

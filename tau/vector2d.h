@@ -143,6 +143,13 @@ struct Vector2d: public Base2d<T, Vector2d>
     using Base2d<T, Vector2d>::Base2d;
     static constexpr auto fieldsTypeName = "Vector2d";
 
+    Vector2d(const Point2d<T> &first, const Point2d<T> &second)
+        :
+        Base2d<T, Point2d>((second - first).ToVector())
+    {
+
+    }
+
     Vector2d<T> Rotate(T rotation_deg) const
     {
         auto rotation_rad = tau::ToRadians(rotation_deg);
@@ -153,6 +160,13 @@ struct Vector2d: public Base2d<T, Vector2d>
         T rotatedY = sine * this->x + cosine * this->y;
 
         return {rotatedX, rotatedY};
+    }
+
+    // Returns the z-component of the cross-product of two vectors in the x-y
+    // plane.
+    T Cross(const Vector2d<T> &other)
+    {
+        return (this->x * other.y) - (this->y * other.x);
     }
 };
 

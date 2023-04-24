@@ -2,9 +2,8 @@
 
 #include <cassert>
 #include <fields/fields.h>
-#include <pex/group.h>
-
 #include "tau/arithmetic.h"
+#include "tau/orthogonal.h"
 
 
 namespace tau
@@ -34,23 +33,25 @@ struct ScaleTemplate
 
 template<typename T>
 using ScaleBase =
-    typename ScaleTemplate<T>::template Template<fields::Identity>;
+    typename ScaleTemplate<T>::template Template<pex::Identity>;
 
 
-template<typename T = double>
+template<typename T>
 struct Scale
     :
     public ScaleBase<T>,
-    public tau::Arithmetic<T, ScaleFields, Scale>
+    public Arithmetic<T, ScaleFields, Scale>
 {
-    using This = Scale<T>;
-    using Type = T;
+    static constexpr auto fields = ScaleFields<Scale>::fields;
 
-    static constexpr auto fields = ScaleFields<This>::fields;
-
-    Scale(): ScaleBase<T>{1.0, 1.0}
+    Scale(): ScaleBase<T>{static_cast<T>(1.0), static_cast<T>(1.0)}
     {
 
+    }
+
+    static Scale Default()
+    {
+        return {};
     }
 
     Scale(T vertical_, T horizontal_)
@@ -86,7 +87,7 @@ Derived<T> & operator*=(
 
     // Floor is only used when T is integral
     // No rounding is applied to floating-point conversions.
-    return derived = result.template Convert<T, tau::Floor>();
+    return derived = result.template Convert<T, Floor>();
 }
 
 
@@ -117,7 +118,7 @@ Derived<T> & operator/=(
 
     // Floor is only used when T is integral
     // No rounding is applied to floating-point conversions.
-    return derived = result.template Convert<T, tau::Floor>();
+    return derived = result.template Convert<T, Floor>();
 }
 
 
@@ -176,17 +177,4 @@ std::ostream & operator<<(std::ostream &output, const Scale<T> &scale)
 {
     return output << fields::DescribeCompact(scale);
 }
-
-
-template<typename T, typename Minimum, typename Maximum>
-using ScaleGroup =
-    pex::Group
-    <
-        ScaleFields,
-        ScaleTemplate<pex::MakeRange<T, Minimum, Maximum>>::template Template,
-        Scale<T>
-    >;
-
-
-
 } // end namespace tau

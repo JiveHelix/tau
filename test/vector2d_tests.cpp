@@ -140,24 +140,6 @@ TEST_CASE("Rotate vector 90 degrees", "[vector2d]")
     REQUIRE(jive::Roughly(r.y, tolerance) == 0);
 }
 
-#if 0
-TEST_CASE("Rotate vector", "[vector2d]")
-{
-    // Generate values with a magnitude greater than 0.
-    auto values = GENERATE(
-        take(
-            16,
-            filter(
-                [] (auto &valuePair)
-                {
-                    return (valuePair[0] + valuePair[1]) > 1e-6;
-                },
-                chunk(
-                    2,
-                    random(0.0, 100.0)))));
-}
-#endif
-
 
 TEST_CASE("Rotate vector", "[vector2d]")
 {
