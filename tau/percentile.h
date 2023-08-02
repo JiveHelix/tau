@@ -33,6 +33,53 @@ auto Percentile(
 }
 
 
+template<typename Derived>
+Eigen::VectorX<typename Derived::Scalar> RemoveZeros(
+    const Eigen::DenseBase<Derived> &data)
+{
+    using Scalar = typename Derived::Scalar;
+    Eigen::VectorX<Scalar> flattened = data.derived().reshaped().eval();
+    auto begin = std::begin(flattened);
+    auto end = std::end(flattened);
+
+    auto filteredEnd = std::remove_if(
+        begin,
+        end,
+        [](Scalar value) { return value == 0; });
+
+    if (filteredEnd != end)
+    {
+        flattened.conservativeResize(std::distance(begin, filteredEnd));
+    }
+
+    return flattened;
+}
+
+
+template<typename Derived>
+Eigen::VectorX<typename Derived::Scalar> FilterLessThan(
+    const Eigen::DenseBase<Derived> &data,
+    typename Derived::Scalar threshold)
+{
+    using Scalar = typename Derived::Scalar;
+    Eigen::VectorX<Scalar> flattened = data.derived().reshaped().eval();
+    auto begin = std::begin(flattened);
+    auto end = std::end(flattened);
+
+    auto filteredEnd = std::remove_if(
+        begin,
+        end,
+        [threshold](Scalar value) { return value < threshold; });
+
+    if (filteredEnd != end)
+    {
+        flattened.conservativeResize(std::distance(begin, filteredEnd));
+    }
+
+    return flattened;
+}
+
+
 template<typename Derived, typename PercentileDerived>
 auto Percentile(
     const Eigen::DenseBase<Derived> &data,
@@ -40,23 +87,23 @@ auto Percentile(
 {
     using Eigen::Index;
     using Float = typename PercentileDerived::Scalar;
-
     using Scalar = typename Derived::Scalar;
+
+    // Flatten and sort the data.
+    Eigen::VectorX<Scalar> flattened = data.derived().reshaped().eval();
+    std::sort(std::begin(flattened), std::end(flattened));
+
     using Result = Eigen::MatrixX<typename Derived::Scalar>;
     Result result(percentiles.rows(), percentiles.cols());
 
     // Get the appropriate index
-    auto valueCount = static_cast<Float>(data.size());
+    auto valueCount = static_cast<Float>(flattened.size());
 
     using Indices = tau::MatrixLike<Index, decltype(result)>;
     Indices indices(result.rows(), result.cols());
 
     indices = (percentiles.derived().array() * valueCount).floor()
         .template cast<Index>();
-
-    // Flatten and sort the data.
-    Eigen::VectorX<Scalar> flattened = data.derived().reshaped().eval();
-    std::sort(std::begin(flattened), std::end(flattened));
 
     return flattened(
         indices.template reshaped<Eigen::AutoOrder>(),

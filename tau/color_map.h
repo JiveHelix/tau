@@ -50,8 +50,8 @@ public:
             std::is_integral_v<typename InputTraits::type>,
             "Input must be integral");
 
-        (*output).derived() = this->map_(
-            input.derived().template reshaped<Eigen::AutoOrder>(),
+        *output = this->map_(
+            input.template reshaped<Eigen::AutoOrder>(),
             Eigen::all).eval();
 
         assert(output->rows() == input.size());
@@ -87,6 +87,15 @@ template<typename Bound, typename Float = double>
 class FloatRescale
 {
 public:
+    FloatRescale()
+        :
+        minimum_(0),
+        maximum_(255),
+        factor_(1)
+    {
+
+    }
+
     FloatRescale(Eigen::Index count, Bound minimum, Bound maximum)
         :
         minimum_(minimum),
@@ -105,7 +114,7 @@ public:
     {
         // Convert to floating-point for the rescaling operations.
         MatrixLike<Float, Input> asFloat =
-            input.derived().template cast<Float>();
+            input.template cast<Float>();
 
         Constrain(asFloat, this->minimum_, this->maximum_);
 
@@ -138,7 +147,7 @@ public:
     }
 
     template<typename Input>
-    auto operator()(Input input) const
+    Input operator()(Eigen::MatrixBase<Input> &input) const
     {
         Constrain(input, this->minimum_, this->maximum_);
         input.array() -= static_cast<typename Input::Scalar>(this->minimum_);
@@ -173,10 +182,14 @@ public:
     }
 
     template<typename Input, typename Output>
-    void operator()(const Input &input, Output *output) const
+    void operator()(
+        const Eigen::MatrixBase<Input> &input,
+        Eigen::MatrixBase<Output> *output) const
     {
+        Input rescaled = input;
+
         *output = this->map_(
-            this->rescale_(input).template reshaped<Eigen::AutoOrder>(),
+            this->rescale_(rescaled).template reshaped<Eigen::AutoOrder>(),
             Eigen::all).eval();
 
         assert(output->rows() == input.size());
@@ -206,10 +219,14 @@ public:
     }
 
     template<typename Input, typename Output>
-    void operator()(const Input &input, Output *output) const
+    void operator()(
+        const Eigen::MatrixBase<Input> &input,
+        Eigen::MatrixBase<Output> *output) const
     {
+        Input rescaled = input;
+
         *output = this->map_(
-            this->rescale_(input).template reshaped<Eigen::AutoOrder>(),
+            this->rescale_(rescaled).template reshaped<Eigen::AutoOrder>(),
             Eigen::all).eval();
 
         assert(output->rows() == input.size());

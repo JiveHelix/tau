@@ -64,6 +64,12 @@ struct AngleType_<T, std::enable_if_t<std::is_floating_point_v<T>>>
 };
 
 template<typename T>
+struct AngleType_<T, std::enable_if_t<std::is_integral_v<T>>>
+{
+    using Type = T;
+};
+
+template<typename T>
 struct AngleType_<T, std::enable_if_t<HasScalar<T>>>
 {
     using Type = typename T::Scalar;

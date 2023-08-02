@@ -248,7 +248,7 @@ TEST_CASE("Convert single Vector HSV to RGB 8", "[color]")
 }
 
 
-TEST_CASE("Convert RGB 8 to HSV", "[color]")
+TEST_CASE("Convert RGB 8 to HSV double", "[color]")
 {
     using HsvT = tau::Planar<channels, double, Eigen::Dynamic, Eigen::Dynamic>;
     using RgbT = tau::Planar<channels, uint8_t, Eigen::Dynamic, Eigen::Dynamic>;
@@ -257,6 +257,33 @@ TEST_CASE("Convert RGB 8 to HSV", "[color]")
     auto expected = MakeHsvOutputs<HsvT>();
 
     auto hsv = tau::RgbToHsv<double>(rgb);
+
+    auto interleaved = hsv.GetInterleaved();
+
+    REQUIRE(interleaved.rows() == channels);
+    REQUIRE(interleaved.cols() == 16);
+
+    for (auto j: jive::Range<Eigen::Index>(0, 4))
+    {
+        for (auto i: jive::Range<Eigen::Index>(0, 4))
+        {
+            REQUIRE(GetHue(hsv)(i, j) == GetHue(expected)(i, j));
+            REQUIRE(GetSaturation(hsv)(i, j) == GetSaturation(expected)(i, j));
+            REQUIRE(GetValue(hsv)(i, j) == GetValue(expected)(i, j));
+        }
+    }
+}
+
+
+TEST_CASE("Convert RGB 8 to HSV float", "[color]")
+{
+    using HsvT = tau::Planar<channels, double, Eigen::Dynamic, Eigen::Dynamic>;
+    using RgbT = tau::Planar<channels, uint8_t, Eigen::Dynamic, Eigen::Dynamic>;
+
+    auto rgb = MakeRgbOutputs<RgbT>();
+    auto expected = MakeHsvOutputs<HsvT>().template Cast<float>();
+
+    auto hsv = tau::RgbToHsv<float>(rgb);
 
     auto interleaved = hsv.GetInterleaved();
 

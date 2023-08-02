@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tau/eigen.h>
 #include <fmt/core.h>
 #include <fields/fields.h>
 #include <pex/group.h>
@@ -9,6 +10,44 @@
 
 namespace tau
 {
+
+
+template<typename T>
+using Vector3 = Eigen::Vector<T, 3>;
+
+template<typename T>
+using Vector4 = Eigen::Vector<T, 4>;
+
+
+template<typename T>
+bool IsScaled(const Vector3<T> &first, const Vector3<T> &second)
+{
+    return first.normalized().isApprox(second.normalized());
+}
+
+
+template<typename T>
+bool IsSameDirection(
+    const Vector3<T> &first,
+    const Vector3<T> &second,
+    T threshold = static_cast<T>(0.9))
+{
+    return first.transpose().dot(second) > threshold;
+}
+
+
+template<typename T>
+bool IsLinear(const Vector3<T> first, const Vector3<T> second)
+{
+    if (first.isApprox(second))
+    {
+        return true;
+    }
+
+    Vector3<T> reversed = second.array() * -1;
+
+    return (first.isApprox(reversed));
+}
 
 
 template<typename T>
@@ -80,6 +119,46 @@ struct Base3d
     {
         return fmt::format("({}, {}, {})", this->x, this->y, this->z);
     }
+
+    T operator()(Eigen::Index index) const
+    {
+        if (index == 0)
+        {
+            return this->x;
+        }
+        else if (index == 1)
+        {
+            return this->y;
+        }
+        else if (index == 2)
+        {
+            return this->z;
+        }
+        else
+        {
+            throw std::out_of_range("Index not valid for Point3d");
+        }
+    }
+
+    T & operator()(Eigen::Index index)
+    {
+        if (index == 0)
+        {
+            return this->x;
+        }
+        else if (index == 1)
+        {
+            return this->y;
+        }
+        else if (index == 2)
+        {
+            return this->z;
+        }
+        else
+        {
+            throw std::out_of_range("Index not valid for Point3d");
+        }
+    }
 };
 
 
@@ -95,6 +174,16 @@ struct Point3d: public Base3d<T, Point3d>
 {
     using Base3d<T, Point3d>::Base3d;
     static constexpr auto fieldsTypeName = "Point3d";
+
+    // Compare equal to 6 decimal places.
+    static constexpr ssize_t precision = 6;
+
+    Point3d(const Vector3<T> &vector_)
+        :
+        Point3d(vector_(0), vector_(1), vector_(2))
+    {
+
+    }
 
     Point3d(const Vector3d<T> &vector3d)
         :
@@ -112,6 +201,19 @@ struct Point3d: public Base3d<T, Point3d>
     {
         return (point - *this).Magnitude();
     }
+
+    Eigen::Vector<T, 4> GetHomogeneous() const
+    {
+        Eigen::Vector<T, 4> result;
+        result.template head<3>() = this->ToEigen();
+        result(3) = static_cast<T>(1);
+        return result;
+    }
+
+    Eigen::Vector<T, 3> ToEigen() const
+    {
+        return Eigen::Vector<T, 3>(this->x, this->y, this->z);
+    }
 };
 
 
@@ -123,18 +225,8 @@ struct Vector3d: public Base3d<T, Vector3d>
 };
 
 
-template<typename T>
-std::ostream & operator<<(std::ostream &output, const Vector3d<T> &vector3d)
-{
-    return output << fields::DescribeCompact(vector3d);
-}
-
-
-template<typename T>
-std::ostream & operator<<(std::ostream &output, const Point3d<T> &point3d)
-{
-    return output << fields::DescribeCompact(point3d);
-}
+TEMPLATE_OUTPUT_STREAM(Vector3d)
+TEMPLATE_OUTPUT_STREAM(Point3d)
 
 
 template<typename T>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include "tau/vector2d.h"
 #include "tau/region.h"
 #include "tau/scale.h"
 

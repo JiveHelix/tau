@@ -1,7 +1,7 @@
 #pragma once
 
 
-#ifdef _WIN32
+#if defined _WIN32 && !(defined __MINGW32__ || defined __MINGW64__)
 
 #define EIGEN_SHIM_PUSH_IGNORES \
     __pragma(warning(push)) \

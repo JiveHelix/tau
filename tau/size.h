@@ -30,7 +30,11 @@ struct SizeTemplate
     {
         V<T> width;
         V<T> height;
+
+        static constexpr auto fields = SizeFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Size";
     };
+
 };
 
 template<typename T>
@@ -42,8 +46,6 @@ struct Size
     : public SizeBase<T>,
       public tau::Arithmetic<T, SizeFields, Size>
 {
-    static constexpr auto fields = SizeFields<Size>::fields;
-
     using Type = T;
 
     constexpr Size()
@@ -187,4 +189,96 @@ using SizeGroup =
     pex::Group<SizeFields, SizeTemplate<T>::template Template, Size<T>>;
 
 
+extern template struct Size<int8_t>;
+extern template struct Size<int16_t>;
+extern template struct Size<int32_t>;
+extern template struct Size<int64_t>;
+
+extern template struct Size<uint8_t>;
+extern template struct Size<uint16_t>;
+extern template struct Size<uint32_t>;
+extern template struct Size<uint64_t>;
+
+extern template struct Size<float>;
+extern template struct Size<double>;
+
+
 } // end namespace tau
+
+
+namespace pex
+{
+
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<int8_t>::template Template,
+        tau::Size<int8_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<int16_t>::template Template,
+        tau::Size<int16_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<int32_t>::template Template,
+        tau::Size<int32_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<int64_t>::template Template,
+        tau::Size<int64_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<uint8_t>::template Template,
+        tau::Size<uint8_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<uint16_t>::template Template,
+        tau::Size<uint16_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<uint32_t>::template Template,
+        tau::Size<uint32_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<uint64_t>::template Template,
+        tau::Size<uint64_t>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<float>::template Template,
+        tau::Size<float>
+    >;
+
+extern template struct Group
+    <
+        tau::SizeFields,
+        tau::SizeTemplate<double>::template Template,
+        tau::Size<double>
+    >;
+
+
+} // end namespace pex

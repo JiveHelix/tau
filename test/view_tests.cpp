@@ -1,7 +1,6 @@
 #include <catch2/catch.hpp>
 
 #include <jive/range.h>
-#include <jive/testing/generator_limits.h>
 #include <tau/region.h>
 #include <tau/view.h>
 

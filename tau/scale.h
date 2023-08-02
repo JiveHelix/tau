@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <fields/fields.h>
+#include <pex/selectors.h>
 #include "tau/arithmetic.h"
 #include "tau/orthogonal.h"
 
@@ -27,6 +28,9 @@ struct ScaleTemplate
     {
         V<T> vertical;
         V<T> horizontal;
+
+        static constexpr auto fields = ScaleFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Scale";
     };
 };
 
@@ -42,8 +46,6 @@ struct Scale
     public ScaleBase<T>,
     public Arithmetic<T, ScaleFields, Scale>
 {
-    static constexpr auto fields = ScaleFields<Scale>::fields;
-
     Scale(): ScaleBase<T>{static_cast<T>(1.0), static_cast<T>(1.0)}
     {
 
@@ -177,4 +179,10 @@ std::ostream & operator<<(std::ostream &output, const Scale<T> &scale)
 {
     return output << fields::DescribeCompact(scale);
 }
+
+
+extern template struct Scale<float>;
+extern template struct Scale<double>;
+
+
 } // end namespace tau

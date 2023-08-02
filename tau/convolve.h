@@ -57,7 +57,7 @@ Derived DoConvolve(
 {
     using Eigen::Index;
 
-    Derived output = input;
+    Derived output = input.derived();
 
     typedef typename Derived::Scalar Scalar;
 
@@ -152,6 +152,62 @@ Derived Normalize(
 
         return asFloats;
     }
+}
+
+
+template<typename Derived>
+struct Extended_
+{
+    using Type = Eigen::MatrixX<typename Derived::Scalar>;
+};
+
+template<typename Derived>
+using Extended = typename Extended_<Derived>::Type;
+
+
+template <typename Derived>
+Extended<Derived> Extend(
+    const Eigen::DenseBase<Derived> &data,
+    Eigen::Index rowExtend,
+    Eigen::Index columnExtend)
+{
+    using Eigen::last;
+
+    if (rowExtend < 0 || columnExtend < 0)
+    {
+        throw std::logic_error(
+            "This method only extends. "
+            "To shrink a matrix, use the block API.");
+    }
+
+    const auto &derived = data.derived();
+    auto rows = derived.rows();
+    auto columns = derived.cols();
+
+    Extended<Derived> result(rows + 2 * rowExtend, columns + 2 * columnExtend);
+
+    // Copy the original matrix
+    result.block(rowExtend, columnExtend, rows, columns) = derived;
+
+    // Replicate top and bottom regions.
+    result.block(0, columnExtend, rowExtend, columns) = derived.row(0).replicate(rowExtend, 1);
+    result.block(rowExtend + rows, columnExtend, rowExtend, columns) =
+        derived.row(rows - 1).replicate(rowExtend, 1);
+
+    // Replicate left and right regions.
+    result.block(rowExtend, 0, rows, columnExtend) = derived.col(0).replicate(1, columnExtend);
+    result.block(rowExtend, columnExtend + columns, rows, columnExtend) =
+        derived.col(columns - 1).replicate(1, columnExtend);
+
+    // Corner regions
+    result.block(0, 0, rowExtend, columnExtend).array() = derived(0, 0);
+    result.block(rowExtend + rows, 0, rowExtend, columnExtend).array() = derived(last, 0);
+    result.block(0, columnExtend + columns, rowExtend, columnExtend).array() = derived(0, last);
+
+    result.block(rowExtend + rows, columnExtend + columns, rowExtend, columnExtend).array() =
+        derived(last, last);
+
+    return result;
 }
 
 

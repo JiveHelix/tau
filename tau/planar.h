@@ -3,6 +3,7 @@
 #include <jive/power.h>
 #include <jive/range.h>
 #include "tau/eigen.h"
+#include "tau/size.h"
 
 
 namespace tau
@@ -28,13 +29,28 @@ public:
 
     std::array<Matrix, count> planes;
 
-    Planar() = default;
+    Planar()
+        :
+        planes{}
+    {
+
+    }
 
     Planar(Index rowCount, Index columnCount)
+        :
+        planes{}
     {
-        for (auto &plane: this->planes)
+        if constexpr (rows == Eigen::Dynamic || columns == Eigen::Dynamic)
         {
-            plane = Matrix(rowCount, columnCount);
+            for (auto &plane: this->planes)
+            {
+                plane = Matrix(rowCount, columnCount);
+            }
+        }
+        else
+        {
+            assert(rowCount == rows);
+            assert(columnCount == columns);
         }
     }
 
@@ -253,11 +269,6 @@ public:
 
         Planar result(rowCount, columnCount);
 
-        std::cout << "FromInterleaved rowCount: " << rowCount << ", columnCount: " << columnCount << std::endl;
-
-        std::cout << "interleaved.rows(): " << interleaved.rows() << std::endl;
-        std::cout << "interleaved.cols(): " << interleaved.cols() << std::endl;
-
         if (channelsInColumns)
         {
             for (Index i = 0; i < channelCount; ++i)
@@ -353,6 +364,13 @@ public:
         }
 
         return outputStream;
+    }
+
+    Size<Eigen::Index> GetSize() const
+    {
+        return {{
+            std::get<0>(this->planes).cols(),
+            std::get<0>(this->planes).rows()}};
     }
 
 private:

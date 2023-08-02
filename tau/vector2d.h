@@ -134,6 +134,16 @@ struct Point2d: public Base2d<T, Point2d>
     {
         return (point - *this).Magnitude();
     }
+
+    Eigen::Vector<T, 3> GetHomogeneous() const
+    {
+        return Vector<3>(this->x, this->y, static_cast<T>(1));
+    }
+
+    Eigen::Vector<T, 2> ToEigen() const
+    {
+        return Eigen::Vector<T, 2>(this->x, this->y);
+    }
 };
 
 
@@ -145,7 +155,7 @@ struct Vector2d: public Base2d<T, Vector2d>
 
     Vector2d(const Point2d<T> &first, const Point2d<T> &second)
         :
-        Base2d<T, Point2d>((second - first).ToVector())
+        Base2d<T, Vector2d>((second - first).ToVector())
     {
 
     }
@@ -172,17 +182,15 @@ struct Vector2d: public Base2d<T, Vector2d>
 
 
 template<typename T>
-std::ostream & operator<<(std::ostream &output, const Vector2d<T> &vector2d)
+Vector2d<T> MakeVector2d(T magnitude, T angle)
 {
-    return output << fields::DescribeCompact(vector2d);
+    Vector2d<T> result(magnitude, 0);
+    return result.Rotate(angle);
 }
 
 
-template<typename T>
-std::ostream & operator<<(std::ostream &output, const Point2d<T> &point2d)
-{
-    return output << fields::DescribeCompact(point2d);
-}
+TEMPLATE_OUTPUT_STREAM(Point2d)
+TEMPLATE_OUTPUT_STREAM(Vector2d)
 
 
 template<typename T>
@@ -211,6 +219,23 @@ using Point2dCollection = std::vector<tau::Point2d<T>>;
 
 template<typename T>
 using Vector2dCollection = std::vector<tau::Vector2d<T>>;
+
+
+extern template struct Point2d<int8_t>;
+extern template struct Point2d<int16_t>;
+extern template struct Point2d<int32_t>;
+extern template struct Point2d<int64_t>;
+
+extern template struct Point2d<uint8_t>;
+extern template struct Point2d<uint16_t>;
+extern template struct Point2d<uint32_t>;
+extern template struct Point2d<uint64_t>;
+
+extern template struct Point2d<float>;
+extern template struct Point2d<double>;
+
+extern template struct Vector2d<float>;
+extern template struct Vector2d<double>;
 
 
 } // end namespace tau

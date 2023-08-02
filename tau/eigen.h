@@ -14,18 +14,15 @@
 #include <numeric>
 
 #include <jive/platform.h>
-#include <jive/create_exception.h>
 #include <jive/type_traits.h>
 #include <jive/future.h>
 
+#include "tau/error.h"
 #include "tau/eigen_shim.h"
 
 
 namespace tau
 {
-
-
-CREATE_EXCEPTION(TauError, std::runtime_error);
 
 
 template<typename>
@@ -514,9 +511,10 @@ Matrix Modulo(const Matrix &x, T y)
 
     auto multiplier = static_cast<Float>(1) / static_cast<Float>(y);
 
+    // scaled is the integral part of x / y
     auto scaled = (
-        x.template cast<Float>().array()
-        * multiplier).template cast<Integral>();
+        x.template cast<Float>().array() * multiplier)
+            .template cast<Integral>();
 
     auto subtrahend = y * scaled.template cast<T>();
 

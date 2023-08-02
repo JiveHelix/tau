@@ -2,6 +2,7 @@
 
 
 #include "tau/eigen_shim.h"
+#include "tau/size.h"
 
 
 namespace tau
@@ -29,6 +30,7 @@ template<typename T>
 struct RgbPixels
 {
     using Data = RgbMatrix<T>;
+    using Index = typename Eigen::Index;
 
     Data data;
 
@@ -36,8 +38,16 @@ struct RgbPixels
     // an RGB triplet.
     // height and width store the dimensions the image.
     // Expect height * width == data.rows()
-    Eigen::Index height;
-    Eigen::Index width;
+    Size<Index> size;
+
+    static RgbPixels<T> Create(const Size<Index> &size)
+    {
+        RgbPixels<T> result;
+        result.size = size;
+        result.data = Data::Zero(size.height * size.width, 3);
+
+        return result;
+    }
 };
 
 

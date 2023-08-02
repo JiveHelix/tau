@@ -4,6 +4,7 @@
 #include "tau/eigen.h"
 #include "tau/vector2d.h"
 #include "tau/angular.h"
+#include "tau/region.h"
 
 
 namespace tau
@@ -106,6 +107,24 @@ struct Line2d: public Line2dBase<T>
         this->vector.y = std::sin(angle);
     }
 
+    // Construct a line from the Hesse Normal.
+    Line2d(T distance, T theta_deg)
+    {
+        // First find a point on the line.
+        using Point = Point2d<T>;
+        using Vector = Vector2d<T>;
+        auto origin = Point(0, 0);
+        auto vector_ = Vector(1, 0).Rotate(theta_deg);
+        this->point = origin + (distance * vector_);
+        this->vector = vector_.Rotate(90);
+
+        if (theta_deg > 90 || theta_deg < -90)
+        {
+            // The resulting line angle will be outside of the range [0, 180].
+            this->vector = this->vector.Rotate(180);
+        }
+    }
+
     Line2d(const Line2d &) = default;
     Line2d & operator=(const Line2d &) = default;
     Line2d(Line2d &&) = default;
@@ -175,10 +194,104 @@ struct Line2d: public Line2dBase<T>
         return parameters(0);
     }
 
+    bool HasIntersection(const Line2d<T> &other) const
+    {
+        return (other.vector != this->vector);
+    }
+
     Point2d<T> Intersect(const Line2d<T> &other) const
     {
         return this->point
             + this->DistanceToIntersection(other) * this->vector;
+    }
+
+    template<typename U>
+    std::optional<std::pair<Point2d<T>, Point2d<T>>>
+    Intersect(const Region<U> &region_) const
+    {
+        using Point = Point2d<T>;
+        using Vector = Vector2d<T>;
+
+        auto region = region_.template Convert<T>();
+        Line2d leftEdge(region.topLeft, Vector(0, 1));
+        Line2d topEdge(region.topLeft, Vector(1, 0));
+        Line2d rightEdge(region.GetBottomRight(), Vector(0, -1));
+        Line2d bottomEdge(region.GetBottomRight(), Vector(-1, 0));
+
+        if (!this->HasIntersection(leftEdge))
+        {
+            // this must intersect with topEdge and bottomEdge.
+            if (this->point.x < leftEdge.point.x
+                    || (this->point.x > rightEdge.point.x))
+            {
+                // There is no intersection with this region.
+                return {};
+            }
+
+            return std::make_pair(
+                this->Intersect(topEdge),
+                this->Intersect(bottomEdge));
+        }
+
+        if (!this->HasIntersection(topEdge))
+        {
+            if (this->point.y < topEdge.point.y
+                    || (this->point.y > bottomEdge.point.y))
+            {
+                // There is no intersection with this region.
+                return {};
+            }
+
+            return std::make_pair(
+                this->Intersect(leftEdge),
+                this->Intersect(rightEdge));
+        }
+
+        std::vector<Point> points;
+
+        auto left = this->Intersect(leftEdge);
+
+        if (left.y >= topEdge.point.y && left.y <= bottomEdge.point.y)
+        {
+            points.push_back(left);
+        }
+
+        auto right = this->Intersect(rightEdge);
+
+        if (right.y >= topEdge.point.y && right.y <= bottomEdge.point.y)
+        {
+            points.push_back(right);
+        }
+
+        if (points.size() == 2)
+        {
+            return std::make_pair(points.front(), points.back());
+        }
+
+        auto top = this->Intersect(topEdge);
+
+        if (top.x >= leftEdge.point.x && top.x <= rightEdge.point.x)
+        {
+            points.push_back(top);
+        }
+
+        if (points.size() == 2)
+        {
+            return std::make_pair(points.front(), points.back());
+        }
+
+        auto bottom = this->Intersect(bottomEdge);
+
+        if (bottom.x >= leftEdge.point.x && bottom.x <= rightEdge.point.x)
+        {
+            if (points.size() == 1)
+            {
+                return std::make_pair(points.front(), bottom);
+            }
+        }
+
+        // There is no intersection with this region.
+        return {};
     }
 
     T DistanceToPoint(const Point2d<T> &point_) const
@@ -263,7 +376,7 @@ struct Line2d: public Line2dBase<T>
         // against other.
 
         double perpendicularAngle = thisAngle + 90;
-        auto perpendicularAngle_rad = tau::ToRadians(perpendicularAngle);
+        auto perpendicularAngle_rad = ToRadians(perpendicularAngle);
 
         auto perpendicular = Line2d<double>(
             Point2d<double>(0, 0),
@@ -279,8 +392,15 @@ struct Line2d: public Line2dBase<T>
 };
 
 
+TEMPLATE_OUTPUT_STREAM(Line2d)
+
+
 template<typename T>
-using Line2dCollection = std::vector<tau::Line2d<T>>;
+using Line2dCollection = std::vector<Line2d<T>>;
+
+
+extern template struct Line2d<float>;
+extern template struct Line2d<double>;
 
 
 } // end namespace tau

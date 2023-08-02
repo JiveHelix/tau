@@ -152,3 +152,66 @@ TEST_CASE("Line fit to randomized points", "[line2d]")
     REQUIRE(angleError < 0.2);
     REQUIRE(distanceError < 0.2);
 }
+
+
+TEST_CASE("Intersection with Region", "[line2d]")
+{
+    using namespace tau;
+
+    using Point = Point2d<double>;
+    using Line = Line2d<double>;
+    using Size_ = Size<double>;
+    using Region_ = Region<double>;
+
+    auto region = Region_{{Point(0, 0), Size_(600, 400)}};
+    auto point1 = Point(0, 200);
+    auto point2 = Point(600, 100);
+    auto line = Line(point1, point2);
+
+    auto intersection = line.Intersect(region);
+
+    REQUIRE(!!intersection);
+    REQUIRE(intersection->first == point1);
+    REQUIRE(intersection->second == point2);
+
+    auto outsideLine = Line(region.size.Magnitude() + 1, -45.0);
+    auto noIntersection = outsideLine.Intersect(region);
+    REQUIRE(!noIntersection);
+}
+
+
+TEST_CASE("Line from Hesse Normal Form", "[line2d]")
+{
+    using Point = tau::Point2d<int>;
+    using Vector = tau::Vector2d<int>;
+    using Line = tau::Line2d<double>;
+    using Size = tau::Size<double>;
+    using Region = tau::Region<double>;
+
+    Line line1(10.0, 0.0);
+    REQUIRE(line1.point.template Convert<int>() == Point(10, 0));
+    REQUIRE(line1.vector.template Convert<int>() == Vector(0, 1));
+
+    Line line2(10.0, 90.0);
+    REQUIRE(line2.point.template Convert<int>() == Point(0, 10));
+    REQUIRE(line2.vector.template Convert<int>() == Vector(-1, 0));
+
+    Line line3(10.0, 180.0);
+    REQUIRE(line3.point.template Convert<int>() == Point(-10, 0));
+    REQUIRE(line3.vector.template Convert<int>() == Vector(0, 1));
+
+    Line line4(-10.0, 180.0);
+    REQUIRE(line4.point.template Convert<int>() == Point(10, 0));
+    REQUIRE(line4.vector.template Convert<int>() == Vector(0, 1));
+
+    auto region = Region{{Point(-20, -20), Size(40, 40)}};
+    auto intersection1 = line1.Intersect(region);
+    auto intersection2 = line2.Intersect(region);
+    auto intersection3 = line3.Intersect(region);
+    auto intersection4 = line4.Intersect(region);
+
+    CHECK(!!intersection1);
+    CHECK(!!intersection2);
+    CHECK(!!intersection3);
+    CHECK(!!intersection4);
+}

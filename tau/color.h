@@ -543,19 +543,19 @@ template<typename U>
 struct HsvTemplate
 {
     template<template<typename> typename V>
-    struct Template
+    struct MemberTemplate
     {
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>> hue;
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> saturation;
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> value;
 
-        static constexpr auto fields = HsvFields<Template>::fields;
+        static constexpr auto fields = HsvFields<MemberTemplate>::fields;
     };
 };
 
 
 template<typename T>
-struct Hsv: public HsvTemplate<T>::template Template<pex::Identity>
+struct Hsv: public HsvTemplate<T>::template MemberTemplate<pex::Identity>
 {
     template<typename U>
     static Hsv FromVector(const ColorVector<U> &hsv)
@@ -575,6 +575,8 @@ struct Hsv: public HsvTemplate<T>::template Template<pex::Identity>
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<float>)
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<double>)
+DECLARE_COMPARISON_OPERATORS(Hsv<float>)
+DECLARE_COMPARISON_OPERATORS(Hsv<double>)
 
 
 template<typename T>
@@ -592,20 +594,20 @@ template<typename U>
 struct HsvaTemplate
 {
     template<template<typename> typename V>
-    struct Template
+    struct MemberTemplate
     {
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>> hue;
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> saturation;
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> value;
         V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> alpha;
 
-        static constexpr auto fields = HsvaFields<Template>::fields;
+        static constexpr auto fields = HsvaFields<MemberTemplate>::fields;
     };
 };
 
 
 template<typename T>
-struct Hsva: public HsvaTemplate<T>::template Template<pex::Identity>
+struct Hsva: public HsvaTemplate<T>::template MemberTemplate<pex::Identity>
 {
     template<typename U>
     static Hsva FromVector(const AlphaVector<U> &hsva)
@@ -626,6 +628,8 @@ struct Hsva: public HsvaTemplate<T>::template Template<pex::Identity>
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsva<float>)
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsva<double>)
+DECLARE_COMPARISON_OPERATORS(Hsva<float>)
+DECLARE_COMPARISON_OPERATORS(Hsva<double>)
 
 
 template<typename T>
@@ -642,20 +646,20 @@ template<typename U>
 struct RgbTemplate
 {
     template<template<typename> typename V>
-    struct Template
+    struct MemberTemplate
     {
         V<pex::MakeRange<U>> red;
         V<pex::MakeRange<U>> green;
         V<pex::MakeRange<U>> blue;
 
-        static constexpr auto fields = RgbFields<Template>::fields;
+        static constexpr auto fields = RgbFields<MemberTemplate>::fields;
         static constexpr auto fieldsTypeName = "Rgb";
     };
 };
 
 
 template<typename T>
-struct Rgb: public RgbTemplate<T>::template Template<pex::Identity>
+struct Rgb: public RgbTemplate<T>::template MemberTemplate<pex::Identity>
 {
     template<typename U>
     static Rgb FromVector(const ColorVector<U> &rgb)
@@ -674,6 +678,9 @@ struct Rgb: public RgbTemplate<T>::template Template<pex::Identity>
 
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Rgb<uint8_t>)
+DECLARE_OUTPUT_STREAM_OPERATOR(Rgb<uint16_t>)
+DECLARE_COMPARISON_OPERATORS(Rgb<uint8_t>)
+DECLARE_COMPARISON_OPERATORS(Rgb<uint16_t>)
 
 
 template<typename T>
@@ -691,21 +698,21 @@ template<typename U>
 struct RgbaTemplate
 {
     template<template<typename> typename V>
-    struct Template
+    struct MemberTemplate
     {
         V<pex::MakeRange<U>> red;
         V<pex::MakeRange<U>> green;
         V<pex::MakeRange<U>> blue;
         V<pex::MakeRange<U>> alpha;
 
-        static constexpr auto fields = RgbaFields<Template>::fields;
+        static constexpr auto fields = RgbaFields<MemberTemplate>::fields;
         static constexpr auto fieldsTypeName = "Rgba";
     };
 };
 
 
 template<typename T>
-struct Rgba: public RgbaTemplate<T>::template Template<pex::Identity>
+struct Rgba: public RgbaTemplate<T>::template MemberTemplate<pex::Identity>
 {
     template<typename U>
     static Rgba FromVector(const AlphaVector<U> &rgba)
@@ -725,6 +732,9 @@ struct Rgba: public RgbaTemplate<T>::template Template<pex::Identity>
 
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Rgba<uint8_t>)
+DECLARE_OUTPUT_STREAM_OPERATOR(Rgba<uint16_t>)
+DECLARE_COMPARISON_OPERATORS(Rgba<uint8_t>)
+DECLARE_COMPARISON_OPERATORS(Rgba<uint16_t>)
 
 
 template<typename R, typename H>
@@ -781,7 +791,7 @@ using HsvGroup =
     pex::Group
     <
         HsvFields,
-        HsvTemplate<T>::template Template,
+        HsvTemplate<T>::template MemberTemplate,
         Hsv<T>
     >;
 
@@ -791,7 +801,7 @@ using HsvaGroup =
     pex::Group
     <
         HsvaFields,
-        HsvaTemplate<T>::template Template,
+        HsvaTemplate<T>::template MemberTemplate,
         Hsva<T>
     >;
 
@@ -801,7 +811,7 @@ using RgbGroup =
     pex::Group
     <
         RgbFields,
-        RgbTemplate<T>::template Template,
+        RgbTemplate<T>::template MemberTemplate,
         Rgb<T>
     >;
 
@@ -810,7 +820,7 @@ using RgbaGroup =
     pex::Group
     <
         RgbaFields,
-        RgbaTemplate<T>::template Template,
+        RgbaTemplate<T>::template MemberTemplate,
         Rgba<T>
     >;
 
