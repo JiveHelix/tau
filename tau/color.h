@@ -23,7 +23,7 @@ namespace index
     static constexpr size_t blue = 2;
 
     static constexpr size_t alpha = 3;
-};
+}
 
 
 template<typename T>

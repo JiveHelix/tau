@@ -161,7 +161,8 @@ struct Size
 
     T GetArea() const
     {
-        return this->height * this->width;
+        // TODO: Check for overflow
+        return static_cast<T>(this->height * this->width);
     }
 
     bool HasArea() const

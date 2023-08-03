@@ -127,7 +127,8 @@ struct Arithmetic
 
         auto add = [&self, &other] (auto field)
         {
-            self.*(field.member) += other.*(field.member);
+            self.*(field.member) =
+                T(self.*(field.member) + other.*(field.member));
         };
 
         jive::ForEach(
@@ -149,7 +150,8 @@ struct Arithmetic
 
         auto subtract = [&self, &other] (auto field)
         {
-            self.*(field.member) -= other.*(field.member);
+            self.*(field.member) =
+                T(self.*(field.member) - other.*(field.member));
         };
 
         jive::ForEach(
@@ -162,7 +164,7 @@ struct Arithmetic
     This operator-(const This &other) const
     {
         auto result = this->Upcast();
-        return result -= other;
+        return result.operator-=(other);
     }
 
     This & operator*=(const This &other)
@@ -171,7 +173,8 @@ struct Arithmetic
 
         auto multiply = [&self, &other] (auto field)
         {
-            self.*(field.member) *= other.*(field.member);
+            self.*(field.member) =
+                T(self.*(field.member) * other.*(field.member));
         };
 
         jive::ForEach(
@@ -193,7 +196,8 @@ struct Arithmetic
 
         auto divide = [&self, &other] (auto field)
         {
-            self.*(field.member) /= other.*(field.member);
+            self.*(field.member) =
+                T(self.*(field.member) / other.*(field.member));
         };
 
         jive::ForEach(
@@ -218,7 +222,7 @@ struct Arithmetic
 
         auto add = [&self, scalar] (auto field)
         {
-            self.*(field.member) += scalar;
+            self.*(field.member) = T(self.*(field.member) + scalar);
         };
 
         jive::ForEach(
@@ -240,7 +244,7 @@ struct Arithmetic
 
         auto subtract = [&self, scalar] (auto field)
         {
-            self.*(field.member) -= scalar;
+            self.*(field.member) = T(self.*(field.member) - scalar);
         };
 
         jive::ForEach(
@@ -262,7 +266,9 @@ struct Arithmetic
 
         auto multiply = [&self, scalar] (auto field)
         {
-            self.*(field.member) *= scalar;
+            // *= would be convenient, but multiplication converts to int,
+            // which triggers a conversion warning.
+            self.*(field.member) = T(self.*(field.member) * scalar);
         };
 
         jive::ForEach(
@@ -284,7 +290,9 @@ struct Arithmetic
 
         auto divide = [&self, scalar] (auto field)
         {
-            self.*(field.member) /= scalar;
+            // /= would be convenient, but division converts to int,
+            // which triggers a conversion warning.
+            self.*(field.member) = T(self.*(field.member) / scalar);
         };
 
         jive::ForEach(

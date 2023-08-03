@@ -11,7 +11,7 @@ namespace tau
 template<typename Derived>
 struct Borders
 {
-    using Index = typename Eigen::Index;
+    using Index = Eigen::Index;
 
     Borders(
         const Eigen::MatrixBase<Derived> &input,

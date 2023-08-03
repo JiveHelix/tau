@@ -27,6 +27,10 @@ public:
     using Matrix = Eigen::Matrix<T, rows, columns, options>;
     using Index = Eigen::Index;
 
+    static_assert(
+        count < std::numeric_limits<int>::max(),
+        "count will be cast to int for use in Eigen template expressions.");
+
     std::array<Matrix, count> planes;
 
     Planar()
@@ -36,7 +40,7 @@ public:
 
     }
 
-    Planar(Index rowCount, Index columnCount)
+    Planar([[maybe_unused]] Index rowCount, [[maybe_unused]] Index columnCount)
         :
         planes{}
     {
@@ -69,9 +73,9 @@ public:
         return result;
     }
 
-    Eigen::Vector<T, count> GetVector(Index row, Index column) const
+    Eigen::Vector<T, int(count)> GetVector(Index row, Index column) const
     {
-        Eigen::Vector<T, count> result;
+        Eigen::Vector<T, int(count)> result;
 
         this->template GetVector_(
             result,
@@ -83,12 +87,12 @@ public:
     }
 
     template<size_t...I>
-    Eigen::Vector<T, sizeof...(I)> GetVector(
+    Eigen::Vector<T, int(sizeof...(I))> GetVector(
         Index row,
         Index column,
         std::index_sequence<I...> indices) const
     {
-        Eigen::Vector<T, sizeof...(I)> result;
+        Eigen::Vector<T, int(sizeof...(I))> result;
 
         this->template GetVector_(
             result,
@@ -114,7 +118,7 @@ public:
         ExtremaIndices *indices,
         std::index_sequence<I...> planeIndices) const
     {
-        Eigen::Vector<T, sizeof...(I)> coreSample =
+        Eigen::Vector<T, int(sizeof...(I))> coreSample =
             this->GetVector(row, column, planeIndices);
 
         if (indices)

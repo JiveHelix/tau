@@ -44,8 +44,9 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
         uniformRandom.SetHigh(
             std::min<T>(
                 uniformRandom.GetHigh(),
-                Limits::max()
-                    - std::max<T>(0, std::max(topLeft.x, topLeft.y))));
+                T(
+                    Limits::max()
+                    - std::max<T>(0, std::max(topLeft.x, topLeft.y)))));
 
         REQUIRE(static_cast<long>(uniformRandom.GetHigh()) > minimumSize);
 
@@ -151,12 +152,12 @@ tau::Region<T> MakeIntersectingRegion(
     // type.
     if (interior.x + size.width > Limits::max())
     {
-        size.width = Limits::max() - interior.x;
+        size.width = T(Limits::max() - interior.x);
     }
 
     if (interior.y + size.height > Limits::max())
     {
-        size.height = Limits::max() - interior.y;
+        size.height = T(Limits::max() - interior.y);
     }
 
     tau::Region<T> result{{interior, size}};

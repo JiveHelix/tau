@@ -30,7 +30,7 @@ template<typename T>
 struct RgbPixels
 {
     using Data = RgbMatrix<T>;
-    using Index = typename Eigen::Index;
+    using Index = Eigen::Index;
 
     Data data;
 

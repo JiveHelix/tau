@@ -262,7 +262,8 @@ TEMPLATE_TEST_CASE(
 
         if constexpr (std::is_signed_v<TestType>)
         {
-            uniformRandom.SetRange(-maximum, maximum);
+            // Function-style cast to TestType to silence warning.
+            uniformRandom.SetRange(TestType(-maximum), maximum);
         }
         else
         {
@@ -312,7 +313,8 @@ TEMPLATE_TEST_CASE(
 
         if constexpr (std::is_signed_v<TestType>)
         {
-            uniformRandom.SetRange(-maximum, maximum);
+            // Cast to TestType to silence warning.
+            uniformRandom.SetRange(TestType(-maximum), maximum);
         }
         else
         {
@@ -374,7 +376,8 @@ TEMPLATE_TEST_CASE(
             auto maximum =
                 static_cast<TestType>(std::floor(std::sqrt(limit / 2.0) / 2.0));
 
-            uniformRandom.SetRange(-maximum, maximum);
+            // Cast to TestType to silence warning.
+            uniformRandom.SetRange(TestType(-maximum), maximum);
 
             left2d =
                 tau::Point2d<TestType>(uniformRandom(), uniformRandom());
@@ -457,7 +460,9 @@ TEMPLATE_TEST_CASE(
             auto maximum =
                 static_cast<TestType>(std::floor(std::sqrt(limit / 3.0) / 3.0));
 
-            uniformRandom.SetRange(-maximum, maximum);
+            // Cast to TestType to silence warning.
+            // Adding the negative sign caused a conversion to 'int'.
+            uniformRandom.SetRange(TestType(-maximum), maximum);
 
             left3d = tau::Point3d<TestType>(
                 uniformRandom(),

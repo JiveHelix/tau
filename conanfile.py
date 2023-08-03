@@ -47,7 +47,7 @@ class TauConan(ConanFile):
 
     def requirements(self):
         self.requires("jive/[~1.1]")
-        self.requires("fields/[~1.2]")
+        self.requires("fields/[~1.3]")
         self.requires("eigen/[~3.4]")
         self.requires("pex/[>=0.9.2]")
         self.requires("fmt/[~8]")
