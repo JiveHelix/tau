@@ -187,7 +187,7 @@ struct Point3d: public Base3d<T, Point3d>
 
     Point3d(const Vector3d<T> &vector3d)
         :
-        Base3d<T, Point3d>(vector3d.x, vector3d.y)
+        Base3d<T, Point3d>(vector3d.x, vector3d.y, vector3d.z)
     {
 
     }
@@ -222,6 +222,13 @@ struct Vector3d: public Base3d<T, Vector3d>
 {
     using Base3d<T, Vector3d>::Base3d;
     static constexpr auto fieldsTypeName = "Vector3d";
+
+    Vector3d(const Vector3<T> &vector_)
+        :
+        Base3d<T, Vector3d>::Base3d(vector_(0), vector_(1), vector_(2))
+    {
+
+    }
 };
 
 
