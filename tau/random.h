@@ -25,10 +25,41 @@ template<typename T>
 struct Distribution_
 <
     T,
-    std::enable_if_t<std::is_integral_v<T>>
+    std::enable_if_t<std::is_integral_v<T> && (sizeof(T) > 1)>
 >
 {
     using Type = std::uniform_int_distribution<T>;
+};
+
+
+template<typename T, typename Enable = void>
+struct DistributionType_ {};
+
+template<typename T>
+struct DistributionType_<T, std::enable_if_t<std::is_signed_v<T>>>
+{
+    using Type = int16_t;
+};
+
+template<typename T>
+struct DistributionType_<T, std::enable_if_t<std::is_unsigned_v<T>>>
+{
+    using Type = uint16_t;
+};
+
+
+template<typename T>
+using DistributionType = typename DistributionType_<T>::Type;
+
+
+template<typename T>
+struct Distribution_
+<
+    T,
+    std::enable_if_t<std::is_integral_v<T> && (sizeof(T) == 1)>
+>
+{
+    using Type = std::uniform_int_distribution<DistributionType<T>>;
 };
 
 
@@ -90,34 +121,51 @@ public:
 
     void SetLow(Scalar low)
     {
-        this->SetRange(low, this->distribution_.max());
+        assert(
+            this->distribution_.max()
+            <= std::numeric_limits<Scalar>::max());
+
+        this->SetRange(low, static_cast<Scalar>(this->distribution_.max()));
     }
 
     Scalar GetLow() const
     {
-        return this->distribution_.min();
+        return static_cast<Scalar>(this->distribution_.min());
     }
 
     void SetHigh(Scalar high)
     {
-        this->SetRange(this->distribution_.min(), high);
+        assert(
+            this->distribution_.min()
+            >= std::numeric_limits<Scalar>::lowest());
+
+        this->SetRange(static_cast<Scalar>(this->distribution_.min()), high);
     }
 
     Scalar GetHigh() const
     {
-        return this->distribution_.max();
+        return static_cast<Scalar>(this->distribution_.max());
     }
 
     Scalar operator()()
     {
-        return this->distribution_(this->generator_);
+        assert(
+            this->distribution_.min()
+            >= std::numeric_limits<Scalar>::lowest());
+
+        assert(
+            this->distribution_.max()
+            <= std::numeric_limits<Scalar>::max());
+
+        return static_cast<Scalar>(this->distribution_(this->generator_));
     }
 
     template<typename Matrix>
     void operator()(Matrix &matrix)
     {
-        static_assert(
-            std::is_same_v<Scalar, typename tau::MatrixTraits<Matrix>::type>);
+        assert(
+            this->distribution_.max()
+            <= std::numeric_limits<Scalar>::max());
 
         for (auto i: jive::Range<Eigen::Index>(0, matrix.rows()))
         {

@@ -6,6 +6,9 @@
 #include "tau/size.h"
 
 
+#define BORKED_MSC_VER 1937
+
+
 namespace tau
 {
 
@@ -64,11 +67,21 @@ public:
     {
         Value result{};
 
+#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+        // MSVC is confused by correct C++ syntax...
+        this->template Planar::GetValue_(
+            result,
+            row,
+            column,
+            std::make_index_sequence<count>{});
+#else
+        // Clang and GCC are not
         this->template GetValue_(
             result,
             row,
             column,
             std::make_index_sequence<count>{});
+#endif
 
         return result;
     }
@@ -77,11 +90,21 @@ public:
     {
         Eigen::Vector<T, int(count)> result;
 
+#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+        // MSVC is confused by correct C++ syntax...
+        this->template Planar::GetVector_(
+            result,
+            row,
+            column,
+            std::make_index_sequence<count>{});
+#else
+        // Clang and GCC are not
         this->template GetVector_(
             result,
             row,
             column,
             std::make_index_sequence<count>{});
+#endif
 
         return result;
     }
@@ -94,11 +117,21 @@ public:
     {
         Eigen::Vector<T, int(sizeof...(I))> result;
 
+#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+        // MSVC is confused by correct C++ syntax...
+        this->template Planar::GetVector_(
+            result,
+            row,
+            column,
+            indices);
+#else
+        // Clang and GCC are not
         this->template GetVector_(
             result,
             row,
             column,
             indices);
+#endif
 
         return result;
     }
@@ -333,7 +366,7 @@ public:
             result = Result(size, count);
         }
 
-#if defined _MSC_VER && _MSC_VER <= 1933
+#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
         // MSVC is confused by correct C++ syntax...
         this->template Planar::Interleave_(
             result,
@@ -446,10 +479,14 @@ private:
     template<size_t precision, size_t...I>
     void DoRound_(std::index_sequence<I...>)
     {
-        static constexpr T rounder = jive::Power<10, precision>();
+        static_assert(
+            jive::Power<10, precision>() <= std::numeric_limits<T>::max());
+
+        static constexpr T rounder =
+            static_cast<T>(jive::Power<10, precision>());
 
         ((
-            std::get<I>(this->planes) = 
+            std::get<I>(this->planes) =
                 (std::get<I>(this->planes).array() * rounder).round()
                     / rounder),
              ...);
