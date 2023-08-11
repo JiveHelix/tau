@@ -32,7 +32,7 @@ bool IsSameDirection(
     const Vector3<T> &second,
     T threshold = static_cast<T>(0.9))
 {
-    return first.transpose().dot(second) > threshold;
+    return first.normalized().transpose().dot(second.normalized()) > threshold;
 }
 
 
