@@ -48,6 +48,15 @@ struct RgbPixels
 
         return result;
     }
+
+    static std::shared_ptr<RgbPixels<T>> CreateShared(const Size<Index> &size)
+    {
+        auto result = std::make_shared<RgbPixels<T>>();
+        result->size = size;
+        result->data = Data::Zero(size.height * size.width, 3);
+
+        return result;
+    }
 };
 
 
