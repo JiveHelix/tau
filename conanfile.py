@@ -39,7 +39,6 @@ class TauConan(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.includes = ["include"]
         self.cpp_info.libs = ["tau"]
 
     def build_requirements(self):

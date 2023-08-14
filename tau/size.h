@@ -93,13 +93,13 @@ struct Size
     template<typename U>
     Size & operator=(const Size<U> &size)
     {
-        *this = Size(size);
+        return *this = Size(size);
     }
 
     template<typename U>
     Size & operator=(const Point2d<U> &point)
     {
-        *this = Size(std::move(point));
+        return *this = Size(std::move(point));
     }
 
     // Create a Size from an Eigen matrix.
