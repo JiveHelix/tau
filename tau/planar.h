@@ -6,9 +6,6 @@
 #include "tau/size.h"
 
 
-#define BORKED_MSC_VER 1937
-
-
 namespace tau
 {
 
@@ -67,7 +64,7 @@ public:
     {
         Value result{};
 
-#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+#if defined _MSC_VER
         // MSVC is confused by correct C++ syntax...
         this->template Planar::GetValue_(
             result,
@@ -90,7 +87,7 @@ public:
     {
         Eigen::Vector<T, int(count)> result;
 
-#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+#if defined _MSC_VER
         // MSVC is confused by correct C++ syntax...
         this->template Planar::GetVector_(
             result,
@@ -117,7 +114,7 @@ public:
     {
         Eigen::Vector<T, int(sizeof...(I))> result;
 
-#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+#if defined _MSC_VER
         // MSVC is confused by correct C++ syntax...
         this->template Planar::GetVector_(
             result,
@@ -366,7 +363,7 @@ public:
             result = Result(size, count);
         }
 
-#if defined _MSC_VER && _MSC_VER <= BORKED_MSC_VER
+#if defined _MSC_VER
         // MSVC is confused by correct C++ syntax...
         this->template Planar::Interleave_(
             result,

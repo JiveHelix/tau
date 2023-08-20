@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Eigen/Dense>
-#include <tau/stack.h>
-#include <tau/vector2d.h>
 #include <fields/fields.h>
 
+#include "tau/eigen_shim.h"
+#include "tau/stack.h"
+#include "tau/vector2d.h"
 #include "tau/line3d.h"
 #include "tau/intrinsics.h"
 #include "tau/pose.h"

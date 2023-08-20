@@ -347,7 +347,7 @@ struct Arithmetic
 
     T Magnitude() const
     {
-        return std::sqrt(this->SquaredSum());
+        return static_cast<T>(std::sqrt(this->SquaredSum()));
     }
 
     This Normalize() const

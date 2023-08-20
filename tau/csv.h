@@ -1,15 +1,15 @@
 #pragma
 
 
-#include <Eigen/Dense>
 #include <string>
 #include <fstream>
 #include <unordered_map>
 #include <jive/strings.h>
 #include <jive/to_integer.h>
 #include <jive/to_float.h>
-#include <tau/size.h>
 #include <jive/precise_string.h>
+#include "tau/size.h"
+#include "tau/eigen_shim.h"
 
 
 namespace tau

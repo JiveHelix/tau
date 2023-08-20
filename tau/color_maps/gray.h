@@ -27,7 +27,9 @@ namespace gray
 inline
 RgbMatrix<double> MakeRgbFloat(size_t count)
 {
-    assert(count <= std::numeric_limits<Eigen::Index>::max());
+    assert(
+        count <=
+            static_cast<size_t>(std::numeric_limits<Eigen::Index>::max()));
 
     using VectorType = Eigen::Vector<double, Eigen::Dynamic>;
 

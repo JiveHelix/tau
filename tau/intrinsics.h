@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Eigen/Dense>
 #include <jive/version.h>
 #include <fields/fields.h>
 #include <fields/compare.h>
 #include <pex/group.h>
 #include <nlohmann/json.hpp>
 
+#include "tau/eigen_shim.h"
 #include "tau/vector3d.h"
 
 

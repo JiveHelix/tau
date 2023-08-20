@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Eigen/Dense>
 #include <fields/fields.h>
 #include <nlohmann/json.hpp>
 
+#include "tau/eigen_shim.h"
 #include "tau/stack.h"
 #include "tau/vector3d.h"
 #include "tau/intrinsics.h"

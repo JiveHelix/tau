@@ -4,9 +4,10 @@
 #include <fields/fields.h>
 #include <pex/group.h>
 #include <pex/interface.h>
-#include <Eigen/Dense>
 #include <cmath>
-#include <tau/angles.h>
+
+#include "tau/eigen_shim.h"
+#include "tau/angles.h"
 #include "tau/error.h"
 
 

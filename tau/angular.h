@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <Eigen/Dense>
+#include "tau/eigen_shim.h"
 #include "tau/angles.h"
 #include "tau/percentile.h"
 

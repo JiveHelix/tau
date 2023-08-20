@@ -2,8 +2,11 @@
 
 #include <jive/create_exception.h>
 #include <fields/fields.h>
-#include <Eigen/Dense>
+#include "tau/eigen_shim.h"
+
+EIGEN_SHIM_PUSH_IGNORES
 #include <Eigen/QR>
+EIGEN_SHIM_POP_IGNORES
 
 #include "tau/stack.h"
 #include "tau/vector3d.h"
