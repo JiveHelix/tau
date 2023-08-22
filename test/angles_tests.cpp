@@ -6,6 +6,7 @@
 #include <catch2/catch.hpp>
 
 #include "tau/angles.h"
+#include "tau/random.h"
 #include <cmath>
 #include <array>
 #include <tuple>
@@ -130,7 +131,7 @@ TEST_CASE("Convert multiple values to radians", "[angles]")
     double dRadians;
     float eRadians;
 
-    std::tie(aRadians, bRadians, cRadians, dRadians, eRadians) = 
+    std::tie(aRadians, bRadians, cRadians, dRadians, eRadians) =
         tau::ToRadians(aDegrees, bDegrees, cDegrees, dDegrees, eDegrees);
 
     auto aExpected = Approx(
@@ -153,4 +154,33 @@ TEST_CASE("Convert multiple values to radians", "[angles]")
     REQUIRE(cRadians == cExpected);
     REQUIRE(dRadians == dExpected);
     REQUIRE(eRadians == eExpected);
+}
+
+
+TEMPLATE_TEST_CASE(
+    "Matrix radians to degrees to radians",
+    "[angles]",
+    float,
+    double)
+{
+    auto seed = GENERATE(
+        take(32, random(tau::SeedLimits::min(), tau::SeedLimits::max())));
+
+    tau::UniformRandom<TestType> uniformRandom{
+        seed,
+        -tau::Angles<TestType>::pi,
+        tau::Angles<TestType>::pi};
+
+    using Matrix = Eigen::MatrixX<TestType>;
+    Matrix zeros = Matrix::Zero(1080, 1920);
+    Matrix testValues = zeros;
+
+    uniformRandom(testValues);
+
+    REQUIRE(!testValues.isApprox(zeros));
+
+    auto asDegrees = tau::ToDegrees(testValues);
+    auto asRadians = tau::ToRadians(asDegrees);
+
+    REQUIRE(asRadians.isApprox(testValues));
 }

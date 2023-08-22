@@ -121,7 +121,7 @@ TEMPLATE_TEST_CASE(
         rotation.isApprox(
             tau::MakeYawPitchRoll(thetaZ, thetaY, thetaX)));
 
-    Vector3<TestType> radians = tau::ToRadians(degrees.array());
+    Vector3<TestType> radians = tau::ToRadians(degrees);
     Vector3<TestType> c = radians.array().cos();
     Vector3<TestType> s = radians.array().sin();
 

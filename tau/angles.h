@@ -1,8 +1,8 @@
 /**
   * @file angles.h
-  * 
+  *
   * @brief Tau, one full rotation. https://tauday.com/tau-manifesto
-  * 
+  *
   * @author Jive Helix (jivehelix@gmail.com)
   * @date 05 May 2020
   * @copyright Jive Helix
@@ -79,10 +79,20 @@ template<typename T>
 using AngleType = typename AngleType_<T>::Type;
 
 
-template<typename T>
-auto ToDegrees(T radians)
+template<typename Value>
+auto ToDegrees(Value radians)
 {
-    return radians * Angles<AngleType<T>>::degreesPerRadian;
+    if constexpr (HasScalar<Value>)
+    {
+        using T = typename Value::Scalar;
+
+        return Value{
+            (radians.array() * Angles<AngleType<T>>::degreesPerRadian).eval()};
+    }
+    else
+    {
+        return radians * Angles<AngleType<Value>>::degreesPerRadian;
+    }
 }
 
 
@@ -93,10 +103,20 @@ auto ToDegrees(T radians, U ...otherRadians) -> std::tuple<T, U...>
 }
 
 
-template<typename T>
-auto ToRadians(T degrees)
+template<typename Value>
+auto ToRadians(Value degrees)
 {
-    return degrees * Angles<AngleType<T>>::radiansPerDegree;
+    if constexpr (HasScalar<Value>)
+    {
+        using T = typename Value::Scalar;
+
+        return Value{
+            (degrees.array() * Angles<AngleType<T>>::radiansPerDegree).eval()};
+    }
+    else
+    {
+        return degrees * Angles<AngleType<Value>>::radiansPerDegree;
+    }
 }
 
 
