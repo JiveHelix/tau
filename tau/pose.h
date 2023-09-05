@@ -186,6 +186,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 
 
 TEMPLATE_OUTPUT_STREAM(Pose)
+TEMPLATE_EQUALITY_OPERATORS(Pose)
 
 
 template<typename T>

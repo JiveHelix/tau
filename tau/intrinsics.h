@@ -198,6 +198,7 @@ static_assert(pex::HasDefault<Intrinsics<float>>);
 
 
 TEMPLATE_OUTPUT_STREAM(Intrinsics)
+TEMPLATE_EQUALITY_OPERATORS(Intrinsics)
 
 
 template<typename T>
