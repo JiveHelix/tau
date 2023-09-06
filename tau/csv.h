@@ -41,7 +41,7 @@ std::vector<T> ConvertLine(
     }
 
     std::vector<T> result;
-    std::string::size_type tokenIndex;
+    std::string::size_type tokenIndex{};
 
     for (int i = 0; i != limit; i++)
     {
