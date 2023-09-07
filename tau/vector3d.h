@@ -159,6 +159,11 @@ struct Base3d
             throw std::out_of_range("Index not valid for Point3d");
         }
     }
+
+    Eigen::Vector<T, 3> ToEigen() const
+    {
+        return Eigen::Vector<T, 3>(this->x, this->y, this->z);
+    }
 };
 
 
@@ -208,11 +213,6 @@ struct Point3d: public Base3d<T, Point3d>
         result.template head<3>() = this->ToEigen();
         result(3) = static_cast<T>(1);
         return result;
-    }
-
-    Eigen::Vector<T, 3> ToEigen() const
-    {
-        return Eigen::Vector<T, 3>(this->x, this->y, this->z);
     }
 };
 

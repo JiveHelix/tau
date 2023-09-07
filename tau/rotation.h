@@ -268,6 +268,7 @@ struct RotationAngles:
 
 
 TEMPLATE_OUTPUT_STREAM(RotationAngles)
+TEMPLATE_EQUALITY_OPERATORS(RotationAngles)
 
 
 template<typename T>
