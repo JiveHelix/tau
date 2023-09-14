@@ -19,7 +19,7 @@ namespace tau
 {
 
 
-template <typename T>
+template<typename T>
 struct Line3dFields
 {
     static constexpr auto fields = std::make_tuple(
@@ -29,28 +29,39 @@ struct Line3dFields
 
 
 template<typename T>
-struct Line3d
+struct Line3dTemplate
 {
-    Point3d<T> point;
-    Vector3<T> direction;
+    template<template<typename> typename V>
+    struct Template
+    {
+        V<Point3d<T>> point;
+        V<Vector3<T>> direction;
 
-    static constexpr auto fields = Line3dFields<Line3d>::fields;
-    static constexpr auto fieldsTypeName = "Line3d";
+        static constexpr auto fields = Line3dFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Line3d";
+    };
+};
+
+
+template<typename T>
+using Line3dBase = Line3dTemplate<T>::template Template<pex::Identity>;
+
+template<typename T>
+struct Line3d: public Line3dBase<T>
+{
     static constexpr auto zero = static_cast<T>(0);
     static constexpr auto one = static_cast<T>(1);
 
     Line3d()
         :
-        point{},
-        direction{}
+        Line3dBase<T>()
     {
 
     }
 
     Line3d(const Point3d<T> &point_, const Vector3<T> &direction_)
         :
-        point(point_),
-        direction(direction_)
+        Line3dBase<T>{point_, direction_}
     {
 
     }
@@ -175,6 +186,12 @@ struct Line3d
 
 
 TEMPLATE_OUTPUT_STREAM(Line3d)
+TEMPLATE_EQUALITY_OPERATORS(Line3d);
+
+
+template<typename T>
+using Line3dGroup =
+    pex::Group<Line3dFields, Line3dTemplate<T>::template Template, Line3d<T>>;
 
 
 } // namespace tau
