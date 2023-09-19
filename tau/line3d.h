@@ -71,6 +71,37 @@ struct Line3d: public Line3dBase<T>
         return Line3d(begin, (end - begin).ToEigen().normalized());
     }
 
+    // Implement our own implementation of structure so we can recover the
+    // direction, which is an Eigen::Vector.
+    template<typename Json>
+    static Line3d Structure(const Json &unstructured)
+    {
+        Line3d result{};
+
+        if (1 == unstructured.count("point"))
+        {
+            result.point =
+                fields::Structure<Point3d<T>>(unstructured["point"]);
+        }
+
+        if (1 == unstructured.count("direction"))
+        {
+            const auto &values = unstructured["direction"];
+
+            if (values.size() != 3)
+            {
+                std::cerr << "Expected 3 values for direction" << std::endl;
+                return result;
+            }
+
+            result.direction(0) = values[0];
+            result.direction(1) = values[1];
+            result.direction(2) = values[2];
+        }
+
+        return result;
+    }
+
     /**
     let R have direction u = [a, b, c] and Q have direction v = [d, e, f]
     let r0 be a known point on R and q0 be a known point on Q
