@@ -206,6 +206,11 @@ struct RotationAngles:
         (*this)(axisOrder_.first) = first;
         (*this)(axisOrder_.second) = second;
         (*this)(axisOrder_.third) = third;
+
+        // For AxisOrder{1, 2, 0}
+        // (*this)(1) = pitch
+        // (*this)(2) = yaw
+        // (*this)(0) = roll
     }
 
     static RotationAngles Default()

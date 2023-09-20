@@ -44,7 +44,7 @@ struct Line3dTemplate
 
 
 template<typename T>
-using Line3dBase = Line3dTemplate<T>::template Template<pex::Identity>;
+using Line3dBase = typename Line3dTemplate<T>::template Template<pex::Identity>;
 
 template<typename T>
 struct Line3d: public Line3dBase<T>

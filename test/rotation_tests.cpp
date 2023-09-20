@@ -193,6 +193,13 @@ TEMPLATE_TEST_CASE(
     Vector3<TestType> rotated = rotation * p;
 
     REQUIRE(rotated.isApprox(stepped));
+
+    Vector3<TestType> steppedSwapped = p.transpose() * rotationZ;
+    steppedSwapped = steppedSwapped.transpose() * rotationY;
+    steppedSwapped = steppedSwapped.transpose() * rotationX;
+
+    Vector3<TestType> swapped = p.transpose() * rotation;
+    REQUIRE(swapped.isApprox(steppedSwapped));
 }
 
 /*
@@ -276,4 +283,28 @@ TEST_CASE("Simple swap rotation order", "[rotation]")
     REQUIRE(jive::Roughly(recoveredYawPitchRoll.yaw, 1e-4) == thetaZ);
     REQUIRE(jive::Roughly(recoveredYawPitchRoll.pitch, 1e-4) == thetaY);
     REQUIRE(jive::Roughly(recoveredYawPitchRoll.roll, 1e-4) == thetaX);
+}
+
+
+TEST_CASE("Rotate Vector and RowVector", "[rotation]")
+{
+    auto thetaX = 0.0;
+    auto thetaY = -30.0;
+    auto thetaZ = 20.0;
+
+    std::cout << "thetaX: " << thetaX << std::endl;
+    std::cout << "thetaY: " << thetaY << std::endl;
+    std::cout << "thetaZ: " << thetaZ << std::endl;
+
+    using TestAngles = tau::RotationAngles<double>;
+
+    auto yawPitchRoll =
+        TestAngles(thetaZ, thetaY, thetaX, tau::AxisOrder{2, 1, 0});
+
+    auto yawPitchRollMatrix = yawPitchRoll.GetRotation();
+
+    tau::Vector3<double> p(1, 0, 0);
+
+    std::cout << yawPitchRollMatrix * p << std::endl;
+    std::cout << p.transpose() * yawPitchRollMatrix << std::endl;
 }
