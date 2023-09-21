@@ -21,7 +21,8 @@ add_executable(
     rotation_tests.cpp
     size_tests.cpp
     vector2d_tests.cpp
-    view_tests.cpp)
+    view_tests.cpp
+    csv_tests.cpp)
 
 target_link_libraries(
     tau_tests
@@ -32,3 +33,5 @@ target_link_libraries(
     tau)
 
 add_test(NAME TauTests COMMAND ${CMAKE_BINARY_DIR}/bin/tau_tests)
+
+add_subdirectory(test_data)

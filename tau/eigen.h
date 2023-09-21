@@ -543,7 +543,55 @@ Matrix Modulo(const Matrix &x, T y)
 template<typename T>
 constexpr Eigen::Index Index(T value)
 {
+    static_assert(std::is_integral_v<T>);
+
     return static_cast<Eigen::Index>(value);
+}
+
+
+template<typename T>
+std::enable_if_t<std::is_integral_v<T>, Eigen::Index>
+IndexCheck(T value)
+{
+    if constexpr (std::is_signed_v<T>)
+    {
+        int64_t maximum = std::numeric_limits<int16_t>::max();
+        int64_t lowest = std::numeric_limits<int16_t>::lowest();
+
+        if (value > maximum || value < lowest)
+        {
+            throw std::invalid_argument(
+                "value is not convertible to Eigen::Index");
+        }
+    }
+    else
+    {
+        uint64_t maximum = std::numeric_limits<int16_t>::max();
+
+        if (value > maximum)
+        {
+            throw std::invalid_argument(
+                "value is not convertible to Eigen::Index");
+        }
+    }
+
+    return static_cast<Eigen::Index>(value);
+}
+
+template<typename T>
+std::enable_if_t<std::is_integral_v<T>, size_t>
+SizeCheck(T value)
+{
+    if constexpr (std::is_signed_v<T>)
+    {
+        if (value < 0)
+        {
+            throw std::invalid_argument(
+                "value is not convertible to Eigen::Index");
+        }
+    }
+
+    return static_cast<size_t>(value);
 }
 
 

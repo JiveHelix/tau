@@ -1,0 +1,6 @@
+﻿Value,Note,Another Number
+42,"This, note has a comma",3
+43,"This, note, has two commas",4
+44,This note has no commas,5
+45,"This, note has ""quotes, and"" commas",6.7
+46,"This note ""only has"" quotes.",9
