@@ -87,7 +87,7 @@ std::vector<std::string> ExtractLine(
             }
             else if (input[position] == ',')
             {
-                result.push_back(cell);
+                result.push_back(jive::strings::Trim(cell));
                 cell.clear();
             }
             else
@@ -99,7 +99,7 @@ std::vector<std::string> ExtractLine(
         ++position;
     }
 
-    result.push_back(cell);
+    result.push_back(jive::strings::Trim(cell));
 
     return result;
 }
@@ -140,6 +140,17 @@ public:
     using Index = typename Eigen::Index;
     using Size = tau::Size<Index>;
     using Cells = std::vector<std::vector<std::string>>;
+
+    Csv()
+        :
+        headers_{},
+        headerMap_{},
+        cells_{},
+        rowCount_(0),
+        columnCount_(0)
+    {
+
+    }
 
     Csv(std::istream &&inputStream, bool hasHeaders)
     {
@@ -213,20 +224,36 @@ public:
                 break;
             }
 
-            this->cells_.push_back(ExtractLine(line, ','));
+            auto extracted = ExtractLine(line, ',');
 
-            maximumColumnCount =
-                std::max(maximumColumnCount, this->cells_.back().size());
-
-            if (maximumColumnCount == 4)
-            {
-                auto back = this->cells_.back();
-
-                std::cout << "four columns: " << line << std::endl;
-                for (auto &q: back)
+            bool lineIsEmpty = std::all_of(
+                std::begin(extracted),
+                std::end(extracted),
+                [](const auto &entry) -> bool
                 {
-                    std::cout << q << std::endl;
+                    return entry.empty();
+                });
+
+            if (!lineIsEmpty)
+            {
+                bool someAreEmpty = std::any_of(
+                    std::begin(extracted),
+                    std::end(extracted),
+                    [](const auto &entry) -> bool
+                    {
+                        return entry.empty();
+                    });
+
+
+                if (someAreEmpty)
+                {
+                    std::cerr << "Warning, empty cells in line: " << line << std::endl;
                 }
+
+                this->cells_.push_back(extracted);
+
+                maximumColumnCount =
+                    std::max(maximumColumnCount, extracted.size());
             }
         }
 
@@ -248,13 +275,9 @@ public:
                 static_cast<Index>(this->cells_[checkCount].size())
                     < this->columnCount_)
             {
-                std::cerr << "Row " << checkCount << " is missing columns."
-                    << std::endl;
-
-                std::cerr << "column count: " << this->columnCount_ << std::endl;
-                std::cerr << "naught row has " << this->cells_[checkCount].size() << " columns" << std::endl;
-
-                throw std::runtime_error("CSV is missing columns");
+                throw std::runtime_error(
+                    "CSV is missing columns in row "
+                    + std::to_string(checkCount));
             }
         }
 
@@ -386,6 +409,15 @@ public:
     using Size = tau::Size<Index>;
     using Data = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, options>;
 
+    EigenCsv()
+        :
+        headers_{},
+        headerMap_{},
+        data_{}
+    {
+
+    }
+
     EigenCsv(
         const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, options> &data,
         const std::vector<std::string> &headers = {})
@@ -421,8 +453,17 @@ public:
         {
             for (Index column = 0; column < columnCount; ++column)
             {
-                this->data_(row, column) =
-                    jive::ToFloat<T>(csv(row, column));
+                try
+                {
+                    this->data_(row, column) =
+                        jive::ToFloat<T>(csv(row, column));
+                }
+                catch (std::invalid_argument &)
+                {
+                    std::cerr << "Failed to convert value in row " << row << ", column " << column << ": " << csv(row, column) << std::endl;
+
+                    throw;
+                }
             }
         }
     }
