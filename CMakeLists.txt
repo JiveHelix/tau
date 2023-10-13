@@ -14,7 +14,7 @@ endif ()
 add_subdirectory(tau)
 
 if (ENABLE_TESTING)
-    if (${PROJECT_IS_TOP_LEVEL} OR ${RECURSIVE_BUILD_TESTS})
+    if (${PROJECT_IS_TOP_LEVEL})
         add_subdirectory(test)
     endif ()
 endif ()

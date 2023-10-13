@@ -13,6 +13,10 @@ namespace tau
 
 
 template<typename T>
+using RgbMatrix = Eigen::Matrix<T, Eigen::Dynamic, 3, Eigen::RowMajor>;
+
+
+template<typename T>
 struct RgbPixels
 {
     using Data = RgbMatrix<T>;

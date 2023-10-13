@@ -3,7 +3,7 @@ from conans import ConanFile, CMake
 
 class TauConan(ConanFile):
     name = "tau"
-    version = "1.10.3"
+    version = "1.10.4"
 
     scm = {
         "type": "git",

@@ -65,7 +65,7 @@ tau::Region<T> MakeRandomRegion(tau::UniformRandom<T> &uniformRandom)
 
 
 template<typename T, typename U>
-T CheckSubstract(T left, U right)
+T CheckSubtract(T left, U right)
 {
     if constexpr (std::is_unsigned_v<T>)
     {

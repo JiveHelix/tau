@@ -21,7 +21,6 @@ add_executable(
     rotation_tests.cpp
     size_tests.cpp
     vector2d_tests.cpp
-    view_tests.cpp
     csv_tests.cpp)
 
 target_link_libraries(

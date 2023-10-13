@@ -134,40 +134,34 @@ struct Region
 };
 
 
-template<typename T, typename U>
-Region<T> & operator*=(Region<T> &left, const Scale<U> &scale)
+template<typename T>
+Region<T> & operator*=(Region<T> &left, const Scale<T> &scale)
 {
-    auto scaledRegion = left.template Convert<U>();
-
-    scaledRegion.topLeft *= scale;
-    scaledRegion.size *= scale;
-    left = scaledRegion.template Convert<T, Floor>();
+    left.topLeft *= scale;
+    left.size *= scale;
 
     return left;
 }
 
-template<typename T, typename U>
-Region<T> & operator/=(Region<T> &left, const Scale<U> &scale)
+template<typename T>
+Region<T> & operator/=(Region<T> &left, const Scale<T> &scale)
 {
-    auto scaledRegion = left.template Convert<U>();
-
-    scaledRegion.topLeft /= scale;
-    scaledRegion.size /= scale;
-    left = scaledRegion.template Convert<T, Floor>();
+    left.topLeft /= scale;
+    left.size /= scale;
 
     return left;
 }
 
-template<typename T, typename U>
-Region<T> operator*(const Region<T> &left, const Scale<U> &scale)
+template<typename T>
+Region<T> operator*(const Region<T> &left, const Scale<T> &scale)
 {
     auto result = left;
     result *= scale;
     return result;
 }
 
-template<typename T, typename U>
-Region<T> operator/(const Region<T> &left, const Scale<U> &scale)
+template<typename T>
+Region<T> operator/(const Region<T> &left, const Scale<T> &scale)
 {
     auto result = left;
     result /= scale;

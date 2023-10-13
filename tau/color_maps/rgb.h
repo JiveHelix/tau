@@ -3,14 +3,11 @@
 
 #include "tau/eigen_shim.h"
 #include "tau/size.h"
+#include "tau/color.h"
 
 
 namespace tau
 {
-
-
-template<typename T>
-using RgbMatrix = Eigen::Matrix<T, Eigen::Dynamic, 3, Eigen::RowMajor>;
 
 
 template<typename T, typename MakeFloat>
