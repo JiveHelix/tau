@@ -577,15 +577,25 @@ struct HsvFields
         fields::Field(&T::value, "value"));
 };
 
+
+template<typename U>
+using HueRange = pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>;
+
+template<typename U>
+using UnitRange = pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>;
+
+
 template<typename U>
 struct HsvTemplate
 {
+    static_assert(std::is_floating_point_v<U>);
+
     template<template<typename> typename V>
     struct MemberTemplate
     {
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>> hue;
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> saturation;
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> value;
+        V<HueRange<U>> hue;
+        V<UnitRange<U>> saturation;
+        V<UnitRange<U>> value;
 
         static constexpr auto fields = HsvFields<MemberTemplate>::fields;
     };
@@ -634,10 +644,10 @@ struct HsvaTemplate
     template<template<typename> typename V>
     struct MemberTemplate
     {
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>> hue;
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> saturation;
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> value;
-        V<pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>> alpha;
+        V<HueRange<U>> hue;
+        V<UnitRange<U>> saturation;
+        V<UnitRange<U>> value;
+        V<UnitRange<U>> alpha;
 
         static constexpr auto fields = HsvaFields<MemberTemplate>::fields;
     };

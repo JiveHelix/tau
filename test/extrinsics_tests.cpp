@@ -27,8 +27,6 @@ TEST_CASE("Pose origin projection", "[pose]")
     // Camera is is facing the x-axis
     auto originPose = tau::Pose<float>();
 
-    std::cout << "originPose: " << originPose << std::endl;
-
     auto projectionFromWorld =
         tau::Projection<float>(intrinsics, originPose);
 
@@ -36,12 +34,7 @@ TEST_CASE("Pose origin projection", "[pose]")
     auto lineFromWorld = projectionFromWorld.GetLine_m(pixel);
     auto expected = tau::Line3d<float>({0_f, 0_f, 0_f}, {1_f, 0_f, 0_f});
 
-    std::cout << "lineFromWorld: " << lineFromWorld << std::endl;
-    std::cout << "expected: " << expected << std::endl;
-
     REQUIRE(lineFromWorld.IsColinear(expected));
-
-    std::cout << "center: " << lineFromWorld.GetAngleAboutZ() << std::endl;
 
     auto lowerPixel = Pixel{1920_f / 2_f, 1079};
 
@@ -66,6 +59,8 @@ TEST_CASE("Pose origin projection", "[pose]")
     std::cout << "rightPixel: "
         << projectionFromWorld.GetLine_m(rightPixel).GetAngleAboutZ()
         << std::endl;
+
+    // TODO Add a REQUIRE
 }
 
 

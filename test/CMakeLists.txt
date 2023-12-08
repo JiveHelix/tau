@@ -20,6 +20,7 @@ add_executable(
     region_tests.cpp
     rotation_tests.cpp
     size_tests.cpp
+    variate_tests.cpp
     vector2d_tests.cpp
     csv_tests.cpp)
 

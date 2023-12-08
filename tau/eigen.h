@@ -603,3 +603,41 @@ constexpr auto Scalar(T value)
 
 
 } // end namespace tau
+
+
+namespace Eigen
+{
+
+
+template<typename Derived>
+std::ostream & DoDescribe(
+    std::ostream &output,
+    const MatrixBase<Derived> &matrix,
+    int indent)
+{
+    IOFormat format;
+
+    if (indent == -1)
+    {
+        format.flags = Eigen::DontAlignCols;
+        format.matPrefix = '[';
+        format.matSuffix = ']';
+        format.rowPrefix = '[';
+        format.rowSuffix = "]";
+        format.rowSeparator = ", ";
+        format.coeffSeparator = ", ";
+
+        return output << matrix.format(format);
+    }
+
+    assert(indent >= 0);
+
+    format.rowSeparator =
+        std::string("\n") + std::string(static_cast<size_t>(indent * 4), ' ');
+
+    format.matPrefix = format.rowSeparator;
+    return output << matrix.format(format);
+}
+
+
+} // end namespace Eigen

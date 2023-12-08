@@ -160,10 +160,10 @@ struct Line2d: public Line2dBase<T>
 
     tu - sv = q0 - r0
 
-    at + bt - (sc + sd) = q0 - r0
+    ta + tb - (sc + sd) = q0 - r0
 
-    at - sc = q0_x - r0_x
-    bt - sd = q0_y - r0_y
+    ta - sc = q0_x - r0_x
+    tb - sd = q0_y - r0_y
 
     a  -c     t     q0_x - r0_x
            @     =
@@ -189,9 +189,12 @@ struct Line2d: public Line2dBase<T>
             other.point.y - this->point.y
         };
 
-        Eigen::Vector<T, 2> parameters = directions.inverse() * points;
+        auto inverse = directions.inverse();
 
-        return parameters(0);
+        // We only need the scalar 't', so we can skip half of the operations.
+        // Eigen::Vector<T, 2> scalars = directions.inverse() * points;
+
+        return (inverse.topRows(1) * points)(0);
     }
 
     bool HasIntersection(const Line2d<T> &other) const

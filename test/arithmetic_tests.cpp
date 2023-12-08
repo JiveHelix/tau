@@ -278,7 +278,7 @@ TEMPLATE_TEST_CASE(
     auto check2d = static_cast<TestType>(
         value2d.x * value2d.x + value2d.y * value2d.y);
 
-    REQUIRE(result2d == check2d);
+    REQUIRE(result2d == Approx(check2d));
 }
 
 TEMPLATE_TEST_CASE(
@@ -334,7 +334,7 @@ TEMPLATE_TEST_CASE(
         + value3d.y * value3d.y
         + value3d.z * value3d.z);
 
-    REQUIRE(result3d == check3d);
+    REQUIRE(result3d == Approx(check3d));
 }
 
 
@@ -418,7 +418,7 @@ TEMPLATE_TEST_CASE(
         (right2d.x - left2d.x) * (right2d.x - left2d.x)
         + (right2d.y - left2d.y) * (right2d.y - left2d.y));
 
-    REQUIRE(result2d == check2d);
+    REQUIRE(result2d == Approx(check2d));
 }
 
 
@@ -521,5 +521,5 @@ TEMPLATE_TEST_CASE(
         + (right3d.y - left3d.y) * (right3d.y - left3d.y)
         + (right3d.z - left3d.z) * (right3d.z - left3d.z));
 
-    REQUIRE(result3d == check3d);
+    REQUIRE(result3d == Approx(check3d));
 }

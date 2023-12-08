@@ -223,10 +223,6 @@ TEMPLATE_TEST_CASE(
     auto thetaY = uniformRandom();
     auto thetaZ = uniformRandom();
 
-    std::cout << "thetaX: " << thetaX << std::endl;
-    std::cout << "thetaY: " << thetaY << std::endl;
-    std::cout << "thetaZ: " << thetaZ << std::endl;
-
     auto yawPitchRoll =
         TestAngles(thetaZ, thetaY, thetaX, tau::AxisOrder{2, 1, 0});
 
@@ -235,14 +231,8 @@ TEMPLATE_TEST_CASE(
     auto pitchYawRoll =
         TestAngles(yawPitchRollMatrix, tau::AxisOrder{1, 2, 0});
 
-    std::cout << "yawPitchRoll: " << yawPitchRoll << std::endl;
-    std::cout << "pitchYawRoll: " << pitchYawRoll << std::endl;
-
     auto recoveredYawPitchRoll =
         TestAngles(pitchYawRoll.GetRotation(), tau::AxisOrder{2, 1, 0});
-
-    std::cout << "recoveredYawPitchRoll: " << recoveredYawPitchRoll
-        << std::endl;
 
     REQUIRE(recoveredYawPitchRoll.yaw == Approx(thetaZ));
     REQUIRE(recoveredYawPitchRoll.pitch == Approx(thetaY));
@@ -257,10 +247,6 @@ TEST_CASE("Simple swap rotation order", "[rotation]")
     auto thetaY = -30.0;
     auto thetaZ = 20.0;
 
-    std::cout << "thetaX: " << thetaX << std::endl;
-    std::cout << "thetaY: " << thetaY << std::endl;
-    std::cout << "thetaZ: " << thetaZ << std::endl;
-
     using TestAngles = tau::RotationAngles<double>;
 
     auto yawPitchRoll =
@@ -271,14 +257,8 @@ TEST_CASE("Simple swap rotation order", "[rotation]")
     auto pitchYawRoll =
         TestAngles(yawPitchRollMatrix, tau::AxisOrder{1, 2, 0});
 
-    std::cout << "yawPitchRoll: " << yawPitchRoll << std::endl;
-    std::cout << "pitchYawRoll: " << pitchYawRoll << std::endl;
-
     auto recoveredYawPitchRoll =
         TestAngles(pitchYawRoll.GetRotation(), tau::AxisOrder{2, 1, 0});
-
-    std::cout << "recoveredYawPitchRoll: " << recoveredYawPitchRoll
-        << std::endl;
 
     REQUIRE(jive::Roughly(recoveredYawPitchRoll.yaw, 1e-4) == thetaZ);
     REQUIRE(jive::Roughly(recoveredYawPitchRoll.pitch, 1e-4) == thetaY);
@@ -292,10 +272,6 @@ TEST_CASE("Rotate Vector and RowVector", "[rotation]")
     auto thetaY = -30.0;
     auto thetaZ = 20.0;
 
-    std::cout << "thetaX: " << thetaX << std::endl;
-    std::cout << "thetaY: " << thetaY << std::endl;
-    std::cout << "thetaZ: " << thetaZ << std::endl;
-
     using TestAngles = tau::RotationAngles<double>;
 
     auto yawPitchRoll =
@@ -307,4 +283,6 @@ TEST_CASE("Rotate Vector and RowVector", "[rotation]")
 
     std::cout << yawPitchRollMatrix * p << std::endl;
     std::cout << p.transpose() * yawPitchRollMatrix << std::endl;
+
+    // TODO: Add a REQUIRE
 }

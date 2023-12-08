@@ -25,10 +25,6 @@ TEST_CASE("Camera to World to Camera round trip.", "[projection]")
     auto world = projection.GetLine_m(pixel).ScaleToPoint(5);
     auto roundTrip = projection.WorldToCamera(world);
 
-    std::cout << "pixel:\n" << pixel << std::endl;
-    std::cout << "world:\n" << world << std::endl;
-    std::cout << "roundTrip:\n" << roundTrip << std::endl;
-
     REQUIRE(roundTrip.isApprox(pixel.GetHomogeneous()));
 }
 

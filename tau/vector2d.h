@@ -102,6 +102,16 @@ struct Base2d
     {
         return fmt::format("({}, {})", this->x, this->y);
     }
+
+    Eigen::Vector<T, 3> GetHomogeneous() const
+    {
+        return Eigen::Vector<T, 3>(this->x, this->y, static_cast<T>(1));
+    }
+
+    Eigen::Vector<T, 2> ToEigen() const
+    {
+        return Eigen::Vector<T, 2>(this->x, this->y);
+    }
 };
 
 
@@ -133,16 +143,6 @@ struct Point2d: public Base2d<T, Point2d>
     T Distance(const Point2d<T> &point) const
     {
         return (point - *this).Magnitude();
-    }
-
-    Eigen::Vector<T, 3> GetHomogeneous() const
-    {
-        return Vector<3>(this->x, this->y, static_cast<T>(1));
-    }
-
-    Eigen::Vector<T, 2> ToEigen() const
-    {
-        return Eigen::Vector<T, 2>(this->x, this->y);
     }
 };
 
