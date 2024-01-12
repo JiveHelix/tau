@@ -31,7 +31,7 @@ struct PoseTemplate
     template<template<typename> typename T>
     struct Template
     {
-        T<pex::MakeGroup<RotationAnglesGroup<Float>>> rotation;
+        T<RotationAnglesGroup<Float>> rotation;
         T<Float> x_m;
         T<Float> y_m;
         T<Float> z_m;
@@ -105,7 +105,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 
     Vector3<T> GetTranslation_pixels(const Intrinsics<T> &intrinsics) const
     {
-        return intrinsics.MetersToPixel(this->GetTranslation_m());
+        return intrinsics.MetersToPixels(this->GetTranslation_m());
     }
 
     RotationMatrix<T> GetRotation() const
@@ -158,7 +158,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
     Point3d<T> GetPosition_pixels(const Intrinsics<T> &intrinsics) const
     {
         auto position = this->GetPosition_m();
-        return intrinsics.MetersToPixel(position);
+        return intrinsics.MetersToPixels(position);
     }
 
 
@@ -195,7 +195,7 @@ using PoseGroup =
     <
         PoseFields,
         PoseTemplate<T>::template Template,
-        Pose<T>
+        pex::PlainT<Pose<T>>
     >;
 
 template<typename T>
@@ -216,7 +216,7 @@ extern template struct pex::Group
     <
         tau::PoseFields,
         tau::PoseTemplate<float>::template Template,
-        tau::Pose<float>
+        pex::PlainT<tau::Pose<float>>
     >;
 
 
@@ -224,5 +224,5 @@ extern template struct pex::Group
     <
         tau::PoseFields,
         tau::PoseTemplate<double>::template Template,
-        tau::Pose<double>
+        pex::PlainT<tau::Pose<double>>
     >;

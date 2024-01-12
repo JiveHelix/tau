@@ -14,6 +14,27 @@ namespace tau
 {
 
 
+// Project vector onto normal
+template<typename T>
+Eigen::Vector<T, 3> Project(
+    const Eigen::Vector<T, 3> &normal,
+    const Eigen::Vector<T, 3> &vector)
+{
+    return normal.transpose().dot(vector) * normal;
+}
+
+
+// Rejection of vector onto normal
+// This is the projection of the vector onto the plane defined by the normal.
+template<typename T>
+Eigen::Vector<T, 3> Reject(
+    const Eigen::Vector<T, 3> &normal,
+    const Eigen::Vector<T, 3> &vector)
+{
+    return vector - Project(normal, vector);
+}
+
+
 template<typename T>
 class Projection
 {

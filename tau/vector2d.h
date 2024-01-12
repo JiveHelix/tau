@@ -199,7 +199,7 @@ using Vector2dGroup =
     <
         Vector2dFields,
         Vector2dTemplate<T>::template Template,
-        Vector2d<T>
+        pex::PlainT<Vector2d<T>>
     >;
 
 
@@ -209,7 +209,7 @@ using Point2dGroup =
     <
         Vector2dFields,
         Vector2dTemplate<T>::template Template,
-        Point2d<T>
+        pex::PlainT<Point2d<T>>
     >;
 
 

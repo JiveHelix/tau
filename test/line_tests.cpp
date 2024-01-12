@@ -163,7 +163,7 @@ TEST_CASE("Intersection with Region", "[line2d]")
     using Size_ = Size<double>;
     using Region_ = Region<double>;
 
-    auto region = Region_{{Point(0, 0), Size_(600, 400)}};
+    auto region = Region_{Point(0, 0), Size_(600, 400)};
     auto point1 = Point(0, 200);
     auto point2 = Point(600, 100);
     auto line = Line(point1, point2);

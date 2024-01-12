@@ -28,7 +28,7 @@ struct VariateFields
         fields::Field(&T::value, "value"),
 
         // The standard deviation
-        fields::Field(&T::variance, "variance"));
+        fields::Field(&T::sigma, "sigma"));
 };
 
 
@@ -39,7 +39,7 @@ struct VariateTemplate
     struct Template
     {
         T<U> value;
-        T<U> variance;
+        T<U> sigma;
 
         static constexpr auto fields = VariateFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Variate";
@@ -47,12 +47,94 @@ struct VariateTemplate
 };
 
 
+template<typename T>
+using VariateGroup =
+    pex::Group
+    <
+        VariateFields,
+        VariateTemplate<T>::template Template
+    >;
+
 
 template<typename T>
-struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
+using VariateModel = typename VariateGroup<T>::Model;
+
+template<typename T>
+using VariateControl = typename VariateGroup<T>::Control;
+
+template<typename T>
+using Variate = typename VariateGroup<T>::Plain;
+
+
+DECLARE_OUTPUT_STREAM_OPERATOR(Variate<float>)
+DECLARE_OUTPUT_STREAM_OPERATOR(Variate<double>)
+
+DECLARE_EQUALITY_OPERATORS(Variate<float>)
+DECLARE_EQUALITY_OPERATORS(Variate<double>)
+
+
+template<typename T>
+struct VarianceFields
 {
+    static constexpr auto fields = std::make_tuple(
+        // The mean value
+        fields::Field(&T::value, "value"),
+
+        // The standard deviation squared
+        fields::Field(&T::variance, "variance"));
+};
+
+
+template<typename U>
+struct VarianceTemplate
+{
+    template<template<typename> typename T>
+    struct Template
+    {
+        T<U> value;
+        T<U> variance;
+
+        static constexpr auto fields = VarianceFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Variance";
+    };
+};
+
+
+template<typename T>
+struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
+{
+    using Base = VarianceTemplate<T>::template Template<pex::Identity>;
+
+    Variance()
+        :
+        Base{}
+    {
+
+    }
+
+    Variance(T value_, T variance_)
+        :
+        Base{value_, variance_}
+    {
+
+    }
+
+    Variance(const Variate<T> &variate)
+        :
+        Base{variate.value, variate.sigma * variate.sigma}
+    {
+
+    }
+
+    Variate<T> GetVariate() const
+    {
+        return {
+            this->value,
+            std::sqrt(this->variance)};
+    }
+
     // For addition and subtraction, variances add.
-    Variate & operator+=(const Variate &other)
+    Variance & operator+=(const Variance &other)
     {
         this->variance += other.variance;
         this->value += other.value;
@@ -60,7 +142,7 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variate & operator-=(const Variate &other)
+    Variance & operator-=(const Variance &other)
     {
         this->variance += other.variance;
         this->value -= other.value;
@@ -68,17 +150,17 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variate operator+(const Variate &other)
+    Variance operator+(const Variance &other)
     {
-        Variate result = *this;
+        Variance result = *this;
         result += other;
 
         return result;
     }
 
-    Variate operator-(const Variate &other)
+    Variance operator-(const Variance &other)
     {
-        Variate result = *this;
+        Variance result = *this;
         result -= other;
 
         return result;
@@ -100,7 +182,7 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
 
     */
 
-    Variate & operator*=(const Variate &other)
+    Variance & operator*=(const Variance &other)
     {
         this->variance =
             this->value * this->value * other.variance
@@ -112,7 +194,7 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variate & operator/=(const Variate &other)
+    Variance & operator/=(const Variance &other)
     {
         /*
                      b
@@ -210,24 +292,24 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variate operator*(const Variate &other)
+    Variance operator*(const Variance &other)
     {
-        Variate result = *this;
+        Variance result = *this;
         result *= other;
 
         return result;
 
     }
 
-    Variate operator/(const Variate &other)
+    Variance operator/(const Variance &other)
     {
-        Variate result = *this;
+        Variance result = *this;
         result /= other;
 
         return result;
     }
 
-    Variate & operator*=(T scalar)
+    Variance & operator*=(T scalar)
     {
         this->variance = scalar * scalar * this->variance;
         this->value *= scalar;
@@ -235,7 +317,7 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variate & operator/=(T scalar)
+    Variance & operator/=(T scalar)
     {
         this->variance = this->variance / (scalar * scalar);
         this->value /= scalar;
@@ -243,26 +325,26 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variate operator*(T scalar)
+    Variance operator*(T scalar)
     {
-        Variate result = *this;
+        Variance result = *this;
         result *= scalar;
 
         return result;
 
     }
 
-    Variate operator/(T scalar)
+    Variance operator/(T scalar)
     {
-        Variate result = *this;
+        Variance result = *this;
         result /= scalar;
 
         return result;
     }
 
-    Variate Power(T exponent) const
+    Variance Power(T exponent) const
     {
-        Variate result{};
+        Variance result{};
 
         result.value = std::pow(this->value, exponent);
 
@@ -302,27 +384,25 @@ struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
 };
 
 
-TEMPLATE_OUTPUT_STREAM(Variate)
+TEMPLATE_OUTPUT_STREAM(Variance)
+TEMPLATE_EQUALITY_OPERATORS(Variance)
 
 
 template<typename T>
-using VariateGroup =
+using VarianceGroup =
     pex::Group
     <
-        VariateFields,
-        VariateTemplate<T>::template Template,
-        Variate<T>
+        VarianceFields,
+        VarianceTemplate<T>::template Template,
+        pex::PlainT<Variance<T>>
     >;
 
 
 template<typename T>
-using VariteModel = typename VariateGroup<T>::Model;
+using VarianceModel = typename VarianceGroup<T>::Model;
 
 template<typename T>
-using VariteControl = typename VariateGroup<T>::Control;
-
-template<typename T>
-using VariateGroupMaker = pex::MakeGroup<VariateGroup<T>>;
+using VarianceControl = typename VarianceGroup<T>::Control;
 
 
 } // end namespace tau

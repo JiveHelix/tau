@@ -16,7 +16,7 @@ template struct pex::Group
     <
         tau::PoseFields,
         tau::PoseTemplate<float>::template Template,
-        tau::Pose<float>
+        pex::PlainT<tau::Pose<float>>
     >;
 
 
@@ -24,5 +24,5 @@ template struct pex::Group
     <
         tau::PoseFields,
         tau::PoseTemplate<double>::template Template,
-        tau::Pose<double>
+        pex::PlainT<tau::Pose<double>>
     >;

@@ -6,6 +6,7 @@
 #include <pex/group.h>
 
 #include "tau/arithmetic.h"
+#include "tau/angles.h"
 
 
 namespace tau
@@ -229,6 +230,19 @@ struct Vector3d: public Base3d<T, Vector3d>
     {
 
     }
+
+    T GetAngle_rad(const Vector3d<T> &other)
+    {
+        // a dot b = |a||b| cos(theta)
+        // theta = arcos(a dot b / (|a||b|)
+        auto dot = this->ToEigen().dot(other.ToEigen());
+        return std::acos(dot / (this->Magnitude() * other.Magnitude()));
+    }
+
+    T GetAngle_deg(const Vector3d<T> &other)
+    {
+        return ToDegrees(this->GetAngle_rad(other));
+    }
 };
 
 
@@ -242,7 +256,7 @@ using Vector3dGroup =
     <
         Vector3dFields,
         Vector3dTemplate<T>::template Template,
-        Vector3d<T>
+        pex::PlainT<Vector3d<T>>
     >;
 
 
@@ -252,7 +266,7 @@ using Point3dGroup =
     <
         Vector3dFields,
         Vector3dTemplate<T>::template Template,
-        Point3d<T>
+        pex::PlainT<Point3d<T>>
     >;
 
 

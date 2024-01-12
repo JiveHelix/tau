@@ -14,6 +14,7 @@ add_executable(
     eigen_test.cpp
     extrinsics_tests.cpp
     intrinsics_tests.cpp
+    lens_tests.cpp
     line_tests.cpp
     polynomial_tests.cpp
     projection_tests.cpp
@@ -22,6 +23,7 @@ add_executable(
     size_tests.cpp
     variate_tests.cpp
     vector2d_tests.cpp
+    vector3d_tests.cpp
     csv_tests.cpp)
 
 target_link_libraries(

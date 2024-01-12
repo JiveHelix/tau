@@ -15,6 +15,66 @@ namespace tau
 
 
 template<typename T>
+class PixelConvert
+{
+    T pixelSize_um_;
+
+public:
+    static constexpr auto metersPerMicron = static_cast<T>(1e-6);
+
+    PixelConvert(T pixelSize_um)
+        :
+        pixelSize_um_(pixelSize_um)
+    {
+        if (pixelSize_um == static_cast<T>(0))
+        {
+            throw std::runtime_error("Invalid pixel size");
+        }
+    }
+
+    template <typename Value>
+    std::enable_if_t<std::is_floating_point_v<Value>, Value>
+    PixelsToMeters(const Value &pixels) const
+    {
+        return pixels * (this->pixelSize_um_ * metersPerMicron);
+    }
+
+    template <typename Value>
+    Value PixelsToMeters(const Eigen::MatrixBase<Value> &pixels) const
+    {
+        return pixels.array() * (this->pixelSize_um_ * metersPerMicron);
+    }
+
+    template <typename Value>
+    tau::Point3d<Value> PixelsToMeters(
+        const tau::Point3d<Value> &pixels) const
+    {
+        return pixels * (this->pixelSize_um_ * metersPerMicron);
+    }
+
+    template <typename Value>
+    std::enable_if_t<std::is_floating_point_v<Value>, Value>
+    MetersToPixels(const Value &meters) const
+    {
+        return meters / (this->pixelSize_um_ * metersPerMicron);
+    }
+
+    template<typename Value>
+    Value MetersToPixels(const Eigen::MatrixBase<Value> &meters) const
+    {
+        return meters.array() / (this->pixelSize_um_ * metersPerMicron);
+    }
+
+    template<typename Value>
+    tau::Point3d<Value>
+    MetersToPixels(const tau::Point3d<Value> &meters) const
+    {
+        return meters / (this->pixelSize_um_ * metersPerMicron);
+    }
+};
+
+
+template<typename T>
 struct IntrinsicsFields
 {
     static constexpr auto fields = std::make_tuple(
@@ -52,61 +112,52 @@ template<typename T>
 struct Intrinsics:
     public IntrinsicsTemplate<T>::template Template<pex::Identity>
 {
+    using Base = IntrinsicsTemplate<T>::template Template<pex::Identity>;
+    PixelConvert<T> pixelConvert;
+
     static constexpr auto version = jive::Version<uint8_t>(1, 0, 0);
-    static constexpr auto metersPerMicron = static_cast<T>(1e-6);
     static constexpr auto millimetersPerMeter = static_cast<T>(1e3);
 
     using Matrix = Eigen::Matrix<T, 3, 3>;
 
+    Intrinsics()
+        :
+        Base(
+            {
+                static_cast<T>(10),
+                static_cast<T>(25),
+                static_cast<T>(25),
+                static_cast<T>(1920.0 / 2.0),
+                static_cast<T>(1080.0 / 2.0),
+                static_cast<T>(0)}),
+        pixelConvert(this->pixelSize_um)
+    {
+
+    }
+
+    Intrinsics(const Base &base)
+        :
+        Base(base),
+        pixelConvert(this->pixelSize_um)
+    {
+
+    }
+
     static Intrinsics Default()
     {
-        return {{
-            static_cast<T>(10),
-            static_cast<T>(25),
-            static_cast<T>(25),
-            static_cast<T>(1920.0 / 2.0),
-            static_cast<T>(1080.0 / 2.0),
-            static_cast<T>(0)}};
-    }
-
-    template <typename Value>
-    std::enable_if_t<std::is_floating_point_v<Value>, Value>
-    MetersToPixel(const Value &meters) const
-    {
-        return meters / (this->pixelSize_um * metersPerMicron);
+        return {};
     }
 
     template<typename Value>
-    Value MetersToPixel(const Eigen::MatrixBase<Value> &meters) const
+    auto MetersToPixels(const Value &meters) const
     {
-        return meters.array() / (this->pixelSize_um * metersPerMicron);
+        return this->pixelConvert.template MetersToPixels(meters);
     }
 
     template<typename Value>
-    tau::Point3d<Value>
-    MetersToPixel(const tau::Point3d<Value> &meters) const
+    auto PixelsToMeters(const Value &pixels) const
     {
-        return meters / (this->pixelSize_um * metersPerMicron);
-    }
-
-    template <typename Value>
-    std::enable_if_t<std::is_floating_point_v<Value>, Value>
-    PixelsToMeters(const Value &pixels) const
-    {
-        return pixels * (this->pixelSize_um * metersPerMicron);
-    }
-
-    template <typename Value>
-    Value PixelsToMeters(const Eigen::MatrixBase<Value> &pixels) const
-    {
-        return pixels.array() * (this->pixelSize_um * metersPerMicron);
-    }
-
-    template <typename Value>
-    tau::Point3d<Value> PixelsToMeters(
-        const tau::Point3d<Value> &pixels) const
-    {
-        return pixels * (this->pixelSize_um * metersPerMicron);
+        return this->pixelConvert.template PixelsToMeters(pixels);
     }
 
     static Intrinsics FromArray(
@@ -126,12 +177,26 @@ struct Intrinsics:
         return result;
     }
 
+    T GetFocalLength_m() const
+    {
+        static constexpr auto half = static_cast<T>(0.5);
+        return
+            (this->focalLengthX_mm + this->focalLengthY_mm)
+            * half
+            / millimetersPerMeter;
+    }
+
+    T GetFocalLength_pixels() const
+    {
+        return this->MetersToPixels(this->GetFocalLength_mm());
+    }
+
     Matrix GetArray_pixels() const
     {
-        auto focalLengthX_pixels = this->MetersToPixel(
+        auto focalLengthX_pixels = this->MetersToPixels(
             this->focalLengthX_mm / millimetersPerMeter);
 
-        auto focalLengthY_pixels = this->MetersToPixel(
+        auto focalLengthY_pixels = this->MetersToPixels(
             this->focalLengthY_mm / millimetersPerMeter);
 
         Matrix m{
@@ -149,10 +214,10 @@ struct Intrinsics:
 
     Matrix GetInverse_pixels() const
     {
-        auto focalLengthX_pixels = this->MetersToPixel(
+        auto focalLengthX_pixels = this->MetersToPixels(
             this->focalLengthX_mm / millimetersPerMeter);
 
-        auto focalLengthY_pixels = this->MetersToPixel(
+        auto focalLengthY_pixels = this->MetersToPixels(
             this->focalLengthY_mm / millimetersPerMeter);
 
         auto inversePrincipalX =
@@ -197,8 +262,10 @@ struct Intrinsics:
 static_assert(pex::HasDefault<Intrinsics<float>>);
 
 
-TEMPLATE_OUTPUT_STREAM(Intrinsics)
-TEMPLATE_EQUALITY_OPERATORS(Intrinsics)
+DECLARE_OUTPUT_STREAM_OPERATOR(Intrinsics<float>)
+DECLARE_OUTPUT_STREAM_OPERATOR(Intrinsics<double>)
+DECLARE_EQUALITY_OPERATORS(Intrinsics<float>)
+DECLARE_EQUALITY_OPERATORS(Intrinsics<double>)
 
 
 template<typename T>
@@ -207,7 +274,7 @@ using IntrinsicsGroup =
     <
         IntrinsicsFields,
         IntrinsicsTemplate<T>::template Template,
-        Intrinsics<T>
+        pex::PlainT<Intrinsics<T>>
     >;
 
 template<typename T>

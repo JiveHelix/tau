@@ -63,10 +63,6 @@ std::ostream & operator<<(
 }
 
 
-template struct RotationAnglesModel<float>;
-template struct RotationAnglesModel<double>;
-
-
 } // namespace tau
 
 
@@ -74,12 +70,12 @@ template struct pex::Group
     <
         tau::RotationAnglesFields,
         tau::RotationAnglesTemplate<float>::template Template,
-        tau::RotationAngles<float>
+        tau::RotationAnglesTemplates_<float>
     >;
 
 template struct pex::Group
     <
         tau::RotationAnglesFields,
         tau::RotationAnglesTemplate<double>::template Template,
-        tau::RotationAngles<double>
+        tau::RotationAnglesTemplates_<double>
     >;

@@ -108,6 +108,7 @@ auto ToRadians(Value degrees)
 {
     if constexpr (HasScalar<Value>)
     {
+        // Assumes this Value is an Eigen matrix.
         using T = typename Value::Scalar;
 
         return Value{

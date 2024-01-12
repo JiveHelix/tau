@@ -27,16 +27,14 @@ struct RegionTemplate
     template<template<typename> typename V>
     struct Template
     {
-        V<pex::MakeGroup<Point2dGroup<T>>> topLeft;
-        V<pex::MakeGroup<SizeGroup<T>>> size;
+        V<Point2dGroup<T>> topLeft;
+        V<SizeGroup<T>> size;
     };
 };
 
 
 template<typename T>
-struct Region
-    :
-    public RegionTemplate<T>::template Template<pex::Identity>
+struct Region: public RegionTemplate<T>::template Template<pex::Identity>
 {
     Point2d<T> GetBottomRight() const
     {
@@ -135,7 +133,19 @@ struct Region
 
 
 template<typename T>
-Region<T> & operator*=(Region<T> &left, const Scale<T> &scale)
+using RegionGroup =
+    pex::Group
+    <
+        RegionFields,
+        RegionTemplate<T>::template Template,
+        pex::PlainT<Region<T>>
+    >;
+
+
+template<typename T>
+Region<T> & operator*=(
+    Region<T> &left,
+    const Scale<T> &scale)
 {
     left.topLeft *= scale;
     left.size *= scale;
@@ -144,7 +154,9 @@ Region<T> & operator*=(Region<T> &left, const Scale<T> &scale)
 }
 
 template<typename T>
-Region<T> & operator/=(Region<T> &left, const Scale<T> &scale)
+Region<T> & operator/=(
+    Region<T> &left,
+    const Scale<T> &scale)
 {
     left.topLeft /= scale;
     left.size /= scale;
@@ -153,7 +165,9 @@ Region<T> & operator/=(Region<T> &left, const Scale<T> &scale)
 }
 
 template<typename T>
-Region<T> operator*(const Region<T> &left, const Scale<T> &scale)
+Region<T> operator*(
+    const Region<T> &left,
+    const Scale<T> &scale)
 {
     auto result = left;
     result *= scale;
@@ -161,7 +175,9 @@ Region<T> operator*(const Region<T> &left, const Scale<T> &scale)
 }
 
 template<typename T>
-Region<T> operator/(const Region<T> &left, const Scale<T> &scale)
+Region<T> operator/(
+    const Region<T> &left,
+    const Scale<T> &scale)
 {
     auto result = left;
     result /= scale;
@@ -170,15 +186,14 @@ Region<T> operator/(const Region<T> &left, const Scale<T> &scale)
 
 
 template<typename T>
-std::ostream & operator<<(std::ostream &outputStream, const Region<T> &region)
+std::ostream & operator<<(
+    std::ostream &outputStream,
+    const Region<T> &region)
 {
     return outputStream << fields::DescribeCompact(region);
 }
 
 
-template<typename T>
-using RegionGroup =
-    pex::Group<RegionFields, RegionTemplate<T>::template Template, Region<T>>;
 
 
 using IntRegionGroup = RegionGroup<int>;

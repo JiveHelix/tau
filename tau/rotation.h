@@ -177,103 +177,118 @@ struct RotationAnglesTemplate
 
 
 template<typename T>
-struct RotationAngles:
-    public RotationAnglesTemplate<T>::template Template<pex::Identity>
+struct RotationAnglesTemplates_
 {
-    using Base =
-        typename RotationAnglesTemplate<T>::template Template<pex::Identity>;
-
-    // 0: roll (about x)
-    // 1: pitch (about y)
-    // 2: yaw (about z)
-    // default is yaw-pitch-roll
-    static constexpr auto defaultAxisOrder = AxisOrder{2, 1, 0};
-
-    RotationAngles()
-        :
-        Base{0, 0, 0, defaultAxisOrder}
+    template<typename Base>
+    struct Plain: public Base
     {
+        // 0: roll (about x)
+        // 1: pitch (about y)
+        // 2: yaw (about z)
+        // default is yaw-pitch-roll
+        static constexpr auto defaultAxisOrder = AxisOrder{2, 1, 0};
 
-    }
-
-    RotationAngles(
-        T first,
-        T second,
-        T third,
-        const AxisOrder &axisOrder_ = defaultAxisOrder)
-    {
-        this->axisOrder = axisOrder_;
-        (*this)(axisOrder_.first) = first;
-        (*this)(axisOrder_.second) = second;
-        (*this)(axisOrder_.third) = third;
-
-        // For AxisOrder{1, 2, 0}
-        // (*this)(1) = pitch
-        // (*this)(2) = yaw
-        // (*this)(0) = roll
-    }
-
-    static RotationAngles Default()
-    {
-        return RotationAngles();
-    }
-
-    RotationAngles(
-        const RotationMatrix<T> &rotation,
-        const AxisOrder &axisOrder_ = defaultAxisOrder)
-    {
-        using Vector = Eigen::Vector<T, 3>;
-
-        using Eigen::Index;
-
-        Vector angles = tau::ToDegrees(
-            rotation.eulerAngles(
-                static_cast<Index>(axisOrder_.first),
-                static_cast<Index>(axisOrder_.second),
-                static_cast<Index>(axisOrder_.third)));
-
-        (*this)(axisOrder_.first) = angles(0);
-        (*this)(axisOrder_.second) = angles(1);
-        (*this)(axisOrder_.third) = angles(2);
-        this->axisOrder = axisOrder_;
-    }
-
-    T & operator()(size_t axis)
-    {
-        switch (axis)
+        Plain()
+            :
+            Base{0, 0, 0, defaultAxisOrder}
         {
-            case 0:
-                return this->roll;
 
-            case 1:
-                return this->pitch;
-
-            case 2:
-                return this->yaw;
-
-            default:
-                throw RotationError("out of bounds index");
         }
-    }
 
-    T operator()(size_t axis) const
-    {
-        return const_cast<RotationAngles<T> *>(this)->operator()(axis);
-    }
+        Plain(
+            T first,
+            T second,
+            T third,
+            const AxisOrder &axisOrder_ = defaultAxisOrder)
+        {
+            this->axisOrder = axisOrder_;
+            (*this)(axisOrder_.first) = first;
+            (*this)(axisOrder_.second) = second;
+            (*this)(axisOrder_.third) = third;
 
-    RotationMatrix<T> GetRotation() const
+            // For AxisOrder{1, 2, 0}
+            // (*this)(1) = pitch
+            // (*this)(2) = yaw
+            // (*this)(0) = roll
+        }
+
+        static Plain Default()
+        {
+            return Plain();
+        }
+
+        Plain(
+            const RotationMatrix<T> &rotation,
+            const AxisOrder &axisOrder_ = defaultAxisOrder)
+        {
+            using Vector = Eigen::Vector<T, 3>;
+
+            using Eigen::Index;
+
+            Vector angles = tau::ToDegrees(
+                rotation.eulerAngles(
+                    static_cast<Index>(axisOrder_.first),
+                    static_cast<Index>(axisOrder_.second),
+                    static_cast<Index>(axisOrder_.third)));
+
+            (*this)(axisOrder_.first) = angles(0);
+            (*this)(axisOrder_.second) = angles(1);
+            (*this)(axisOrder_.third) = angles(2);
+            this->axisOrder = axisOrder_;
+        }
+
+        T & operator()(size_t axis)
+        {
+            switch (axis)
+            {
+                case 0:
+                    return this->roll;
+
+                case 1:
+                    return this->pitch;
+
+                case 2:
+                    return this->yaw;
+
+                default:
+                    throw RotationError("out of bounds index");
+            }
+        }
+
+        T operator()(size_t axis) const
+        {
+            return const_cast<Plain *>(this)->operator()(axis);
+        }
+
+        RotationMatrix<T> GetRotation() const
+        {
+            return MakeIntrinsic(
+                this->axisOrder,
+                (*this)(this->axisOrder.first),
+                (*this)(this->axisOrder.second),
+                (*this)(this->axisOrder.third));
+        }
+    };
+
+
+    template<typename GroupBase>
+    struct Model: public GroupBase
     {
-        return MakeIntrinsic(
-            this->axisOrder,
-            (*this)(this->axisOrder.first),
-            (*this)(this->axisOrder.second),
-            (*this)(this->axisOrder.third));
-    }
+        Model()
+            :
+            GroupBase()
+        {
+            this->axisOrder.SetChoices(
+                {
+                    {2, 1, 0},
+                    {2, 0, 1},
+                    {1, 2, 0},
+                    {1, 0, 2},
+                    {0, 2, 1},
+                    {0, 1, 2}});
+        }
+    };
 };
-
-
-TEMPLATE_OUTPUT_STREAM(RotationAngles)
-TEMPLATE_EQUALITY_OPERATORS(RotationAngles)
 
 
 template<typename T>
@@ -282,37 +297,29 @@ using RotationAnglesGroup =
     <
         RotationAnglesFields,
         RotationAnglesTemplate<T>::template Template,
-        RotationAngles<T>
+        RotationAnglesTemplates_<T>
     >;
 
-template<typename T>
-struct RotationAnglesModel: RotationAnglesGroup<T>::Model
-{
-    using Base = typename RotationAnglesGroup<T>::Model;
 
-    RotationAnglesModel()
-        :
-        Base(RotationAngles<T>::Default())
-    {
-        this->axisOrder.SetChoices(
-            {
-                {2, 1, 0},
-                {2, 0, 1},
-                {1, 2, 0},
-                {1, 0, 2},
-                {0, 2, 1},
-                {0, 1, 2}});
-    }
-};
+template<typename T>
+using RotationAngles = typename RotationAnglesGroup<T>::Plain;
+
+
+// Clang hasn't implemented this c++20 feature:
+// https://github.com/llvm/llvm-project/issues/54051
+
+// TEMPLATE_OUTPUT_STREAM(RotationAngles)
+// TEMPLATE_EQUALITY_OPERATORS(RotationAngles)
+
+DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<float>)
+DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<double>)
+DECLARE_EQUALITY_OPERATORS(RotationAngles<float>)
+DECLARE_EQUALITY_OPERATORS(RotationAngles<double>)
 
 
 template<typename T>
 using AnglesControl =
     typename RotationAnglesGroup<T>::Control;
-
-template<typename T>
-using AnglesGroupMaker =
-    pex::MakeGroup<RotationAnglesGroup<T>, RotationAnglesModel<T>>;
 
 
 template<typename T>
@@ -405,10 +412,6 @@ RotationMatrix<T> WorldRelativeToSensor()
 }
 
 
-extern template struct RotationAnglesModel<float>;
-extern template struct RotationAnglesModel<double>;
-
-
 } // namespace tau
 
 
@@ -416,12 +419,12 @@ extern template struct pex::Group
     <
         tau::RotationAnglesFields,
         tau::RotationAnglesTemplate<float>::template Template,
-        tau::RotationAngles<float>
+        tau::RotationAnglesTemplates_<float>
     >;
 
 extern template struct pex::Group
     <
         tau::RotationAnglesFields,
         tau::RotationAnglesTemplate<double>::template Template,
-        tau::RotationAngles<double>
+        tau::RotationAnglesTemplates_<double>
     >;

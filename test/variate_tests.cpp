@@ -18,30 +18,30 @@
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST_CASE("Multiply variate by scalar", "[variate]")
 {
-    tau::Variate<double> variate{100, 36};
+    tau::Variance<double> variance(100, 36);
 
-    std::cout << "variate: " << variate << std::endl;
+    std::cout << "variance: " << variance << std::endl;
 
-    variate *= 2;
+    variance *= 2;
 
-    std::cout << "variate * 2: " << variate << std::endl;
+    std::cout << "variance * 2: " << variance << std::endl;
 
-    REQUIRE(variate.value == 200);
-    REQUIRE(variate.variance == 144);
+    REQUIRE(variance.value == 200);
+    REQUIRE(variance.variance == 144);
 }
 
 
 TEMPLATE_TEST_CASE(
-    "Variate divide",
-    "[variate]",
+    "Variance divide",
+    "[variance]",
     float,
     double)
 {
     auto seed = GENERATE(
         take(32, random(tau::SeedLimits::min(), tau::SeedLimits::max())));
 
-    tau::Variate<TestType> first;
-    tau::Variate<TestType> second;
+    tau::Variance<TestType> first;
+    tau::Variance<TestType> second;
     tau::UniformRandom<TestType> uniformRandom{seed, -1000, 1000};
 
     first.value = uniformRandom();

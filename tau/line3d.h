@@ -222,7 +222,12 @@ TEMPLATE_EQUALITY_OPERATORS(Line3d);
 
 template<typename T>
 using Line3dGroup =
-    pex::Group<Line3dFields, Line3dTemplate<T>::template Template, Line3d<T>>;
+    pex::Group
+    <
+        Line3dFields,
+        Line3dTemplate<T>::template Template,
+        pex::PlainT<Line3d<T>>
+    >;
 
 
 } // namespace tau

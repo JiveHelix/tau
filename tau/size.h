@@ -43,8 +43,9 @@ using SizeBase = typename SizeTemplate<T>::template Template<fields::Identity>;
 
 template<typename T>
 struct Size
-    : public SizeBase<T>,
-      public tau::Arithmetic<T, SizeFields, Size>
+    :
+    public SizeBase<T>,
+    public tau::Arithmetic<T, SizeFields, Size>
 {
     using Type = T;
 
@@ -179,15 +180,16 @@ struct Size
 
 
 template<typename T>
-std::ostream & operator<<(std::ostream &output, const Size<T> &size)
-{
-    return output << fields::DescribeCompact(size);
-}
-
-
-template<typename T>
 using SizeGroup =
-    pex::Group<SizeFields, SizeTemplate<T>::template Template, Size<T>>;
+    pex::Group
+    <
+        SizeFields,
+        SizeTemplate<T>::template Template,
+        pex::PlainT<Size<T>>
+    >;
+
+
+TEMPLATE_OUTPUT_STREAM(Size)
 
 
 extern template struct Size<int8_t>;
@@ -215,70 +217,70 @@ extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int8_t>::template Template,
-        tau::Size<int8_t>
+        pex::PlainT<tau::Size<int8_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int16_t>::template Template,
-        tau::Size<int16_t>
+        pex::PlainT<tau::Size<int16_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int32_t>::template Template,
-        tau::Size<int32_t>
+        pex::PlainT<tau::Size<int32_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int64_t>::template Template,
-        tau::Size<int64_t>
+        pex::PlainT<tau::Size<int64_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint8_t>::template Template,
-        tau::Size<uint8_t>
+        pex::PlainT<tau::Size<uint8_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint16_t>::template Template,
-        tau::Size<uint16_t>
+        pex::PlainT<tau::Size<uint16_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint32_t>::template Template,
-        tau::Size<uint32_t>
+        pex::PlainT<tau::Size<uint32_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint64_t>::template Template,
-        tau::Size<uint64_t>
+        pex::PlainT<tau::Size<uint64_t>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<float>::template Template,
-        tau::Size<float>
+        pex::PlainT<tau::Size<float>>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<double>::template Template,
-        tau::Size<double>
+        pex::PlainT<tau::Size<double>>
     >;
 
 

@@ -30,70 +30,70 @@ template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int8_t>::template Template,
-        tau::Size<int8_t>
+        pex::PlainT<tau::Size<int8_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int16_t>::template Template,
-        tau::Size<int16_t>
+        pex::PlainT<tau::Size<int16_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int32_t>::template Template,
-        tau::Size<int32_t>
+        pex::PlainT<tau::Size<int32_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int64_t>::template Template,
-        tau::Size<int64_t>
+        pex::PlainT<tau::Size<int64_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint8_t>::template Template,
-        tau::Size<uint8_t>
+        pex::PlainT<tau::Size<uint8_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint16_t>::template Template,
-        tau::Size<uint16_t>
+        pex::PlainT<tau::Size<uint16_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint32_t>::template Template,
-        tau::Size<uint32_t>
+        pex::PlainT<tau::Size<uint32_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint64_t>::template Template,
-        tau::Size<uint64_t>
+        pex::PlainT<tau::Size<uint64_t>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<float>::template Template,
-        tau::Size<float>
+        pex::PlainT<tau::Size<float>>
     >;
 
 template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<double>::template Template,
-        tau::Size<double>
+        pex::PlainT<tau::Size<double>>
     >;
 
 
