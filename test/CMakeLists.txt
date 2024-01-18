@@ -16,6 +16,7 @@ add_executable(
     intrinsics_tests.cpp
     lens_tests.cpp
     line_tests.cpp
+    percentile_tests.cpp
     polynomial_tests.cpp
     projection_tests.cpp
     region_tests.cpp
