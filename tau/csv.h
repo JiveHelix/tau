@@ -137,7 +137,7 @@ std::string FilterCell(std::string cell)
 class Csv
 {
 public:
-    using Index = typename Eigen::Index;
+    using Index = Eigen::Index;
     using Size = tau::Size<Index>;
     using Cells = std::vector<std::vector<std::string>>;
 
@@ -405,7 +405,7 @@ template<typename T, int options = Eigen::ColMajor>
 class EigenCsv
 {
 public:
-    using Index = typename Eigen::Index;
+    using Index = Eigen::Index;
     using Size = tau::Size<Index>;
     using Data = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, options>;
 

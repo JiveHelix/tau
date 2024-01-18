@@ -217,7 +217,7 @@ struct Line3d: public Line3dBase<T>
 
 
 TEMPLATE_OUTPUT_STREAM(Line3d)
-TEMPLATE_EQUALITY_OPERATORS(Line3d);
+TEMPLATE_EQUALITY_OPERATORS(Line3d)
 
 
 template<typename T>
