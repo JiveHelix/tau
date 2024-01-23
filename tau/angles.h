@@ -14,6 +14,7 @@
 #include <tuple>
 #include <cmath>
 #include "tau/eigen.h"
+#include "tau/variate.h"
 
 
 namespace tau
@@ -22,12 +23,16 @@ namespace tau
 
 namespace constants
 {
+
+
 inline constexpr long double tau = 6.283185307179586476925286766559005L;
 inline constexpr long double pi = tau / 2.0L;
 inline constexpr long double tauDegrees = 360.0L;
 inline constexpr long double piDegrees = 180.0L;
 inline constexpr long double degreesPerRadian = tauDegrees / tau;
 inline constexpr long double radiansPerDegree = tau / tauDegrees;
+
+
 } // end namespace constants
 
 
@@ -73,6 +78,12 @@ template<typename T>
 struct AngleType_<T, std::enable_if_t<HasScalar<T>>>
 {
     using Type = typename T::Scalar;
+};
+
+template<typename T>
+struct AngleType_<T, std::enable_if_t<IsVariance<T>>>
+{
+    using Type = typename T::Type;
 };
 
 template<typename T>

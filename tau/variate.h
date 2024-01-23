@@ -38,6 +38,8 @@ struct VariateTemplate
     template<template<typename> typename T>
     struct Template
     {
+        using Type = U;
+
         T<U> value;
         T<U> sigma;
 
@@ -91,6 +93,8 @@ struct VarianceTemplate
     template<template<typename> typename T>
     struct Template
     {
+        using Type = U;
+
         T<U> value;
         T<U> variance;
 
@@ -150,7 +154,7 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variance operator+(const Variance &other)
+    Variance operator+(const Variance &other) const
     {
         Variance result = *this;
         result += other;
@@ -158,7 +162,7 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
         return result;
     }
 
-    Variance operator-(const Variance &other)
+    Variance operator-(const Variance &other) const
     {
         Variance result = *this;
         result -= other;
@@ -292,7 +296,7 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variance operator*(const Variance &other)
+    Variance operator*(const Variance &other) const
     {
         Variance result = *this;
         result *= other;
@@ -301,7 +305,7 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
 
     }
 
-    Variance operator/(const Variance &other)
+    Variance operator/(const Variance &other) const
     {
         Variance result = *this;
         result /= other;
@@ -325,7 +329,7 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
         return *this;
     }
 
-    Variance operator*(T scalar)
+    Variance operator*(T scalar) const
     {
         Variance result = *this;
         result *= scalar;
@@ -334,7 +338,7 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
 
     }
 
-    Variance operator/(T scalar)
+    Variance operator/(T scalar) const
     {
         Variance result = *this;
         result /= scalar;
@@ -386,6 +390,16 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
 
 TEMPLATE_OUTPUT_STREAM(Variance)
 TEMPLATE_EQUALITY_OPERATORS(Variance)
+
+
+template<typename T>
+struct IsVariance_: std::false_type {};
+
+template<typename T>
+struct IsVariance_<Variance<T>>: std::true_type {};
+
+template<typename T>
+inline constexpr bool IsVariance = IsVariance_<T>::value;
 
 
 template<typename T>

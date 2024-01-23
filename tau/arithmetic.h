@@ -357,14 +357,14 @@ struct Arithmetic
 
     friend bool operator==(const This &left, const This &right)
     {
-        return fields::ComparisonTuple(left, Fields<This>::fields)
-            == fields::ComparisonTuple(right, Fields<This>::fields);
+        return fields::ComparisonTuple(left)
+            == fields::ComparisonTuple(right);
     }
 
     friend bool operator!=(const This &left, const This &right)
     {
-        return fields::ComparisonTuple(left, Fields<This>::fields)
-            != fields::ComparisonTuple(right, Fields<This>::fields);
+        return fields::ComparisonTuple(left)
+            != fields::ComparisonTuple(right);
     }
 
     /*
@@ -374,26 +374,26 @@ struct Arithmetic
 
     friend bool operator<(const This &left, const This &right)
     {
-        return fields::ComparisonTuple(left, Fields<This>::fields)
-            < fields::ComparisonTuple(right, Fields<This>::fields);
+        return fields::ComparisonTuple(left)
+            < fields::ComparisonTuple(right);
     }
 
     friend bool operator>(const This &left, const This &right)
     {
-        return fields::ComparisonTuple(left, Fields<This>::fields)
-            > fields::ComparisonTuple(right, Fields<This>::fields);
+        return fields::ComparisonTuple(left)
+            > fields::ComparisonTuple(right);
     }
 
     friend bool operator<=(const This &left, const This &right)
     {
-        return fields::ComparisonTuple(left, Fields<This>::fields)
-            <= fields::ComparisonTuple(right, Fields<This>::fields);
+        return fields::ComparisonTuple(left)
+            <= fields::ComparisonTuple(right);
     }
 
     friend bool operator>=(const This &left, const This &right)
     {
-        return fields::ComparisonTuple(left, Fields<This>::fields)
-            >= fields::ComparisonTuple(right, Fields<This>::fields);
+        return fields::ComparisonTuple(left)
+            >= fields::ComparisonTuple(right);
     }
 
 
