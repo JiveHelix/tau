@@ -214,6 +214,13 @@ struct MatrixTraits<Eigen::DenseBase<Derived>>: MatrixTraits<Derived>
 };
 
 
+template<typename Derived>
+struct MatrixTraits<Eigen::MatrixBase<Derived>>: MatrixTraits<Derived>
+{
+
+};
+
+
 template<typename T, typename MatrixType>
 using MatrixLike = Eigen::Matrix<
     T,

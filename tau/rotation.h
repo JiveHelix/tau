@@ -237,6 +237,11 @@ struct RotationAnglesTemplates_
             this->axisOrder = axisOrder_;
         }
 
+        Plain ConvertToAxisOrder(const AxisOrder &axisOrder) const
+        {
+            return Plain(this->GetRotation(), axisOrder);
+        }
+
         T & operator()(size_t axis)
         {
             switch (axis)
