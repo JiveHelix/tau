@@ -151,13 +151,13 @@ struct Intrinsics:
     template<typename Value>
     auto MetersToPixels(const Value &meters) const
     {
-        return this->pixelConvert.template MetersToPixels(meters);
+        return this->pixelConvert.MetersToPixels(meters);
     }
 
     template<typename Value>
     auto PixelsToMeters(const Value &pixels) const
     {
-        return this->pixelConvert.template PixelsToMeters(pixels);
+        return this->pixelConvert.PixelsToMeters(pixels);
     }
 
     static Intrinsics FromArray(
