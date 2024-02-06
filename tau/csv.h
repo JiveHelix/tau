@@ -236,20 +236,6 @@ public:
 
             if (!lineIsEmpty)
             {
-                bool someAreEmpty = std::any_of(
-                    std::begin(extracted),
-                    std::end(extracted),
-                    [](const auto &entry) -> bool
-                    {
-                        return entry.empty();
-                    });
-
-
-                if (someAreEmpty)
-                {
-                    std::cerr << "Warning, empty cells in line: " << line << std::endl;
-                }
-
                 this->cells_.push_back(extracted);
 
                 maximumColumnCount =
