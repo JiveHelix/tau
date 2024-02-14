@@ -44,7 +44,7 @@ template<typename T>
 struct Scale
     :
     public ScaleBase<T>,
-    public Arithmetic<T, ScaleFields, Scale>
+    public Arithmetic<T, Scale>
 {
     Scale(): ScaleBase<T>{static_cast<T>(1.0), static_cast<T>(1.0)}
     {
@@ -68,12 +68,11 @@ struct Scale
 template
 <
     typename T,
-    template<typename> typename Fields,
     template<typename> typename Derived,
     typename U
 >
 Derived<T> & operator*=(
-    Arithmetic<T, Fields, Derived> &left,
+    Arithmetic<T, Derived> &left,
     const Scale<U> &scale)
 {
     static_assert(
@@ -96,12 +95,11 @@ Derived<T> & operator*=(
 template
 <
     typename T,
-    template<typename> typename Fields,
     template<typename> typename Derived,
     typename U
 >
 Derived<T> & operator/=(
-    Arithmetic<T, Fields, Derived> &left,
+    Arithmetic<T, Derived> &left,
     const Scale<U> &scale)
 {
     static_assert(
@@ -127,12 +125,11 @@ Derived<T> & operator/=(
 template
 <
     typename T,
-    template<typename> typename Fields,
     template<typename> typename Derived,
     typename U
 >
 Derived<T> operator*(
-    const Arithmetic<T, Fields, Derived> &left,
+    const Arithmetic<T, Derived> &left,
     const Scale<U> &scale)
 {
     static_assert(
@@ -152,12 +149,11 @@ Derived<T> operator*(
 template
 <
     typename T,
-    template<typename> typename Fields,
     template<typename> typename Derived,
     typename U
 >
 Derived<T> operator/(
-    const Arithmetic<T, Fields, Derived> &left,
+    const Arithmetic<T, Derived> &left,
     const Scale<U> &scale)
 {
     static_assert(

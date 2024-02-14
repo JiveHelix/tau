@@ -56,15 +56,13 @@ inline constexpr bool HaveOrthogonals =
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T> &>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left &>
 operator*=(
-    Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     auto &result = left.Upcast();
     const auto &rightDerived = right.Upcast();
@@ -79,15 +77,13 @@ operator*=(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T> &>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left &>
 operator/=(
-    Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     auto &result = left.Upcast();
     const auto &rightDerived = right.Upcast();
@@ -105,15 +101,13 @@ operator/=(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T> &>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left &>
 operator+=(
-    Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     auto &result = left.Upcast();
     const auto &rightDerived = right.Upcast();
@@ -128,15 +122,13 @@ operator+=(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T> &>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left &>
 operator-=(
-    Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     auto &result = left.Upcast();
     const auto &rightDerived = right.Upcast();
@@ -151,15 +143,13 @@ operator-=(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T>>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left>
 operator*(
-    const Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    const BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     // Make a copy
     auto leftDerived = left.Upcast();
@@ -174,15 +164,13 @@ operator*(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T>>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left>
 operator/(
-    const Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    const BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     // Make a copy
     auto leftDerived = left.Upcast();
@@ -197,15 +185,13 @@ operator/(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T>>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left>
 operator+(
-    const Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    const BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     // Make a copy
     auto leftDerived = left.Upcast();
@@ -220,15 +206,13 @@ operator+(
 template
 <
     typename T,
-    template<typename> typename LeftFields,
-    template<typename> typename Left,
-    template<typename> typename RightFields,
-    template<typename> typename Right
+    typename Left,
+    typename Right
 >
-std::enable_if_t<(HaveOrthogonals<Left<T>, Right<T>>), Left<T>>
+std::enable_if_t<(HaveOrthogonals<Left, Right>), Left>
 operator-(
-    const Arithmetic<T, LeftFields, Left> &left,
-    const Arithmetic<T, RightFields, Right> &right)
+    const BasicArithmetic<T, Left> &left,
+    const BasicArithmetic<T, Right> &right)
 {
     // Make a copy
     auto leftDerived = left.Upcast();

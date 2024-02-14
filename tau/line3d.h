@@ -47,7 +47,10 @@ template<typename T>
 using Line3dBase = typename Line3dTemplate<T>::template Template<pex::Identity>;
 
 template<typename T>
-struct Line3d: public Line3dBase<T>
+struct Line3d
+    :
+    public Line3dBase<T>,
+    public BasicArithmetic<T, Line3d<T>>
 {
     static constexpr auto zero = static_cast<T>(0);
     static constexpr auto one = static_cast<T>(1);

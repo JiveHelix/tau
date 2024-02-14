@@ -45,7 +45,7 @@ using Vector2dBase =
 template<typename T, template<typename> typename Derived>
 struct Base2d
     : public Vector2dBase<T>,
-      public tau::Arithmetic<T, Vector2dFields, Derived>
+      public tau::Arithmetic<T, Derived>
 {
     using Type = T;
 

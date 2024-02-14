@@ -9,6 +9,7 @@
 #include "tau/eigen_shim.h"
 #include "tau/angles.h"
 #include "tau/error.h"
+#include "tau/arithmetic.h"
 
 
 namespace tau
@@ -96,13 +97,36 @@ struct AxisOrderConverter
 };
 
 
-struct AxisOrder
+struct AxisOrder: public BasicArithmetic<size_t, AxisOrder>
 {
     static const std::array<std::string, 3> axisNames;
 
     size_t first;
     size_t second;
     size_t third;
+
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&AxisOrder::first, "first"),
+        fields::Field(&AxisOrder::second, "second"),
+        fields::Field(&AxisOrder::third, "third"));
+
+    constexpr AxisOrder()
+        :
+        first{},
+        second{},
+        third{}
+    {
+
+    }
+
+    constexpr AxisOrder(size_t first_, size_t second_, size_t third_)
+        :
+        first(first_),
+        second(second_),
+        third(third_)
+    {
+
+    }
 
     std::ostream & ToStream(std::ostream &outputStream) const;
 
@@ -116,14 +140,6 @@ struct AxisOrder
     static AxisOrder Structure(const Json &json)
     {
         return AxisOrderConverter::ToValue(json.template get<std::string>());
-    }
-
-    bool operator==(const AxisOrder &other) const
-    {
-        return (
-            this->first == other.first
-            && this->second == other.second
-            && this->third == other.third);
     }
 };
 
@@ -180,7 +196,7 @@ template<typename T>
 struct RotationAnglesTemplates_
 {
     template<typename Base>
-    struct Plain: public Base
+    struct Plain: public Base, public BasicArithmetic<T, Plain<Base>>
     {
         // 0: roll (about x)
         // 1: pitch (about y)
@@ -310,16 +326,8 @@ template<typename T>
 using RotationAngles = typename RotationAnglesGroup<T>::Plain;
 
 
-// Clang hasn't implemented this c++20 feature:
-// https://github.com/llvm/llvm-project/issues/54051
-
-// TEMPLATE_OUTPUT_STREAM(RotationAngles)
-// TEMPLATE_EQUALITY_OPERATORS(RotationAngles)
-
 DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<float>)
 DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<double>)
-DECLARE_EQUALITY_OPERATORS(RotationAngles<float>)
-DECLARE_EQUALITY_OPERATORS(RotationAngles<double>)
 
 
 template<typename T>

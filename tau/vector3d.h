@@ -72,7 +72,6 @@ struct Vector3dTemplate
         V<T> z;
 
         static constexpr auto fields = Vector3dFields<Template>::fields;
-
     };
 };
 
@@ -85,7 +84,7 @@ using Vector3dBase =
 template<typename T, template<typename> typename Derived>
 struct Base3d
     : public Vector3dBase<T>,
-      public tau::Arithmetic<T, Vector3dFields, Derived>
+      public tau::Arithmetic<T, Derived>
 {
     using Type = T;
 

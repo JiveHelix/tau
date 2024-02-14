@@ -45,7 +45,7 @@ template<typename T>
 struct Size
     :
     public SizeBase<T>,
-    public tau::Arithmetic<T, SizeFields, Size>
+    public tau::Arithmetic<T, Size>
 {
     using Type = T;
 

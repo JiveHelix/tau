@@ -7,6 +7,8 @@
 #include <jive/zip_apply.h>
 #include <jive/overflow.h>
 
+#include "tau/eigen.h"
+
 
 namespace tau
 {
@@ -68,7 +70,6 @@ T Convert(V value)
 
 template
 <
-    template<typename> typename Fields,
     typename Result,
     typename T,
     typename Style,
@@ -87,21 +88,101 @@ Result ConvertFields(const Source &source)
             DoConvert<T, Member, Style>(source.*(sourceField.member));
     };
 
-    jive::ZipApply(convert, Fields<Source>::fields, Fields<Result>::fields);
+    jive::ZipApply(convert, Source::fields, Result::fields);
 
     return result;
+}
+
+
+template<typename T, typename Enable = void>
+struct DefinesIsBasicArithmetic_: std::false_type {};
+
+template<typename T>
+struct DefinesIsBasicArithmetic_
+<
+    T,
+    std::enable_if_t<T::isBasicArithmetic>
+>
+: std::true_type {};
+
+template<typename T>
+inline constexpr bool DefinesIsBasicArithmetic =
+    DefinesIsBasicArithmetic_<T>::value;
+
+
+template<typename T, typename Enable = void>
+struct IsBasicArithmetic_: std::false_type {};
+
+template<typename T>
+struct IsBasicArithmetic_
+<
+    T,
+    std::enable_if_t<DefinesIsBasicArithmetic<T>>
+>: std::true_type {};
+
+template<typename T>
+inline constexpr bool IsBasicArithmetic = IsBasicArithmetic_<T>::value;
+
+
+namespace op
+{
+
+struct Add;
+struct Subtract;
+struct Multiply;
+struct Divide;
+
+} // end namespace op
+
+
+template<typename Target, typename Source>
+void AssignConvert(Target &target, const Source &source)
+{
+    if constexpr (std::is_scalar_v<Target>)
+    {
+        // Convert source to Target type, and check type bounds.
+        target = Convert<Target, Source>(source);
+    }
+    else
+    {
+        target = source;
+    }
+}
+
+
+
+template<typename Operator, typename Target, typename Operand>
+void OpAssign(Target &target, const Operand &source)
+{
+    if constexpr (std::is_same_v<Operator, op::Add>)
+    {
+        AssignConvert(target, target + source);
+    }
+    else if constexpr (std::is_same_v<Operator, op::Subtract>)
+    {
+        AssignConvert(target, target - source);
+    }
+    else if constexpr (std::is_same_v<Operator, op::Multiply>)
+    {
+        AssignConvert(target, target * source);
+    }
+    else if constexpr (std::is_same_v<Operator, op::Divide>)
+    {
+        AssignConvert(target, target / source);
+    }
 }
 
 
 template
 <
     typename T,
-    template<typename> typename Fields,
-    template<typename> typename Derived
+    typename Derived
 >
-struct Arithmetic
+struct BasicArithmetic
 {
-    using This = Derived<T>;
+    using This = Derived;
+
+    static constexpr bool isBasicArithmetic = true;
 
     This & Upcast()
     {
@@ -113,12 +194,6 @@ struct Arithmetic
         return *static_cast<const This *>(this);
     }
 
-    template<typename U, typename Style = Round>
-    auto Convert() const
-    {
-        return ConvertFields<Fields, Derived<U>, U, Style>(this->Upcast());
-    }
-
     /***** Element-wise operators *****/
     // TODO: Add assertions (or exceptions?) when operators cause overflow.
     This & operator+=(const This &other)
@@ -127,13 +202,10 @@ struct Arithmetic
 
         auto add = [&self, &other] (auto field)
         {
-            self.*(field.member) =
-                T(self.*(field.member) + other.*(field.member));
+            OpAssign<op::Add>(self.*(field.member), other.*(field.member));
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            add);
+        jive::ForEach(This::fields, add);
 
         return self;
     }
@@ -150,13 +222,10 @@ struct Arithmetic
 
         auto subtract = [&self, &other] (auto field)
         {
-            self.*(field.member) =
-                T(self.*(field.member) - other.*(field.member));
+            OpAssign<op::Subtract>(self.*(field.member), other.*(field.member));
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            subtract);
+        jive::ForEach(This::fields, subtract);
 
         return self;
     }
@@ -173,13 +242,10 @@ struct Arithmetic
 
         auto multiply = [&self, &other] (auto field)
         {
-            self.*(field.member) =
-                T(self.*(field.member) * other.*(field.member));
+            OpAssign<op::Multiply>(self.*(field.member), other.*(field.member));
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            multiply);
+        jive::ForEach(This::fields, multiply);
 
         return self;
     }
@@ -196,13 +262,10 @@ struct Arithmetic
 
         auto divide = [&self, &other] (auto field)
         {
-            self.*(field.member) =
-                T(self.*(field.member) / other.*(field.member));
+            OpAssign<op::Divide>(self.*(field.member), other.*(field.member));
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            divide);
+        jive::ForEach(This::fields, divide);
 
         return self;
     }
@@ -222,12 +285,10 @@ struct Arithmetic
 
         auto add = [&self, scalar] (auto field)
         {
-            self.*(field.member) = T(self.*(field.member) + scalar);
+            OpAssign<op::Add>(self.*(field.member), scalar);
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            add);
+        jive::ForEach(This::fields, add);
 
         return self;
     }
@@ -244,12 +305,10 @@ struct Arithmetic
 
         auto subtract = [&self, scalar] (auto field)
         {
-            self.*(field.member) = T(self.*(field.member) - scalar);
+            OpAssign<op::Subtract>(self.*(field.member), scalar);
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            subtract);
+        jive::ForEach(This::fields, subtract);
 
         return self;
     }
@@ -266,14 +325,10 @@ struct Arithmetic
 
         auto multiply = [&self, scalar] (auto field)
         {
-            // *= would be convenient, but multiplication converts to int,
-            // which triggers a conversion warning.
-            self.*(field.member) = T(self.*(field.member) * scalar);
+            OpAssign<op::Multiply>(self.*(field.member), scalar);
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            multiply);
+        jive::ForEach(This::fields, multiply);
 
         return self;
     }
@@ -292,12 +347,10 @@ struct Arithmetic
         {
             // /= would be convenient, but division converts to int,
             // which triggers a conversion warning.
-            self.*(field.member) = T(self.*(field.member) / scalar);
+            OpAssign<op::Divide>(self.*(field.member), scalar);
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            divide);
+        jive::ForEach(This::fields, divide);
 
         return self;
     }
@@ -322,9 +375,7 @@ struct Arithmetic
             result = static_cast<T>(result + memberSquared);
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            square);
+        jive::ForEach(This::fields, square);
 
         return result;
     }
@@ -338,9 +389,7 @@ struct Arithmetic
             self.*(field.member) *= self.*(field.member);
         };
 
-        jive::ForEach(
-            Fields<This>::fields,
-            square);
+        jive::ForEach(This::fields, square);
 
         return self;
     }
@@ -348,11 +397,6 @@ struct Arithmetic
     T Magnitude() const
     {
         return static_cast<T>(std::sqrt(this->SquaredSum()));
-    }
-
-    This Normalize() const
-    {
-        return *this / this->Magnitude();
     }
 
     friend bool operator==(const This &left, const This &right)
@@ -428,7 +472,7 @@ struct Arithmetic
            }
        };
 
-       jive::ForEach(Fields<This>::fields, compare);
+       jive::ForEach(This::fields, compare);
 
        return result;
     }
@@ -455,13 +499,37 @@ struct Arithmetic
 };
 
 
+
+
+
 template
 <
     typename T,
-    template<typename> typename Fields,
     template<typename> typename Derived
 >
-Derived<T> operator*(T scalar, const Arithmetic<T, Fields, Derived> &arithmetic)
+struct Arithmetic: public BasicArithmetic<T, Derived<T>>
+{
+    using Base = BasicArithmetic<T, Derived<T>>;
+
+    template<typename U, typename Style = Round>
+    auto Convert() const
+    {
+        return ConvertFields<Derived<U>, U, Style>(this->Upcast());
+    }
+
+    typename Base::This Normalize() const
+    {
+        return *this / this->Magnitude();
+    }
+};
+
+
+template
+<
+    typename T,
+    typename Derived
+>
+Derived operator*(T scalar, const BasicArithmetic<T, Derived> &arithmetic)
 {
     return (arithmetic * scalar).Upcast();
 }
