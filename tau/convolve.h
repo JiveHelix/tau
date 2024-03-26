@@ -113,6 +113,8 @@ Derived Convolve2d(
 }
 
 
+// For floating-point, it is faster to normalize the kernel prior to
+// convolution. Pre-normalization of an integral kernel loses precision.
 template<typename Derived, typename Kernel>
 Derived Normalize(
     const Eigen::MatrixBase<Derived> &input,
