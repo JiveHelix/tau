@@ -11,9 +11,6 @@ namespace tau
 {
 
 
-CREATE_EXCEPTION(NoIntersection, TauError);
-
-
 template<typename T>
 struct Line2dFields
 {

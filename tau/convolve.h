@@ -190,22 +190,33 @@ Extended<Derived> Extend(
     result.block(rowExtend, columnExtend, rows, columns) = derived;
 
     // Replicate top and bottom regions.
-    result.block(0, columnExtend, rowExtend, columns) = derived.row(0).replicate(rowExtend, 1);
+    result.block(0, columnExtend, rowExtend, columns) =
+        derived.row(0).replicate(rowExtend, 1);
+
     result.block(rowExtend + rows, columnExtend, rowExtend, columns) =
         derived.row(rows - 1).replicate(rowExtend, 1);
 
     // Replicate left and right regions.
-    result.block(rowExtend, 0, rows, columnExtend) = derived.col(0).replicate(1, columnExtend);
+    result.block(rowExtend, 0, rows, columnExtend) =
+        derived.col(0).replicate(1, columnExtend);
+
     result.block(rowExtend, columnExtend + columns, rows, columnExtend) =
         derived.col(columns - 1).replicate(1, columnExtend);
 
     // Corner regions
     result.block(0, 0, rowExtend, columnExtend).array() = derived(0, 0);
-    result.block(rowExtend + rows, 0, rowExtend, columnExtend).array() = derived(last, 0);
-    result.block(0, columnExtend + columns, rowExtend, columnExtend).array() = derived(0, last);
 
-    result.block(rowExtend + rows, columnExtend + columns, rowExtend, columnExtend).array() =
-        derived(last, last);
+    result.block(rowExtend + rows, 0, rowExtend, columnExtend).array() =
+        derived(last, 0);
+
+    result.block(0, columnExtend + columns, rowExtend, columnExtend).array() =
+        derived(0, last);
+
+    result.block(
+        rowExtend + rows,
+        columnExtend + columns,
+        rowExtend,
+        columnExtend).array() = derived(last, last);
 
     return result;
 }

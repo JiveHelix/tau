@@ -131,8 +131,14 @@ struct Line3d
 
     Three equations, two unknowns, we can use the pseudo-inverse */
 
-    Point3d<T> Intersect(const Line3d &otherLine) const
+    T DistanceToIntersection(const Line3d &otherLine) const
     {
+        if (otherLine.direction.isApprox(this->direction))
+        {
+            // Parallel lines have no intersection.
+            throw NoIntersection("Parallel lines");
+        }
+
         Eigen::Matrix<T, 3, 2> normals = tau::HorizontalStack(
             this->direction,
             (-1 * otherLine.direction.array()).eval());
@@ -144,7 +150,12 @@ struct Line3d
         Eigen::Matrix<T, 1, 2> parameters =
             normals.colPivHouseholderQr().solve(points).transpose();
 
-        return this->ScaleToPoint(parameters(0, 0));
+        return parameters(0, 0);
+    }
+
+    Point3d<T> Intersect(const Line3d &otherLine) const
+    {
+        return this->ScaleToPoint(this->DistanceToIntersection(otherLine));
     }
 
     Point3d<T> ScaleToPoint(T scale) const
@@ -153,7 +164,29 @@ struct Line3d
             this->point.ToEigen().array() + scale * this->direction.array()};
     }
 
-    T GetCoplanarValue(const Line3d &other)
+    Line3d<T> GetPerpendicularThroughPoint(const Point3d<T> &point_) const
+    {
+        Vector3<T> toPoint = point_.ToEigen() - this->point.ToEigen();
+        Vector3<T> normal = this->direction.cross(toPoint);
+        Vector3<T> perpendicular = this->direction.cross(normal);
+
+        return {point_, perpendicular};
+    }
+
+    T DistanceToPoint(const Point3d<T> &point_) const
+    {
+        Vector3<T> toPoint = point_.ToEigen() - this->point.ToEigen();
+        Vector3<T> normal = this->direction.cross(toPoint);
+        Vector3<T> perpendicular = this->direction.cross(normal);
+
+        Line3d<T> lineFromPoint{point_, perpendicular};
+
+        return std::abs(
+            this->GetPerpendicularThroughPoint(point_)
+                .DistanceToIntersection(*this));
+    }
+
+    T GetCoplanarValue(const Line3d &other) const
     {
         if (other.point == this->point)
         {
@@ -174,12 +207,13 @@ struct Line3d
         return std::abs(connecting.transpose().dot(plane));
     }
 
-    bool IsCoplanar(const Line3d &other, T threshold = static_cast<T>(1e-6))
+    bool IsCoplanar(
+            const Line3d &other, T threshold = static_cast<T>(1e-6)) const
     {
         return this->GetCoplanarValue(other) < threshold;
     }
 
-    bool IsColinear(const Line3d &other)
+    bool IsColinear(const Line3d &other) const
     {
         if (!IsLinear(this->direction, other.direction))
         {
