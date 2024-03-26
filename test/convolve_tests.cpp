@@ -4,7 +4,7 @@
 
 
 TEMPLATE_TEST_CASE(
-    "Convolve returns expected results",
+    "Convolve2d returns expected results",
     "[convolve]",
     int,
     float,
@@ -35,14 +35,14 @@ TEMPLATE_TEST_CASE(
         {20, 25, 15, 20, 10, 15}};
 
     Eigen::Matrix<int, 6, 6> result =
-        tau::Normalize(tau::Convolve(input, kernel), kernel)
+        tau::Normalize(tau::Convolve2d(input, kernel), kernel)
             .array().round().template cast<int>();
 
     REQUIRE(result == expected);
 
-    // Results of DoConvolve must be normalized
+    // Results of DoConvolve2d must be normalized
     Eigen::Matrix<TestType, 6, 6> separable =
-        tau::DoConvolve(input, partial0, partial1);
+        tau::DoConvolve2d(input, partial0, partial1);
 
     Eigen::Matrix<int, 6, 6> separableResult =
         tau::Normalize(separable, kernel).array().round().template cast<int>();

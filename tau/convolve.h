@@ -51,7 +51,7 @@ Borders<Derived> BordersFromKernel(
 
 
 template<typename Derived, typename Kernel>
-Derived DoConvolve(
+Derived DoConvolve2d(
     const Eigen::MatrixBase<Derived> &input,
     const Eigen::MatrixBase<Kernel> &reversedKernel)
 {
@@ -93,23 +93,23 @@ Derived DoConvolve(
 
 
 template<typename Derived, typename Kernel0, typename Kernel1>
-Derived DoConvolve(
+Derived DoConvolve2d(
     const Eigen::MatrixBase<Derived> &input,
     const Eigen::MatrixBase<Kernel0> &kernel0,
     const Eigen::MatrixBase<Kernel1> &kernel1)
 {
-    Derived result = DoConvolve(input, kernel0);
-    return DoConvolve(result, kernel1);
+    Derived result = DoConvolve2d(input, kernel0);
+    return DoConvolve2d(result, kernel1);
 }
 
 
 template<typename Derived, typename Kernel>
-Derived Convolve(
+Derived Convolve2d(
     const Eigen::MatrixBase<Derived> &input,
     const Eigen::MatrixBase<Kernel> &kernel)
 {
     Kernel preparedKernel = kernel.reverse();
-    return DoConvolve(input, preparedKernel);
+    return DoConvolve2d(input, preparedKernel);
 }
 
 
