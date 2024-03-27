@@ -25,7 +25,8 @@ target_sources(
     rotation.cpp
     scale.cpp
     size.cpp
-    vector2d.cpp)
+    vector2d.cpp
+    wavelet.cpp)
 
 
 install(TARGETS tau DESTINATION ${CMAKE_INSTALL_LIBDIR})

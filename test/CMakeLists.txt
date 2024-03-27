@@ -26,6 +26,7 @@ add_executable(
     variate_tests.cpp
     vector2d_tests.cpp
     vector3d_tests.cpp
+    wavelet_tests.cpp
     csv_tests.cpp)
 
 target_link_libraries(

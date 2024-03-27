@@ -161,7 +161,6 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
         return intrinsics.MetersToPixels(position);
     }
 
-
     static Pose Deserialize(const std::string &asString)
     {
         auto unstructured = nlohmann::json::parse(asString);
