@@ -26,7 +26,8 @@ target_sources(
     scale.cpp
     size.cpp
     vector2d.cpp
-    wavelet.cpp)
+    wavelet.cpp
+    wavelet_compression.cpp)
 
 
 install(TARGETS tau DESTINATION ${CMAKE_INSTALL_LIBDIR})
