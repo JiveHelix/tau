@@ -20,6 +20,7 @@ target_link_libraries(
 target_sources(
     tau
     PRIVATE
+    csv.cpp
     line2d.cpp
     pose.cpp
     rotation.cpp
