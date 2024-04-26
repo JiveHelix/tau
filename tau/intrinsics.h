@@ -256,6 +256,25 @@ struct Intrinsics:
         unstructured["version"] = Intrinsics::version.ToString();
         return unstructured.dump(4);
     }
+
+    template<typename U>
+    Intrinsics<U> Convert() const
+    {
+        if constexpr (std::is_same_v<U, T>)
+        {
+            return *this;
+        }
+
+        Intrinsics<U> result{};
+        result.pixelSize_um = static_cast<U>(this->pixelSize_um);
+        result.focalLengthX_mm = static_cast<U>(this->focalLengthX_mm);
+        result.focalLengthY_mm = static_cast<U>(this->focalLengthY_mm);
+        result.principalX_pixels = static_cast<U>(this->principalX_pixels);
+        result.principalY_pixels = static_cast<U>(this->principalY_pixels);
+        result.skew = static_cast<U>(this->skew);
+
+        return result;
+    }
 };
 
 

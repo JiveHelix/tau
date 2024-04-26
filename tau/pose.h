@@ -181,6 +181,27 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
         unstructured["version"] = Pose::version.ToString();
         return unstructured.dump(4);
     }
+
+    template<typename U>
+    Pose<U> Convert() const
+    {
+        if constexpr (std::is_same_v<U, T>)
+        {
+            return *this;
+        }
+
+        Pose<U> result;
+        result.rotation.axisOrder = this->rotation.axisOrder;
+        result.rotation.yaw = static_cast<U>(this->rotation.yaw);
+        result.rotation.pitch = static_cast<U>(this->rotation.pitch);
+        result.rotation.roll = static_cast<U>(this->rotation.roll);
+
+        result.x_m = static_cast<U>(this->x_m);
+        result.y_m = static_cast<U>(this->y_m);
+        result.z_m = static_cast<U>(this->z_m);
+
+        return result;
+    }
 };
 
 
