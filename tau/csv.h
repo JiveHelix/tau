@@ -121,6 +121,8 @@ public:
 
     Csv(const std::string &fileName, bool hasHeaders);
 
+    Csv(const std::vector<std::string> &headers);
+
     const std::vector<std::string> & GetHeaders() const;
 
     const std::unordered_map<std::string, Index> & GetHeaderMap() const;
@@ -132,6 +134,39 @@ public:
     std::string operator()(const std::string &headerName, Index row) const;
 
     const Cells & GetCells() const;
+
+    template<typename T>
+    void AssignCell(Index row, Index column, const T &value)
+    {
+        if (ToSize(row) >= this->cells_.size())
+        {
+            this->cells_.push_back(std::vector<std::string>());
+            this->cells_.back().resize(ToSize(this->columnCount_));
+            this->rowCount_ = ToEigenIndex(this->cells_.size());
+        }
+
+        if (column >= this->columnCount_)
+        {
+            throw std::out_of_range("column exceeds column count");
+        }
+
+        auto &cell = this->cells_.at(ToSize(row)).at(ToSize(column));
+
+        if constexpr (std::is_same_v<T, std::string>)
+        {
+            cell = value;
+        }
+        else
+        {
+            cell = jive::PreciseString(value);
+        }
+    }
+
+    template<typename T>
+    void AssignCell(const std::string &headerName, Index row, T value)
+    {
+        this->AssignCell(row, this->headerMap_.at(headerName), value);
+    }
 
     template<typename T>
     T GetNumber(Index row, Index column) const

@@ -47,6 +47,27 @@ Csv::Csv()
 }
 
 
+Csv::Csv(const std::vector<std::string> &headers)
+    :
+    headers_(headers),
+    headerMap_(),
+    cells_(),
+    rowCount_(0),
+    columnCount_(ToEigenIndex(headers.size()))
+{
+    // Store in unordered_map to decrease search time when looking up
+    // a column by header name.
+    Index columnIndex = 0;
+
+    for (auto &header: this->headers_)
+    {
+        // Clean up whitespace
+        header = jive::strings::Trim(header);
+        this->headerMap_[header] = columnIndex++;
+    }
+}
+
+
 Csv::Csv(std::istream &&inputStream, bool hasHeaders)
 {
     if (!inputStream)
@@ -192,7 +213,7 @@ Csv::Size Csv::GetSize() const
 
 std::string Csv::operator()(Eigen::Index row, Eigen::Index column) const
 {
-    return this->cells_.at(SizeCheck(row)).at(SizeCheck(column));
+    return this->cells_.at(ToSize(row)).at(ToSize(column));
 }
 
 
@@ -200,8 +221,8 @@ std::string Csv::operator()(
     const std::string &headerName,
     Eigen::Index row) const
 {
-    return this->cells_.at(SizeCheck(row))
-        .at(SizeCheck(this->headerMap_.at(headerName)));
+    return this->cells_.at(ToSize(row))
+        .at(ToSize(this->headerMap_.at(headerName)));
 }
 
 

@@ -587,14 +587,31 @@ IndexCheck(T value)
 
 template<typename T>
 std::enable_if_t<std::is_integral_v<T>, size_t>
-SizeCheck(T value)
+ToSize(T value)
 {
     if constexpr (std::is_signed_v<T>)
     {
         if (value < 0)
         {
             throw std::invalid_argument(
-                "value is not convertible to Eigen::Index");
+                "value is not convertible to size_t");
+        }
+    }
+
+    return static_cast<size_t>(value);
+}
+
+
+template<typename T>
+std::enable_if_t<std::is_integral_v<T>, Eigen::Index>
+ToEigenIndex(T value)
+{
+    if constexpr (std::is_signed_v<T>)
+    {
+        if (value < 0)
+        {
+            throw std::invalid_argument(
+                "value is not convertible to size_t");
         }
     }
 
