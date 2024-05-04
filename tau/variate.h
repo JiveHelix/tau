@@ -14,6 +14,7 @@
 
 #include <fields/fields.h>
 #include <pex/group.h>
+#include "tau/arithmetic.h"
 
 
 namespace tau
@@ -50,11 +51,23 @@ struct VariateTemplate
 
 
 template<typename T>
+struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
+{
+    template<typename U, typename Style>
+    Variate<U> Cast() const
+    {
+        return CastFields<Variate<U>, U, Style>(*this);
+    }
+};
+
+
+template<typename T>
 using VariateGroup =
     pex::Group
     <
         VariateFields,
-        VariateTemplate<T>::template Template
+        VariateTemplate<T>::template Template,
+        pex::PlainT<Variate<T>>
     >;
 
 
@@ -63,9 +76,6 @@ using VariateModel = typename VariateGroup<T>::Model;
 
 template<typename T>
 using VariateControl = typename VariateGroup<T>::Control;
-
-template<typename T>
-using Variate = typename VariateGroup<T>::Plain;
 
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Variate<float>)
@@ -128,6 +138,12 @@ struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
         Base{variate.value, variate.sigma * variate.sigma}
     {
 
+    }
+
+    template<typename U, typename Style = Round>
+    Variance<U> Cast() const
+    {
+        return CastFields<Variance<U>, U, Style>(*this);
     }
 
     Variate<T> GetVariate() const

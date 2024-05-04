@@ -250,6 +250,12 @@ struct Line3d
         Vector3<T> projection = this->Project({zero, one, zero});
         return tau::ToDegrees(std::atan2(-projection(2), projection(0)));
     }
+
+    template<typename U, typename Style = Round>
+    Line3d<U> Cast() const
+    {
+        return CastFields<Line3d<U>, U, Style>(*this);
+    }
 };
 
 

@@ -20,11 +20,7 @@ TEST_CASE("Multiply variate by scalar", "[variate]")
 {
     tau::Variance<double> variance(100, 36);
 
-    std::cout << "variance: " << variance << std::endl;
-
     variance *= 2;
-
-    std::cout << "variance * 2: " << variance << std::endl;
 
     REQUIRE(variance.value == 200);
     REQUIRE(variance.variance == 144);

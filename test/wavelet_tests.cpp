@@ -76,9 +76,6 @@ Eigen::RowVector<double, Eigen::Dynamic> MakeWorstCaseTestSignal(
     }
 #endif
 
-    std::cout << "sum: " << wavelet.decompose.low.sum() << std::endl;
-    std::cout << "size: " << wavelet.decompose.low.size() << std::endl;
-
     double range = result.maxCoeff() - result.minCoeff();
     result = result.array() - result.minCoeff();
 
@@ -167,7 +164,6 @@ TEMPLATE_TEST_CASE(
     auto seed = GENERATE(
         take(2, random(0u, std::numeric_limits<unsigned int>::max())));
 
-    std::cout << '\n' << TestType::name << std::endl;
     auto signal = MakeTestSignal(seed);
 
     double maximum = std::max(std::abs(signal.maxCoeff()), std::abs(signal.minCoeff()));
@@ -176,15 +172,6 @@ TEMPLATE_TEST_CASE(
 
     auto wavelet = tau::GetWavelet<double>(TestType::name);
     auto decomposed = tau::Decompose(wavelet, signal, true);
-
-    size_t count = 0;
-
-    for (auto &d: decomposed)
-    {
-        std::cout << count++ << ": "
-            << std::max(std::abs(d.minCoeff()), std::abs(d.maxCoeff()))
-            << std::endl;
-    }
 
     auto recomposed = tau::Recompose(wavelet, decomposed, true);
 
@@ -217,13 +204,11 @@ TEMPLATE_TEST_CASE(
     WaveletType<tau::WaveletName::db19>,
     WaveletType<tau::WaveletName::db20>)
 {
-    std::cout << "\nWorst Case\n" << TestType::name << std::endl;
     auto signal = MakeWorstCaseTestSignal(TestType::name);
 
     auto wavelet = tau::GetWavelet<double>(TestType::name);
     auto decomposed = tau::Decompose(wavelet, signal, true);
 
-    // size_t count = 0;
     double maxCoeff = 0.0;
 
     for (auto &d: decomposed)
@@ -233,12 +218,6 @@ TEMPLATE_TEST_CASE(
 
         maxCoeff = std::max(maxCoeff, thisMax);
     }
-
-    std::cout << "maxCoeff: " << maxCoeff << std::endl;
-
-    std::cout << "maxCoeff / size: "
-        << maxCoeff / static_cast<double>(wavelet.decompose.low.size())
-        << std::endl;
 
     auto recomposed = tau::Recompose(wavelet, decomposed, true);
 

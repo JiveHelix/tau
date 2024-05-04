@@ -189,20 +189,20 @@ TEST_CASE("Line from Hesse Normal Form", "[line2d]")
     using Region = tau::Region<double>;
 
     Line line1(10.0, 0.0);
-    REQUIRE(line1.point.template Convert<int>() == Point(10, 0));
-    REQUIRE(line1.vector.template Convert<int>() == Vector(0, 1));
+    REQUIRE(line1.point.template Cast<int>() == Point(10, 0));
+    REQUIRE(line1.vector.template Cast<int>() == Vector(0, 1));
 
     Line line2(10.0, 90.0);
-    REQUIRE(line2.point.template Convert<int>() == Point(0, 10));
-    REQUIRE(line2.vector.template Convert<int>() == Vector(-1, 0));
+    REQUIRE(line2.point.template Cast<int>() == Point(0, 10));
+    REQUIRE(line2.vector.template Cast<int>() == Vector(-1, 0));
 
     Line line3(10.0, 180.0);
-    REQUIRE(line3.point.template Convert<int>() == Point(-10, 0));
-    REQUIRE(line3.vector.template Convert<int>() == Vector(0, 1));
+    REQUIRE(line3.point.template Cast<int>() == Point(-10, 0));
+    REQUIRE(line3.vector.template Cast<int>() == Vector(0, 1));
 
     Line line4(-10.0, 180.0);
-    REQUIRE(line4.point.template Convert<int>() == Point(10, 0));
-    REQUIRE(line4.vector.template Convert<int>() == Vector(0, 1));
+    REQUIRE(line4.point.template Cast<int>() == Point(10, 0));
+    REQUIRE(line4.vector.template Cast<int>() == Vector(0, 1));
 
     auto region = Region{{Point(-20, -20), Size(40, 40)}};
     auto intersection1 = line1.Intersect(region);

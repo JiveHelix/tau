@@ -39,6 +39,17 @@ template<typename T>
 class Projection
 {
 public:
+    Projection()
+        :
+        intrinsics_{},
+        pose_{},
+        cameraPosition_pixels_{},
+        worldToCamera_{},
+        cameraToWorld_{}
+    {
+
+    }
+
     Projection(
         const Intrinsics<T> &intrinsics,
         const Pose<T> &pose)
@@ -101,12 +112,32 @@ public:
             this->CameraToWorld(pixel.GetHomogeneous()).normalized());
     }
 
+    template<typename>
+    friend class Projection;
+
+    template<typename Result, typename, typename, typename Source>
+    friend Result CastFields(const Source &);
+
+    template<typename U, typename Style = Round>
+    Projection<U> Cast() const
+    {
+        return CastFields<Projection<U>, U, Style>(*this);
+    }
+
 private:
     Intrinsics<T> intrinsics_;
     Pose<T> pose_;
     Point3d<T> cameraPosition_pixels_;
     Eigen::Matrix<T, 4, 4> worldToCamera_;
     Eigen::Matrix<T, 3, 3> cameraToWorld_;
+
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&Projection::intrinsics_, "intrinsics"),
+        fields::Field(&Projection::pose_, "pose"),
+        fields::Field(&Projection::worldToCamera_, "worldToCamera"),
+        fields::Field(&Projection::cameraToWorld_, "cameraToWorld"));
+
+
 };
 
 

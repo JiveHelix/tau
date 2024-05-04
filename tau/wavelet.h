@@ -5,6 +5,7 @@
 #include <cmath>
 #include <fields/fields.h>
 #include "tau/row_convolve.h"
+#include "tau/arithmetic.h"
 
 
 namespace tau
@@ -61,17 +62,10 @@ struct Wavelet
     WaveletFilter<T> decompose;
     WaveletFilter<T> recompose;
 
-    template<typename U>
-    Wavelet<U> Convert() const
+    template<typename U, typename Style = Round>
+    Wavelet<U> Cast() const
     {
-        Wavelet<U> result;
-        result.name = this->name;
-        result.decompose.low = this->decompose.low.template cast<U>();
-        result.decompose.high = this->decompose.high.template cast<U>();
-        result.recompose.low = this->recompose.low.template cast<U>();
-        result.recompose.high = this->recompose.high.template cast<U>();
-
-        return result;
+        return CastFields<Wavelet<U>, U, Style>(*this);
     }
 
     size_t GetMaximumLevel(ssize_t signalSize) const
@@ -131,7 +125,7 @@ Wavelet<T> GetWavelet(WaveletName name)
     }
     else
     {
-        return detail::GetWavelet(name).template Convert<T>();
+        return detail::GetWavelet(name).template Cast<T>();
     }
 }
 

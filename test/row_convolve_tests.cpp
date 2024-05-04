@@ -21,9 +21,6 @@ TEMPLATE_TEST_CASE(
     auto result = tau::RowConvolve(signal, kernel, false);
     auto withReflect = tau::RowConvolve(signal, kernel, true);
 
-    std::cout << result << std::endl;
-    std::cout << withReflect << std::endl;
-
     REQUIRE(result == expected);
     REQUIRE(withReflect == expectedWithReflect);
 }

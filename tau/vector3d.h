@@ -110,7 +110,7 @@ struct Base3d
     template<typename U>
     Base3d(const Base3d<U, Derived> &point)
         :
-        Base3d(point.template Convert<Type>())
+        Base3d(point.template Cast<Type>())
     {
 
     }

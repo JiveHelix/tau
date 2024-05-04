@@ -71,7 +71,7 @@ struct Base2d
     template<typename U>
     Base2d(const Base2d<U, Derived> &point)
         :
-        Base2d(point.template Convert<Type>())
+        Base2d(point.template Cast<Type>())
     {
 
     }
@@ -87,7 +87,7 @@ struct Base2d
         if constexpr (std::is_integral_v<T>)
         {
             // Convert to double for the computation.
-            auto asDouble = this->template Convert<double>();
+            auto asDouble = this->template Cast<double>();
             return tau::ToDegrees(std::atan2(asDouble.y, asDouble.x));
         }
         else

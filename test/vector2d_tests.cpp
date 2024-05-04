@@ -32,9 +32,9 @@ TEST_CASE("Point2d converts to int", "[vector2d]")
     int expectedCeiledX = static_cast<int>(std::ceil(values.at(0)));
     int expectedCeiledY = static_cast<int>(std::ceil(values.at(1)));
 
-    auto rounded = point.template Convert<int, tau::Round>();
-    auto floored = point.template Convert<int, tau::Floor>();
-    auto ceiled = point.template Convert<int, tau::Ceil>();
+    auto rounded = point.template Cast<int, tau::Round>();
+    auto floored = point.template Cast<int, tau::Floor>();
+    auto ceiled = point.template Cast<int, tau::Ceil>();
 
     REQUIRE(rounded.y == expectedRoundedY);
     REQUIRE(rounded.x == expectedRoundedX);

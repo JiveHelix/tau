@@ -4,6 +4,7 @@
 #include <fields/fields.h>
 #include <pex/group.h>
 #include <pex/identity.h>
+#include "tau/arithmetic.h"
 
 
 namespace tau
@@ -38,6 +39,7 @@ template<typename T>
 struct Lens: public LensTemplate<T>::template Template<pex::Identity>
 {
     using Base = typename LensTemplate<T>::template Template<pex::Identity>;
+
     Lens()
         :
         Base{1, 1}
@@ -45,9 +47,9 @@ struct Lens: public LensTemplate<T>::template Template<pex::Identity>
 
     }
 
-    Lens(T focusDistance_m_, T aperature_fstop_)
+    Lens(T focusDistance_m_, T aperture_fstop_)
         :
-        Base{focusDistance_m_, aperature_fstop_}
+        Base{focusDistance_m_, aperture_fstop_}
     {
 
     }
@@ -56,7 +58,14 @@ struct Lens: public LensTemplate<T>::template Template<pex::Identity>
     {
         return {};
     }
+
+    template<typename U, typename Style = Round>
+    Lens<U> Cast() const
+    {
+        return CastFields<Lens<U>, U, Style>(*this);
+    }
 };
+
 
 
 template<typename T>
@@ -86,10 +95,39 @@ public:
             / objectDistance_m;
     }
 
+    template<typename Result, typename, typename, typename Source>
+    friend Result CastFields(const Source &);
+
+    template<typename U, typename Style = Round>
+    CircleOfConfusion<U> Cast() const
+    {
+        return CastFields<CircleOfConfusion<U>, U, Style>(*this);
+    }
+
+private:
+    CircleOfConfusion(
+        const Lens<T> &lens,
+        T focalLength_m,
+        T factor)
+        :
+        lens_(lens),
+        focalLength_m_(focalLength_m),
+        factor_(factor)
+    {
+
+    }
+
+    CircleOfConfusion() = default;
+
 private:
     Lens<T> lens_;
     T focalLength_m_;
     T factor_;
+
+    static constexpr auto fields = std::make_tuple(
+        fields::Field(&CircleOfConfusion::lens_, "lens"),
+        fields::Field(&CircleOfConfusion::focalLength_m_, "focalLength (m)"),
+        fields::Field(&CircleOfConfusion::factor_, "factor"));
 };
 
 

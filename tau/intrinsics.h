@@ -22,6 +22,13 @@ class PixelConvert
 public:
     static constexpr auto metersPerMicron = static_cast<T>(1e-6);
 
+    PixelConvert()
+        :
+        pixelSize_um_(10)
+    {
+
+    }
+
     PixelConvert(T pixelSize_um)
         :
         pixelSize_um_(pixelSize_um)
@@ -70,6 +77,17 @@ public:
     MetersToPixels(const tau::Point3d<Value> &meters) const
     {
         return meters / (this->pixelSize_um_ * metersPerMicron);
+    }
+
+    template<typename U>
+    PixelConvert<U> Cast() const
+    {
+        if constexpr (std::is_same_v<U, T>)
+        {
+            return *this;
+        }
+
+        return PixelConvert<U>(static_cast<U>(this->pixelSize_um_));
     }
 };
 
@@ -257,23 +275,10 @@ struct Intrinsics:
         return unstructured.dump(4);
     }
 
-    template<typename U>
-    Intrinsics<U> Convert() const
+    template<typename U, typename Style = Round>
+    Intrinsics<U> Cast() const
     {
-        if constexpr (std::is_same_v<U, T>)
-        {
-            return *this;
-        }
-
-        Intrinsics<U> result{};
-        result.pixelSize_um = static_cast<U>(this->pixelSize_um);
-        result.focalLengthX_mm = static_cast<U>(this->focalLengthX_mm);
-        result.focalLengthY_mm = static_cast<U>(this->focalLengthY_mm);
-        result.principalX_pixels = static_cast<U>(this->principalX_pixels);
-        result.principalY_pixels = static_cast<U>(this->principalY_pixels);
-        result.skew = static_cast<U>(this->skew);
-
-        return result;
+        return CastFields<Intrinsics<U>, U, Style>(*this);
     }
 };
 

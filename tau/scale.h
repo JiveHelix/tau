@@ -81,14 +81,14 @@ Derived<T> & operator*=(
 
     auto & derived = left.Upcast();
 
-    auto result = derived.template Convert<U>();
+    auto result = derived.template Cast<U>();
 
     result.Horizontal() *= scale.horizontal;
     result.Vertical() *= scale.vertical;
 
     // Floor is only used when T is integral
     // No rounding is applied to floating-point conversions.
-    return derived = result.template Convert<T, Floor>();
+    return derived = result.template Cast<T, Floor>();
 }
 
 
@@ -111,14 +111,14 @@ Derived<T> & operator/=(
 
     auto & derived = left.Upcast();
 
-    auto result = derived.template Convert<U>();
+    auto result = derived.template Cast<U>();
 
     result.Horizontal() /= scale.horizontal;
     result.Vertical() /= scale.vertical;
 
     // Floor is only used when T is integral
     // No rounding is applied to floating-point conversions.
-    return derived = result.template Convert<T, Floor>();
+    return derived = result.template Cast<T, Floor>();
 }
 
 

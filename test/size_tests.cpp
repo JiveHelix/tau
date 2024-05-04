@@ -26,9 +26,9 @@ TEST_CASE("Size converts to int", "[size]")
     int expectedCeiledWidth = static_cast<int>(std::ceil(values.at(0)));
     int expectedCeiledHeight = static_cast<int>(std::ceil(values.at(1)));
 
-    auto rounded = size.template Convert<int, tau::Round>();
-    auto floored = size.template Convert<int, tau::Floor>();
-    auto ceiled = size.template Convert<int, tau::Ceil>();
+    auto rounded = size.template Cast<int, tau::Round>();
+    auto floored = size.template Cast<int, tau::Floor>();
+    auto ceiled = size.template Cast<int, tau::Ceil>();
 
     REQUIRE(rounded.height == expectedRoundedHeight);
     REQUIRE(rounded.width == expectedRoundedWidth);

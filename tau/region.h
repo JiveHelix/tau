@@ -111,13 +111,9 @@ struct Region: public RegionTemplate<T>::template Template<pex::Identity>
     }
 
     template<typename U, typename Style = Round>
-    Region<U> Convert() const
+    Region<U> Cast() const
     {
-        Region<U> result;
-        result.topLeft = this->topLeft.template Convert<U, Style>();
-        result.size = this->size.template Convert<U, Style>();
-
-        return result;
+        return CastFields<Region<U>, U, Style>(*this);
     }
 
     T GetArea() const

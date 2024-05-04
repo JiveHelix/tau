@@ -130,17 +130,15 @@ struct Line2d: public Line2dBase<T>
     template<typename U>
     Line2d(const Line2d<U> &other)
         :
-        Line2d(
-            other.point.template Convert<Type>(),
-            other.vector.template Convert<Type>())
+        Line2d(other.template Cast<Type>())
     {
 
     }
 
-    template<typename U>
-    Line2d<U> Convert() const
+    template<typename U, typename Style = Round>
+    Line2d<U> Cast() const
     {
-        return Line2d<U>(*this);
+        return CastFields<Line2d<U>, U, Style>(*this);
     }
 
     /**
@@ -212,7 +210,7 @@ struct Line2d: public Line2dBase<T>
         using Point = Point2d<T>;
         using Vector = Vector2d<T>;
 
-        auto region = region_.template Convert<T>();
+        auto region = region_.template Cast<T>();
         Line2d leftEdge(region.topLeft, Vector(0, 1));
         Line2d topEdge(region.topLeft, Vector(1, 0));
         Line2d rightEdge(region.GetBottomRight(), Vector(0, -1));

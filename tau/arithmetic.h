@@ -19,12 +19,15 @@ struct Ceil {};
 
 template<typename T, typename V, typename Style>
 std::enable_if_t<std::is_integral_v<T>, T>
-DoConvert(V value)
+DoCast(V value)
 {
+    // Casting to an integral type.
     assert(jive::CheckConvertible<T>(value));
 
     if constexpr (std::is_floating_point_v<V>)
     {
+        // Source value is floating point.
+        // Apply selected conversion style.
         if constexpr (std::is_same_v<Style, Round>)
         {
             return static_cast<T>(std::round(value));
@@ -51,9 +54,9 @@ DoConvert(V value)
 
 template<typename T, typename V, typename>
 std::enable_if_t<std::is_floating_point_v<T>, T>
-DoConvert(V value)
+DoCast(V value)
 {
-    // Converting to a floating-point value.
+    // Casting to a floating-point value.
     // No rounding is necessary.
     assert(jive::CheckConvertible<T>(value));
 
@@ -61,11 +64,78 @@ DoConvert(V value)
 }
 
 
+// Default to Round
 template<typename T, typename V>
-T Convert(V value)
+T Cast(V value)
 {
-    return DoConvert<T, V, Round>(value);
+    return DoCast<T, V, Round>(value);
 }
+
+
+template<typename T, typename = void>
+struct HasCast_: std::false_type {};
+
+template<typename T>
+struct HasCast_
+<
+    T,
+    std::enable_if_t
+    <
+        !std::is_same_v
+        <
+            void,
+            decltype(std::declval<T>().template Cast<int>())
+        >
+    >
+>
+: std::true_type {};
+
+template<typename T>
+inline constexpr bool HasCast = HasCast_<T>::value;
+
+
+template<typename T, typename = void>
+struct HasEigenCast_: std::false_type {};
+
+template<typename T>
+struct HasEigenCast_
+<
+    T,
+    std::enable_if_t
+    <
+        !std::is_same_v
+        <
+            void,
+            decltype(std::declval<T>().template cast<int>())
+        >
+    >
+>
+: std::true_type {};
+
+template<typename T>
+inline constexpr bool HasEigenCast = HasEigenCast_<T>::value;
+
+
+template<typename T, typename = void>
+struct HasStyleCast_: std::false_type {};
+
+template<typename T>
+struct HasStyleCast_
+<
+    T,
+    std::enable_if_t
+    <
+        !std::is_same_v
+        <
+            void,
+            decltype(std::declval<T>().template Cast<int, Round>())
+        >
+    >
+>
+: std::true_type {};
+
+template<typename T>
+inline constexpr bool HasStyleCast = HasStyleCast_<T>::value;
 
 
 template
@@ -75,8 +145,13 @@ template
     typename Style,
     typename Source
 >
-Result ConvertFields(const Source &source)
+Result CastFields(const Source &source)
 {
+    if constexpr (std::is_same_v<Result, Source>)
+    {
+        return source;
+    }
+
     Result result;
 
     auto convert = [&result, &source] (auto sourceField, auto resultField)
@@ -84,8 +159,34 @@ Result ConvertFields(const Source &source)
         using Member = std::remove_reference_t<
             decltype(source.*(sourceField.member))>;
 
-        result.*(resultField.member) =
-            DoConvert<T, Member, Style>(source.*(sourceField.member));
+        if constexpr (HasStyleCast<Member>)
+        {
+            result.*(resultField.member) =
+                (source.*(sourceField.member)).template Cast<T, Style>();
+        }
+        else if constexpr (HasCast<Member> && std::is_same_v<Style, Round>)
+        {
+            // Member has Cast function without Style selection.
+            // Allow only because the caller has requested the default style.
+            result.*(resultField.member) =
+                (source.*(sourceField.member)).template Cast<T>();
+        }
+        else if constexpr (HasEigenCast<Member>)
+        {
+            result.*(resultField.member) =
+                (source.*(sourceField.member)).template cast<T>();
+        }
+        else if constexpr (std::is_compound_v<Member>)
+        {
+            // Compound members without Cast or cast functions will be copied
+            // without any conversion.
+            result.*(resultField.member) = source.*(sourceField.member);
+        }
+        else
+        {
+            result.*(resultField.member) =
+                DoCast<T, Member, Style>(source.*(sourceField.member));
+        }
     };
 
     jive::ZipApply(convert, Source::fields, Result::fields);
@@ -136,12 +237,13 @@ struct Divide;
 
 
 template<typename Target, typename Source>
-void AssignConvert(Target &target, const Source &source)
+void AssignCast(Target &target, const Source &source)
 {
     if constexpr (std::is_scalar_v<Target>)
     {
-        // Convert source to Target type, and check type bounds.
-        target = Convert<Target, Source>(source);
+        // Cast source to Target type,
+        // and, in debug mode, check type bounds.
+        target = Cast<Target, Source>(source);
     }
     else
     {
@@ -156,19 +258,19 @@ void OpAssign(Target &target, const Operand &source)
 {
     if constexpr (std::is_same_v<Operator, op::Add>)
     {
-        AssignConvert(target, target + source);
+        AssignCast(target, target + source);
     }
     else if constexpr (std::is_same_v<Operator, op::Subtract>)
     {
-        AssignConvert(target, target - source);
+        AssignCast(target, target - source);
     }
     else if constexpr (std::is_same_v<Operator, op::Multiply>)
     {
-        AssignConvert(target, target * source);
+        AssignCast(target, target * source);
     }
     else if constexpr (std::is_same_v<Operator, op::Divide>)
     {
-        AssignConvert(target, target / source);
+        AssignCast(target, target / source);
     }
 }
 
@@ -512,9 +614,9 @@ struct Arithmetic: public BasicArithmetic<T, Derived<T>>
     using Base = BasicArithmetic<T, Derived<T>>;
 
     template<typename U, typename Style = Round>
-    auto Convert() const
+    auto Cast() const
     {
-        return ConvertFields<Derived<U>, U, Style>(this->Upcast());
+        return CastFields<Derived<U>, U, Style>(this->Upcast());
     }
 
     typename Base::This Normalize() const

@@ -193,6 +193,11 @@ struct RotationAnglesTemplate
 
 
 template<typename T>
+using RotationAnglesBase =
+    RotationAnglesTemplate<T>::template Template<pex::Identity>;
+
+
+template<typename T>
 struct RotationAnglesTemplates_
 {
     template<typename Base>
@@ -288,6 +293,17 @@ struct RotationAnglesTemplates_
                 (*this)(this->axisOrder.first),
                 (*this)(this->axisOrder.second),
                 (*this)(this->axisOrder.third));
+        }
+
+        template<typename U, typename Style = Round>
+        auto Cast() const
+        {
+            using Result =
+                typename RotationAnglesTemplates_<U>
+                    ::template Plain<RotationAnglesBase<U>>;
+
+            return CastFields<Result, U, Style>(*this);
+
         }
     };
 

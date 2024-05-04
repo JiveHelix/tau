@@ -84,8 +84,6 @@ TEST_CASE("Pose shifted projection", "[pose]")
     auto pixel = Pixel{1920_f / 2_f, 1080_f / 2_f};
     auto lineFromPose = projection.GetLine_m(pixel);
     auto expected = tau::Line3d<float>({0_f, 2_f, 0_f}, {1_f, 0_f, 0_f});
-    std::cout << "lineFromPose: " << lineFromPose << std::endl;
-    std::cout << "expected: " << expected << std::endl;
 
     REQUIRE(lineFromPose.IsColinear(expected));
 }

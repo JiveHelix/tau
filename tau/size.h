@@ -71,7 +71,7 @@ struct Size
     template<typename U>
     Size(const Size<U> &size)
         :
-        Size(size.template Convert<Type>())
+        Size(size.template Cast<Type>())
     {
 
     }
@@ -86,7 +86,7 @@ struct Size
     template<typename U>
     constexpr Size(const Point2d<U> &point)
         :
-        Size(point.template Convert<Type>())
+        Size(point.template Cast<Type>())
     {
 
     }
@@ -151,7 +151,7 @@ struct Size
     {
         if constexpr (std::is_integral_v<Type>)
         {
-            auto size = this->template Convert<double>();
+            auto size = this->template Cast<double>();
             return std::atan2(size.height, size.width);
         }
         else

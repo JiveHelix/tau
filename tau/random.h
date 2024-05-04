@@ -85,7 +85,22 @@ struct DefaultRange
 };
 
 
-template<typename Scalar_, typename Generator = std::mt19937>
+template<typename T>
+struct DefaultFilter
+{
+    bool operator()(T) const
+    {
+        return true;
+    }
+};
+
+
+template
+<
+    typename Scalar_,
+    template<typename> typename Filter = DefaultFilter,
+    typename Generator = std::mt19937
+>
 struct UniformRandom
 {
 public:
@@ -157,7 +172,16 @@ public:
             this->distribution_.max()
             <= std::numeric_limits<Scalar>::max());
 
-        return static_cast<Scalar>(this->distribution_(this->generator_));
+        auto result =
+            static_cast<Scalar>(this->distribution_(this->generator_));
+
+        while (!Filter<Scalar>{}(result))
+        {
+            result =
+                static_cast<Scalar>(this->distribution_(this->generator_));
+        }
+
+        return result;
     }
 
     template<typename Matrix>
