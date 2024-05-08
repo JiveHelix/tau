@@ -138,7 +138,7 @@ public:
     template<typename T>
     void AssignCell(Index row, Index column, const T &value)
     {
-        if (ToSize(row) >= this->cells_.size())
+        while (ToSize(row) >= this->cells_.size())
         {
             this->cells_.push_back(std::vector<std::string>());
             this->cells_.back().resize(ToSize(this->columnCount_));
