@@ -6,7 +6,7 @@
 #include <jive/binary_io.h>
 #include <numeric>
 #include <set>
-#include <Eigen/Dense>
+#include <tau/eigen_shim.h>
 
 #include "tau/wavelet.h"
 

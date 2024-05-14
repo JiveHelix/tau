@@ -7,7 +7,8 @@
     __pragma(warning(push)) \
     __pragma(warning(disable:4127)) \
     __pragma(warning(disable:4242)) \
-    __pragma(warning(disable:5054))
+    __pragma(warning(disable:5054)) \
+    __pragma(warning(disable:26495))
 
 #define EIGEN_SHIM_POP_IGNORES \
     __pragma(warning(pop))

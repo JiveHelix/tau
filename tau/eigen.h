@@ -556,6 +556,12 @@ constexpr Eigen::Index Index(T value)
 }
 
 
+#ifdef _WIN32
+#undef max
+#undef min
+#endif
+
+
 template<typename T>
 std::enable_if_t<std::is_integral_v<T>, Eigen::Index>
 IndexCheck(T value)

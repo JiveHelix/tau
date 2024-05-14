@@ -1,5 +1,5 @@
 #include <catch2/catch.hpp>
-#include <Eigen/Dense>
+#include <tau/eigen_shim.h>
 
 
 #include <tau/literals.h>

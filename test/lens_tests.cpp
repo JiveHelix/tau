@@ -6,7 +6,10 @@
 #include <tau/random.h>
 #include <tau/lens.h>
 
-
+#ifdef _WIN32
+#undef near
+#undef far
+#endif
 
 TEMPLATE_TEST_CASE(
     "Circle of confusion calculation",

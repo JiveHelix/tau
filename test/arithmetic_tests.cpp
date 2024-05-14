@@ -172,12 +172,23 @@ public:
 
     static int64_t GetLowest(T value)
     {
+        if (value == 0)
+        {
+            return lowest;
+        }
+
         auto value_ = static_cast<int64_t>(value);
+
         return lowest / value_;
     }
 
     static int64_t GetHighest(T value)
     {
+        if (value == 0)
+        {
+            return highest;
+        }
+
         auto value_ = static_cast<int64_t>(value);
         return highest / value_;
     }

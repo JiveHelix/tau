@@ -5,6 +5,7 @@
 #include <fields/fields.h>
 #include <jive/for_each.h>
 #include <jive/zip_apply.h>
+#include <jive/constexpr_shim.h>
 #include <jive/overflow.h>
 
 #include "tau/eigen.h"
@@ -138,6 +139,8 @@ template<typename T>
 inline constexpr bool HasStyleCast = HasStyleCast_<T>::value;
 
 
+CONSTEXPR_SHIM_PUSH
+
 template
 <
     typename Result,
@@ -193,6 +196,8 @@ Result CastFields(const Source &source)
 
     return result;
 }
+
+CONSTEXPR_SHIM_POP
 
 
 template<typename T, typename Enable = void>
