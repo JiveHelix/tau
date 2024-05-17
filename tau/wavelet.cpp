@@ -31,16 +31,43 @@ std::map<WaveletName, std::string> waveletNames{
     {WaveletName::db20, "db20"}};
 
 
+std::vector<WaveletName> GetWaveletNames()
+{
+    std::vector<WaveletName> result;
+    result.reserve(waveletNames.size());
 
-std::string ToString(WaveletName name)
+    for (auto &waveletName: waveletNames)
+    {
+        result.push_back(waveletName.first);
+    }
+
+    return result;
+}
+
+
+std::string WaveletNameConverter::ToString(const WaveletName &name)
 {
     return waveletNames.at(name);
 }
 
 
+WaveletName WaveletNameConverter::ToValue(const std::string &asString)
+{
+    for (const auto &waveletName: waveletNames)
+    {
+        if (waveletName.second == asString)
+        {
+            return waveletName.first;
+        }
+    }
+
+    throw std::runtime_error("Unknown wavelet name string");
+}
+
+
 std::ostream & operator<<(std::ostream &outputStream, WaveletName name)
 {
-    return outputStream << ToString(name);
+    return outputStream << WaveletNameConverter::ToString(name);
 }
 
 

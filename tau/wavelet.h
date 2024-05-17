@@ -3,6 +3,7 @@
 #include <ostream>
 #include <string>
 #include <cmath>
+#include <vector>
 #include <fields/fields.h>
 #include "tau/row_convolve.h"
 #include "tau/arithmetic.h"
@@ -37,7 +38,26 @@ enum class WaveletName
 };
 
 
-std::string ToString(WaveletName name);
+std::vector<WaveletName> GetWaveletNames();
+
+
+struct WaveletSelect
+{
+    using Type = WaveletName;
+
+    static std::vector<WaveletName> GetChoices()
+    {
+        return GetWaveletNames();
+    }
+};
+
+
+struct WaveletNameConverter
+{
+    static std::string ToString(const WaveletName &name);
+
+    static WaveletName ToValue(const std::string &asString);
+};
 
 
 std::ostream & operator<<(std::ostream &outputStream, WaveletName name);
