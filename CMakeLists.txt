@@ -13,8 +13,21 @@ endif ()
 
 add_subdirectory(tau)
 
-if (ENABLE_TESTING)
-    if (${PROJECT_IS_TOP_LEVEL})
+if (${PROJECT_IS_TOP_LEVEL})
+    option(
+        BUILD_EXAMPLES
+        "Build the example targets"
+        ${ENABLES_DEFAULT})
+endif ()
+
+if (${PROJECT_IS_TOP_LEVEL})
+
+    if (ENABLE_TESTING)
         add_subdirectory(test)
     endif ()
+
+    if (${BUILD_EXAMPLES})
+        add_subdirectory(examples)
+    endif ()
+
 endif ()

@@ -21,6 +21,7 @@ target_sources(
     tau
     PRIVATE
     csv.cpp
+    dxf.cpp
     line2d.cpp
     pose.cpp
     rotation.cpp
