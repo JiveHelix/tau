@@ -1,4 +1,5 @@
 #include "tau/wavelet_compression.h"
+#include <fmt/core.h>
 
 
 namespace tau
@@ -95,7 +96,15 @@ int64_t ReadValue(uint8_t firstByte, std::istream &input)
                 return jive::io::Read<int64_t>(input);
 
             default:
-                throw std::runtime_error("Unsupported data type");
+                if (!input.good())
+                {
+                    throw std::runtime_error("input is not good");
+                }
+                else
+                {
+                    throw std::runtime_error(
+                        fmt::format("Unsupported data type: {}", byteCount));
+                }
         }
     }
     else
