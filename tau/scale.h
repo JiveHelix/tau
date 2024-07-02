@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <fields/fields.h>
+#include <pex/identity.h>
 #include <pex/selectors.h>
 #include "tau/arithmetic.h"
 #include "tau/orthogonal.h"

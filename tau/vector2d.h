@@ -178,6 +178,11 @@ struct Vector2d: public Base2d<T, Vector2d>
     {
         return (this->x * other.y) - (this->y * other.x);
     }
+
+    Point2d<T> ToPoint() const
+    {
+        return {this->x, this->y};
+    }
 };
 
 
