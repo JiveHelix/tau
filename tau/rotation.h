@@ -24,11 +24,10 @@ using RotationMatrix = Eigen::Matrix<T, 3, 3>;
 
 
 template<size_t axis, typename T>
-RotationMatrix<T> MakeAxial(T rotation_deg)
+RotationMatrix<T> MakeAxial_rad(T rotation_rad)
 {
     static_assert(axis < 3, "Designed for 3-D only");
 
-    auto rotation_rad = tau::ToRadians(rotation_deg);
     auto sine = std::sin(rotation_rad);
     auto cosine = std::cos(rotation_rad);
 
@@ -54,6 +53,13 @@ RotationMatrix<T> MakeAxial(T rotation_deg)
             {sine, cosine, 0.0},
             {0.0, 0.0, 1.0}};
     }
+}
+
+
+template<size_t axis, typename T>
+RotationMatrix<T> MakeAxial(T rotation_deg)
+{
+    return MakeAxial_rad<axis, T>(tau::ToRadians(rotation_deg));
 }
 
 

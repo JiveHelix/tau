@@ -63,6 +63,13 @@ struct Base2d
 
     }
 
+    Base2d(const Eigen::Vector<T, 2> &vector2d)
+        :
+        Vector2dBase<T>{vector2d(0), vector2d(1)}
+    {
+
+    }
+
     Base2d(const Base2d &) = default;
     Base2d & operator=(const Base2d &) = default;
     Base2d(Base2d &&) = default;

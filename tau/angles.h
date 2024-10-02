@@ -83,7 +83,13 @@ struct AngleType_<T, std::enable_if_t<HasScalar<T>>>
 template<typename T>
 struct AngleType_<T, std::enable_if_t<IsVariance<T>>>
 {
-    using Type = typename T::Type;
+    using Type = typename T::VarianceType;
+};
+
+template<typename T>
+struct AngleType_<T, std::enable_if_t<IsVariate<T>>>
+{
+    using Type = typename T::VariateType;
 };
 
 template<typename T>

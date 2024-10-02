@@ -136,7 +136,12 @@ auto DoRowConvolve(
         >;
 
     Index kernelSize = kernel.size();
-    Index resultSize = input.size() + kernelSize - 1;
+    Index inputSize = input.size();
+
+    // Padding scheme expects the kernel to be not larger than the input.
+    assert(kernelSize <= inputSize);
+
+    Index resultSize = inputSize + kernelSize - 1;
     Result result;
 
     if constexpr (isDynamic)
@@ -163,7 +168,7 @@ auto DoRowConvolve(
     {
         // Compute the beginning/end using symmetric (mirrored) values from
         // the input
-        Index lastInput = input.size() - 1;
+        Index lastInput = inputSize - 1;
 
         for (Index i = 0; i < validStart; ++i)
         {

@@ -39,7 +39,7 @@ struct VariateTemplate
     template<template<typename> typename T>
     struct Template
     {
-        using Type = U;
+        using VariateType = U;
 
         T<U> value;
         T<U> sigma;
@@ -103,7 +103,7 @@ struct VarianceTemplate
     template<template<typename> typename T>
     struct Template
     {
-        using Type = U;
+        using VarianceType = U;
 
         T<U> value;
         T<U> variance;
@@ -416,6 +416,16 @@ struct IsVariance_<Variance<T>>: std::true_type {};
 
 template<typename T>
 inline constexpr bool IsVariance = IsVariance_<T>::value;
+
+
+template<typename T>
+struct IsVariate_: std::false_type {};
+
+template<typename T>
+struct IsVariate_<Variate<T>>: std::true_type {};
+
+template<typename T>
+inline constexpr bool IsVariate = IsVariate_<T>::value;
 
 
 template<typename T>
