@@ -74,14 +74,14 @@ TEST_CASE("Line fit to points", "[line2d]")
 {
     auto points = std::vector<tau::Point2d<double>>(
         {
-            {{1, 4}},
-            {{3, 4}},
-            {{3, 5}},
-            {{5, 5}},
-            {{5, 6}},
-            {{7, 6}},
-            {{9, 8}},
-            {{11, 8}}
+            {1, 4},
+            {3, 4},
+            {3, 5},
+            {5, 5},
+            {5, 6},
+            {7, 6},
+            {9, 8},
+            {11, 8}
         });
 
     auto line = tau::Line2d<double>(points);
@@ -108,7 +108,7 @@ TEST_CASE("Line fit to randomized points", "[line2d]")
     uniformRandom.SetRange(0, 1000);
 
     auto initialPoint =
-        tau::Point2d<double>{{uniformRandom(), uniformRandom()}};
+        tau::Point2d<double>(uniformRandom(), uniformRandom());
 
     auto truthLine = tau::Line2d<double>(initialPoint, truthVector);
 

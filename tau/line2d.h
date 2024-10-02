@@ -85,7 +85,7 @@ struct Line2d: public Line2dBase<T>
 
         auto pointCount = static_cast<T>(points.size());
 
-        Point2d<T> averagePoint{{sumX / pointCount, sumY / pointCount}};
+        Point2d<T> averagePoint(sumX / pointCount, sumY / pointCount);
         this->point = averagePoint;
 
         for (size_t i = 0; i < points.size() - 1; ++i)
