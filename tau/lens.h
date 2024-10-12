@@ -54,11 +54,6 @@ struct Lens: public LensTemplate<T>::template Template<pex::Identity>
 
     }
 
-    static Lens Default()
-    {
-        return {};
-    }
-
     template<typename U, typename Style = Round>
     Lens<U> Cast() const
     {

@@ -52,11 +52,6 @@ struct Scale
 
     }
 
-    static Scale Default()
-    {
-        return {};
-    }
-
     Scale(T vertical_, T horizontal_)
         :
         ScaleBase<T>{vertical_, horizontal_}

@@ -161,11 +161,6 @@ struct Intrinsics:
 
     }
 
-    static Intrinsics Default()
-    {
-        return {};
-    }
-
     template<typename Value>
     auto MetersToPixels(const Value &meters) const
     {
@@ -281,9 +276,6 @@ struct Intrinsics:
         return CastFields<Intrinsics<U>, U, Style>(*this);
     }
 };
-
-
-static_assert(pex::HasDefault<Intrinsics<float>>);
 
 
 DECLARE_OUTPUT_STREAM_OPERATOR(Intrinsics<float>)

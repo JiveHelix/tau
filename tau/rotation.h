@@ -239,11 +239,6 @@ struct RotationAnglesTemplates_
             // (*this)(0) = roll
         }
 
-        static Plain Default()
-        {
-            return Plain();
-        }
-
         Plain(
             const RotationMatrix<T> &rotation,
             const AxisOrder &axisOrder_ = defaultAxisOrder)

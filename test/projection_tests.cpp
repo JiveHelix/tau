@@ -9,7 +9,7 @@ using namespace tau::literals;
 
 TEST_CASE("Camera to World to Camera round trip.", "[projection]")
 {
-    auto intrinsics = tau::Intrinsics<float>::Default();
+    auto intrinsics = tau::Intrinsics<float>{};
 
     tau::Pose<float> pose(
         {
@@ -31,8 +31,8 @@ TEST_CASE("Camera to World to Camera round trip.", "[projection]")
 
 TEST_CASE("Trivial world to Camera", "[projection]")
 {
-    auto intrinsics = tau::Intrinsics<float>::Default();
-    auto pose = tau::Pose<float>::Default();
+    auto intrinsics = tau::Intrinsics<float>{};
+    auto pose = tau::Pose<float>{};
 
     tau::Vector3<float> world(5.0_f, 0.0_f, 0.0_f);
     tau::Projection projection(intrinsics, pose);
@@ -46,11 +46,11 @@ TEST_CASE("Trivial world to Camera", "[projection]")
 
 TEST_CASE("Shifted world to Camera", "[projection]")
 {
-    auto intrinsics = tau::Intrinsics<float>::Default();
+    auto intrinsics = tau::Intrinsics<float>{};
 
-    auto noShift = tau::Pose<float>::Default();
+    auto noShift = tau::Pose<float>{};
 
-    auto pose = tau::Pose<float>::Default();
+    auto pose = tau::Pose<float>{};
     pose.y_m = 1.0_f;
 
     tau::Vector3<float> world(5.0_f, 0.0_f, 0.0_f);

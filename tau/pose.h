@@ -92,11 +92,6 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 
     }
 
-    static Pose Default()
-    {
-        return Pose();
-    }
-
     Vector3<T> GetTranslation_m() const
     {
         return Vector3<T>{
