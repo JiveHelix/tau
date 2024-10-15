@@ -207,6 +207,17 @@ struct Line3d
         return std::abs(connecting.transpose().dot(plane));
     }
 
+    T GetAngle_rad(const Line3d other)
+    {
+        return Vector3d<T>(this->direction).GetAngle_rad(
+            Vector3d<T>(other.direction));
+    }
+
+    T GetAngle_deg(const Line3d other)
+    {
+        return ToDegrees(this->GetAngle_rad(other);
+    }
+
     bool IsCoplanar(
             const Line3d &other, T threshold = static_cast<T>(1e-6)) const
     {
