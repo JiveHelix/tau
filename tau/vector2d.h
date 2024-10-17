@@ -95,13 +95,13 @@ struct Base2d
         {
             // Convert to double for the computation.
             auto asDouble = this->template Cast<double>();
-            return tau::ToDegrees(std::atan2(asDouble.y, asDouble.x));
+            return ToDegrees(std::atan2(asDouble.y, asDouble.x));
         }
         else
         {
             // Already a floating-point type.
             // Do the calculation with the current precision.
-            return tau::ToDegrees(std::atan2(this->y, this->x));
+            return ToDegrees(std::atan2(this->y, this->x));
         }
     }
 
@@ -167,9 +167,8 @@ struct Vector2d: public Base2d<T, Vector2d>
 
     }
 
-    Vector2d<T> Rotate(T rotation_deg) const
+    Vector2d<T> Rotate_rad(T rotation_rad) const
     {
-        auto rotation_rad = tau::ToRadians(rotation_deg);
         auto sine = std::sin(rotation_rad);
         auto cosine = std::cos(rotation_rad);
 
@@ -177,6 +176,16 @@ struct Vector2d: public Base2d<T, Vector2d>
         T rotatedY = sine * this->x + cosine * this->y;
 
         return {rotatedX, rotatedY};
+    }
+
+    Vector2d<T> Rotate_deg(T rotation_deg) const
+    {
+        return this->Rotate_rad(ToRadians(rotation_deg));
+    }
+
+    Vector2d<T> Rotate(T rotation_deg) const
+    {
+        return this->Rotate_deg(rotation_deg);
     }
 
     // Returns the z-component of the cross-product of two vectors in the x-y
@@ -189,6 +198,16 @@ struct Vector2d: public Base2d<T, Vector2d>
     Point2d<T> ToPoint() const
     {
         return {this->x, this->y};
+    }
+
+    T GetAngle_rad(const Vector2d<T> &other) const
+    {
+        return ::tau::GetAngle_rad(this->ToEigen(), other.ToEigen());
+    }
+
+    T GetAngle_deg(const Vector2d<T> &other) const
+    {
+        return ToDegrees(this->GetAngle_rad(other));
     }
 };
 

@@ -63,6 +63,13 @@ RotationMatrix<T> MakeAxial(T rotation_deg)
 }
 
 
+template<size_t axis, typename T>
+RotationMatrix<T> MakeAxial_deg(T rotation_deg)
+{
+    return MakeAxial_rad<axis, T>(tau::ToRadians(rotation_deg));
+}
+
+
 template<typename T>
 RotationMatrix<T> MakeAxial(size_t axis, T rotation_deg)
 {

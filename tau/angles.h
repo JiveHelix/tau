@@ -145,4 +145,32 @@ auto ToRadians(T degrees, U ...otherDegrees)
 }
 
 
+template<typename T, int count>
+T GetAngle_rad(
+    const Eigen::Vector<T, count> &first,
+    const Eigen::Vector<T, count> &second)
+{
+    static_assert(count > 1);
+
+    if constexpr (count > 2)
+    {
+        return std::atan2(first.cross(second).norm(), first.dot(second));
+    }
+    else
+    {
+        T crossProduct = first.x() * second.y() - first.y() * second.x();
+        return std::atan2(crossProduct, first.dot(second));
+    }
+}
+
+
+template<typename T, int count>
+T GetAngle_deg(
+    const Eigen::Vector<T, count> &first,
+    const Eigen::Vector<T, count> &second)
+{
+    return ToDegrees(GetAngle_rad(first, second));
+}
+
+
 } // end namespace tau

@@ -305,9 +305,19 @@ struct Line2d: public Line2dBase<T>
             other.DistanceToPoint(this->point));
     }
 
-    Line2d<T> GetRotated(T angleDegrees) const
+    Line2d<T> GetRotated_deg(T angle_deg) const
     {
-        return Line2d<T>(this->point, this->vector.Rotate(angleDegrees));
+        return Line2d<T>(this->point, this->vector.Rotate_deg(angle_deg));
+    }
+
+    Line2d<T> GetRotated_rad(T angle_rad) const
+    {
+        return Line2d<T>(this->point, this->vector.Rotate_rad(angle_rad));
+    }
+
+    Line2d<T> GetRotated(T angle_deg) const
+    {
+        return this->GetRotated_deg(angle_deg);
     }
 
     Point2d<T> GetEndPoint(T scale) const
@@ -323,6 +333,16 @@ struct Line2d: public Line2dBase<T>
     T GetAngleDegrees() const
     {
         return ToDegrees(this->GetAngleRadians());
+    }
+
+    T GetAngle_rad(const Line2d<T> &other) const
+    {
+        return this->vector.GetAngle_rad(other.vector);
+    }
+
+    T GetAngle_deg(const Line2d<T> &other) const
+    {
+        return this->vector.GetAngle_deg(other.vector);
     }
 
     bool IsColinear(

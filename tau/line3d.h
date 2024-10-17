@@ -215,7 +215,7 @@ struct Line3d
 
     T GetAngle_deg(const Line3d other)
     {
-        return ToDegrees(this->GetAngle_rad(other);
+        return ToDegrees(this->GetAngle_rad(other));
     }
 
     bool IsCoplanar(

@@ -232,10 +232,7 @@ struct Vector3d: public Base3d<T, Vector3d>
 
     T GetAngle_rad(const Vector3d<T> &other)
     {
-        // a dot b = |a||b| cos(theta)
-        // theta = arcos(a dot b / (|a||b|)
-        auto dot = this->ToEigen().dot(other.ToEigen());
-        return std::acos(dot / (this->Magnitude() * other.Magnitude()));
+        return ::tau::GetAngle_rad(this->ToEigen(), other.ToEigen());
     }
 
     T GetAngle_deg(const Vector3d<T> &other)

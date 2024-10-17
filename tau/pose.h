@@ -42,6 +42,10 @@ struct PoseTemplate
 };
 
 
+template<typename T>
+using Extrinsic = Eigen::Matrix<T, 4, 4>;
+
+
 /**
  **
  ** World Coordinate System
@@ -123,22 +127,23 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
             this->GetTranslation_m());
     }
 
-    Eigen::Matrix<T, 4, 4> GetExtrinsics_pixels(
+    Extrinsic<T> GetExtrinsic_pixels(
         const Intrinsics<T> &intrinsics) const
     {
         Eigen::Matrix<T, 3, 4> pose = this->GetArray_pixels(intrinsics);
 
-        Eigen::Matrix<T, 4, 4> verticalStack = tau::VerticalStack(
+        Extrinsic<T> verticalStack = tau::VerticalStack(
             pose,
             Eigen::Matrix<T, 1, 4>{{0, 0, 0, 1}});
 
         return verticalStack.inverse();
     }
 
-    Eigen::Matrix<T, 4, 4> GetExtrinsics_m() const
+    Extrinsic<T> GetExtrinsic_m() const
     {
         Eigen::Matrix<T, 3, 4> pose = this->GetArray_m();
-        Eigen::Matrix<T, 4, 4> vStackPose = tau::VerticalStack(
+
+        Extrinsic<T> vStackPose = tau::VerticalStack(
             pose,
             Eigen::Matrix<T, 1, 4>{{0, 0, 0, 1}});
 

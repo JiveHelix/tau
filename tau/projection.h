@@ -58,7 +58,7 @@ public:
         pose_(pose),
         cameraPosition_pixels_(this->GetCameraPosition_pixels())
     {
-        Eigen::Matrix<T, 4, 4> extrinsics_m = this->pose_.GetExtrinsics_m();
+        Extrinsic<T> extrinsics_m = this->pose_.GetExtrinsic_m();
 
         Eigen::Matrix<T, 3, 4> topThreeRows =
             extrinsics_m(Eigen::seq(0, 2), Eigen::all);
@@ -78,10 +78,23 @@ public:
         this->cameraToWorld_.normalize();
     }
 
+    Extrinsic<T> GetExtrinsic_m() const
+    {
+        return this->pose_.GetExtrinsic_m();
+    }
+
     Vector3<T> WorldToCamera(const Point3d<T> &world) const
     {
         Vector3<T> scaled =
             (this->worldToCamera_ * world.GetHomogeneous())(Eigen::seq(0, 2));
+
+        return scaled.array() / scaled(2);
+    }
+
+    Vector3<T> WorldToCamera(const Eigen::Vector<T, 4> &world) const
+    {
+        Vector3<T> scaled =
+            (this->worldToCamera_ * world)(Eigen::seq(0, 2));
 
         return scaled.array() / scaled(2);
     }
