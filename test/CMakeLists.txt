@@ -32,8 +32,8 @@ add_executable(
 target_link_libraries(
     tau_tests
     PRIVATE
-    project_warnings
-    project_options
+    # project_warnings
+    # project_options
     tau_catch_main
     tau)
 

@@ -632,6 +632,27 @@ constexpr auto Scalar(T value)
 }
 
 
+template<typename Input, typename Bound>
+void Constrain(Input &input, Bound minimum, Bound maximum)
+{
+    using traits = MatrixTraits<Input>;
+    using type = typename traits::type;
+
+    if constexpr (std::is_same_v<type, Bound>)
+    {
+        Select(input) < minimum = minimum;
+        Select(input) > maximum = maximum;
+    }
+    else
+    {
+        auto typedMinimum = static_cast<type>(minimum);
+        auto typedMaximum = static_cast<type>(maximum);
+        Select(input) < typedMinimum = typedMinimum;
+        Select(input) > typedMaximum = typedMaximum;
+    }
+}
+
+
 } // end namespace tau
 
 

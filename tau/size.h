@@ -91,6 +91,11 @@ struct Size
 
     }
 
+    Point2d<T> ToPoint() const
+    {
+        return {this->width, this->height};
+    }
+
     template<typename U>
     Size & operator=(const Size<U> &size)
     {
@@ -187,6 +192,10 @@ using SizeGroup =
         SizeTemplate<T>::template Template,
         pex::PlainT<Size<T>>
     >;
+
+
+template<typename T>
+using SizeControl = typename SizeGroup<T>::Control;
 
 
 TEMPLATE_OUTPUT_STREAM(Size)

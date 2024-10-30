@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstring>
 #include <fields/fields.h>
 #include <pex/group.h>
 
@@ -12,15 +13,36 @@ namespace tau
 {
 
 
-template<typename T>
-using RgbMatrix = Eigen::Matrix<T, Eigen::Dynamic, 3, Eigen::RowMajor>;
+
+template<typename T, size_t componentCount>
+using ComponentMatrix =
+    Eigen::Matrix
+    <
+        T,
+        Eigen::Dynamic,
+        static_cast<Eigen::Index>(componentCount),
+        Eigen::RowMajor
+    >;
 
 
 template<typename T>
-struct RgbPixels
+using RgbMatrix = ComponentMatrix<T, 3>;
+
+
+template<typename T>
+using RgbaMatrix = ComponentMatrix<T, 4>;
+
+
+template<typename T, size_t componentCount>
+struct Pixels
 {
-    using Data = RgbMatrix<T>;
+    using Data = ComponentMatrix<T, componentCount>;
     using Index = Eigen::Index;
+    static constexpr auto Dynamic = Eigen::Dynamic;
+    static constexpr auto RowMajor = Eigen::RowMajor;
+
+    using PlanarType =
+        tau::Planar<componentCount, T, Dynamic, Dynamic, RowMajor>;
 
     Data data;
 
@@ -30,24 +52,76 @@ struct RgbPixels
     // Expect height * width == data.rows()
     Size<Index> size;
 
-    static RgbPixels<T> Create(const Size<Index> &size)
+    static Pixels Create(const PlanarType &planar)
     {
-        RgbPixels<T> result;
-        result.size = size;
-        result.data = Data::Zero(size.height * size.width, 3);
+        Pixels result;
+        result.size = planar.GetSize();
+        result.data = planar.GetInterleaved();
 
         return result;
     }
 
-    static std::shared_ptr<RgbPixels<T>> CreateShared(const Size<Index> &size)
+    static Pixels Create(const Size<Index> &size)
     {
-        auto result = std::make_shared<RgbPixels<T>>();
-        result->size = size;
-        result->data = Data::Zero(size.height * size.width, 3);
+        Pixels result;
+        result.size = size;
+
+        result.data =
+            Data::Zero(
+                size.height * size.width,
+                static_cast<Eigen::Index>(componentCount));
 
         return result;
+    }
+
+    static Pixels Create(
+        const Size<Index> &size,
+        const T *initialData)
+    {
+        Pixels result;
+        result.size = size;
+
+        Index pixelCount = size.height * size.width;
+
+        result.data = Data(
+            pixelCount,
+            static_cast<Eigen::Index>(componentCount));
+
+        std::memcpy(
+            result.data.data(),
+            initialData,
+            static_cast<size_t>(pixelCount * componentCount));
+
+        return result;
+    }
+
+    std::shared_ptr<Pixels> MakeShared()
+    {
+        return std::make_shared<Pixels>(*this);
+    }
+
+    static std::shared_ptr<Pixels> CreateShared(const Size<Index> &size)
+    {
+        return Pixels::Create(size).MakeShared();
+    }
+
+    PlanarType GetPlanar() const
+    {
+        return PlanarType::FromInterleaved(
+            this->data,
+            this->size.height,
+            this->size.width);
     }
 };
+
+
+
+template<typename T>
+using RgbPixels = Pixels<T, 3>;
+
+
+template<typename T>
+using RgbaPixels = Pixels<T, 4>;
 
 
 namespace index

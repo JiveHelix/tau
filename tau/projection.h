@@ -91,7 +91,7 @@ public:
         return scaled.array() / scaled(2);
     }
 
-    Vector3<T> WorldToCamera(const Eigen::Vector<T, 4> &world) const
+    Vector3<T> VectorWorldToCamera(const Eigen::Vector<T, 4> &world) const
     {
         Vector3<T> scaled =
             (this->worldToCamera_ * world)(Eigen::seq(0, 2));

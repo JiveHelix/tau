@@ -15,21 +15,30 @@ CREATE_EXCEPTION(PlanarError, TauError);
 
 template
 <
-    size_t count,
+    size_t count_,
     typename T,
-    int rows,
-    int columns,
-    int options = Eigen::ColMajor
+    int rows_,
+    int columns_,
+    int options_ = Eigen::ColMajor
 >
 class Planar
 {
 public:
+    static constexpr auto count = count_;
+    using Type = T;
+    static constexpr auto rows = rows_;
+    static constexpr auto columns = columns_;
+    static constexpr auto options = options_;
+
     using Matrix = Eigen::Matrix<T, rows, columns, options>;
     using Index = Eigen::Index;
 
     static_assert(
         count < std::numeric_limits<int>::max(),
         "count will be cast to int for use in Eigen template expressions.");
+
+    template<size_t, typename, int, int, int>
+    friend class Planar;
 
     std::array<Matrix, count> planes;
 
@@ -56,6 +65,13 @@ public:
             assert(rowCount == rows);
             assert(columnCount == columns);
         }
+    }
+
+    Planar([[maybe_unused]] const Size<Index> &size)
+        :
+        Planar(size.height, size.width)
+    {
+
     }
 
     using Value = Planar<count, T, 1, 1, options>;
@@ -237,24 +253,23 @@ public:
         this->template DoRound_<precision>(std::make_index_sequence<count>());
     }
 
-    Eigen::Index GetRowCount() const
+    Index GetRowCount() const
     {
         return std::get<0>(this->planes).rows();
     }
 
-    Eigen::Index GetColumnCount() const
+    Index GetColumnCount() const
     {
         return std::get<0>(this->planes).cols();
     }
 
     template<typename Derived>
     static Planar FromInterleaved(
-        Eigen::DenseBase<Derived> &interleaved,
-        Eigen::Index rowCount = rows,
-        Eigen::Index columnCount = columns)
+        const Eigen::DenseBase<Derived> &interleaved,
+        Index rowCount = rows,
+        Index columnCount = columns)
     {
         static_assert(std::is_same_v<typename Derived::Scalar, T>);
-        using Eigen::Index;
 
         if (rows == Eigen::Dynamic)
         {
@@ -308,7 +323,8 @@ public:
             for (Index i = 0; i < channelCount; ++i)
             {
                 result.planes.at(size_t(i)) =
-                    interleaved.col(i).template reshaped<options>(rowCount, columnCount);
+                    interleaved.col(i)
+                        .template reshaped<options>(rowCount, columnCount);
             }
         }
         else
@@ -317,7 +333,8 @@ public:
             for (Index i = 0; i < channelCount; ++i)
             {
                 result.planes.at(size_t(i)) =
-                    interleaved.row(i).template reshaped<options>(rowCount, columnCount);
+                    interleaved.row(i)
+                        .template reshaped<options>(rowCount, columnCount);
             }
         }
 
@@ -382,11 +399,186 @@ public:
         return this->template Cast_<U>(std::make_index_sequence<count>{});
     }
 
+    Planar & operator *=(T scalar)
+    {
+        return this->template MultiplyAssign_(
+            std::make_index_sequence<count>{},
+            scalar);
+    }
+
+    Planar & operator /=(T scalar)
+    {
+        return this->template DivideAssign_(
+            std::make_index_sequence<count>{},
+            scalar);
+    }
+
+    Planar & operator +=(T scalar)
+    {
+        return this->template AddAssign_(
+            std::make_index_sequence<count>{},
+            scalar);
+    }
+
+    Planar & operator -=(T scalar)
+    {
+        return this->template SubtractAssign_(
+            std::make_index_sequence<count>{},
+            scalar);
+    }
+
+    Planar operator *(T scalar) const
+    {
+        Planar result(*this);
+        result *= scalar;
+
+        return result;
+    }
+
+    Planar operator /(T scalar) const
+    {
+        Planar result(*this);
+        result /= scalar;
+
+        return result;
+    }
+
+    Planar operator +(T scalar) const
+    {
+        Planar result(*this);
+        result += scalar;
+
+        return result;
+    }
+
+    Planar operator -(T scalar) const
+    {
+        Planar result(*this);
+        result -= scalar;
+
+        return result;
+    }
+
     template<size_t index, typename Other>
     void AssignCast(const Other &other)
     {
         std::get<index>(this->planes) =
             std::get<index>(other.planes).template cast<T>();
+    }
+
+    template<size_t index>
+    void MultiplyAssign(T scalar)
+    {
+        std::get<index>(this->planes).array() *= scalar;
+    }
+
+    template<size_t index>
+    void DivideAssign(T scalar)
+    {
+        std::get<index>(this->planes).array() /= scalar;
+    }
+
+    template<size_t index>
+    void AddAssign(T scalar)
+    {
+        std::get<index>(this->planes).array() += scalar;
+    }
+
+    template<size_t index>
+    void ZeroPlane(const Size<Index> &size)
+    {
+        std::get<index>(this->planes) = Matrix::Zero(size.height, size.width);
+    }
+
+    template<size_t index>
+    void AssignMiddle(const Planar &source, Index startRow, Index startColumn)
+    {
+        auto size = source.GetSize();
+
+        std::get<index>(this->planes)
+            .block(startRow, startColumn, size.height, size.width)
+                = std::get<index>(source.planes);
+    }
+
+    template<size_t index>
+    void SubtractAssign(T scalar)
+    {
+        std::get<index>(this->planes).array() -= scalar;
+    }
+
+    template<size_t index>
+    void ConstrainPlane(T minimum, T maximum)
+    {
+        ::tau::Constrain(std::get<index>(this->planes), minimum, maximum);
+    }
+
+    static Planar Zero(const Size<Index> &size)
+    {
+        Planar result;
+
+        result.template Zero_(std::make_index_sequence<count>{}, size);
+
+        return result;
+    }
+
+    static Planar Zero(Index height, Index width)
+    {
+        return Zero({height, width});
+    }
+
+    template<typename U>
+    using PlanarLike = Planar<count, U, rows, columns, options>;
+
+    template<typename U = T>
+    PlanarLike<U> PadZeros(const Size<Index> &paddedSize) const
+    {
+        // We are growing the rows and columns.
+        // This could be down with compile-time sizes, but has been omitted
+        // here for simplicity.
+        // Run-time sizes only.
+        static_assert(rows == Eigen::Dynamic);
+        static_assert(columns == Eigen::Dynamic);
+
+        using Result = PlanarLike<U>;
+        auto size = this->GetSize();
+        assert(paddedSize.height >= size.height);
+        assert(paddedSize.width >= size.width);
+        auto offsets = (paddedSize - size).ToPoint() / 2;
+
+        Result result = Result::Zero(paddedSize);
+
+        if constexpr (!std::is_same_v<T, U>)
+        {
+            result.template AssignMiddle_(
+                std::make_index_sequence<count>{},
+                this->template Cast<U>(),
+                offsets.y,
+                offsets.x);
+        }
+        else
+        {
+            result.template AssignMiddle_(
+                std::make_index_sequence<count>{},
+                *this,
+                offsets.y,
+                offsets.x);
+        }
+
+        return result;
+    }
+
+    template<typename U = T>
+    PlanarLike<U> PadZeros(Index height, Index width)
+    {
+        return this->template PadZeros<U>(Size<Index>(width, height));
+    }
+
+    void Constrain(T minimum, T maximum)
+    {
+        this->template Constrain_(
+            std::make_index_sequence<count>{},
+            minimum,
+            maximum);
     }
 
     std::ostream & ToStream(std::ostream &outputStream) const
@@ -400,7 +592,7 @@ public:
         return outputStream;
     }
 
-    Size<Eigen::Index> GetSize() const
+    Size<Index> GetSize() const
     {
         return {{
             std::get<0>(this->planes).cols(),
@@ -419,6 +611,69 @@ private:
         (result.template AssignCast<I>(*this), ...);
 
         return result;
+    }
+
+    template<size_t ... I>
+    Planar & MultiplyAssign_(std::index_sequence<I ...>, T scalar)
+    {
+        (this->template MultiplyAssign<I>(scalar), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & DivideAssign_(std::index_sequence<I ...>, T scalar)
+    {
+        (this->template DivideAssign<I>(scalar), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & AddAssign_(std::index_sequence<I ...>, T scalar)
+    {
+        (this->template AddAssign<I>(scalar), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & Zero_(
+        std::index_sequence<I ...>,
+        const Size<Index> size)
+    {
+        (this->template ZeroPlane<I>(size), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & AssignMiddle_(
+        std::index_sequence<I ...>,
+        const Planar &source,
+        Index startRow,
+        Index startColumn)
+    {
+        (this->template AssignMiddle<I>(source, startRow, startColumn), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & SubtractAssign_(std::index_sequence<I ...>, T scalar) const
+    {
+        (this->template SubtractAssign<I>(scalar), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    void Constrain_(
+        std::index_sequence<I ...>,
+        T minimum,
+        T maximum)
+    {
+        (this->template ConstrainPlane<I>(minimum, maximum), ...);
     }
 
     template<typename Result, size_t...I>
@@ -505,6 +760,10 @@ std::ostream & operator<<(
 {
     return planar.ToStream(outputStream);
 }
+
+
+template<typename P, typename U>
+using PlanarLike = Planar<P::count, U, P::rows, P::columns, P::options>;
 
 
 } // end namespace tau
