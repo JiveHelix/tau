@@ -207,7 +207,7 @@ struct RotationAnglesTemplate
 
 template<typename T>
 using RotationAnglesBase =
-    RotationAnglesTemplate<T>::template Template<pex::Identity>;
+    typename RotationAnglesTemplate<T>::template Template<pex::Identity>;
 
 
 template<typename T>

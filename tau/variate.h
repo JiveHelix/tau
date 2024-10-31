@@ -117,7 +117,7 @@ struct VarianceTemplate
 template<typename T>
 struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
 {
-    using Base = VarianceTemplate<T>::template Template<pex::Identity>;
+    using Base = typename VarianceTemplate<T>::template Template<pex::Identity>;
 
     Variance()
         :

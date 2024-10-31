@@ -130,7 +130,9 @@ template<typename T>
 struct Intrinsics:
     public IntrinsicsTemplate<T>::template Template<pex::Identity>
 {
-    using Base = IntrinsicsTemplate<T>::template Template<pex::Identity>;
+    using Base =
+        typename IntrinsicsTemplate<T>::template Template<pex::Identity>;
+
     PixelConvert<T> pixelConvert;
 
     static constexpr auto version = jive::Version<uint8_t>(1, 0, 0);
