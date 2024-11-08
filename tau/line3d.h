@@ -133,7 +133,7 @@ struct Line3d
 
     T DistanceToIntersection(const Line3d &otherLine) const
     {
-        if (otherLine.direction.isApprox(this->direction))
+        if (!this->HasIntersect(otherLine))
         {
             // Parallel lines have no intersection.
             throw NoIntersection("Parallel lines");
@@ -151,6 +151,11 @@ struct Line3d
             normals.colPivHouseholderQr().solve(points).transpose();
 
         return parameters(0, 0);
+    }
+
+    bool HasIntersect(const Line3d &otherLine) const
+    {
+        return !otherLine.direction.isApprox(this->direction);
     }
 
     Point3d<T> Intersect(const Line3d &otherLine) const

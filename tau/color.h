@@ -48,7 +48,7 @@ struct Pixels
 
     // The PixelMatrix is stored as a count x 3 matrix, where each row contains
     // an RGB triplet.
-    // height and width store the dimensions the image.
+    // height and width store the dimensions of the image.
     // Expect height * width == data.rows()
     Size<Index> size;
 
