@@ -146,6 +146,58 @@ template<typename T>
 using AlphaVector = Eigen::Vector<T, 4>;
 
 
+template<typename T, typename Enable = void>
+struct ConstReferenceMatrix;
+
+template<typename T>
+struct ConstReferenceMatrix
+<
+    T,
+    std::enable_if_t<IsPlanar<T>>
+>
+{
+    using Matrix = typename T::Matrix;
+    using type = const Matrix &;
+};
+
+
+template<typename T>
+struct ConstReferenceMatrix
+<
+    T,
+    std::enable_if_t<!IsPlanar<T>>
+>
+{
+    using type = const T &;
+};
+
+
+template<typename T, typename Enable = void>
+struct ReferenceMatrix;
+
+template<typename T>
+struct ReferenceMatrix
+<
+    T,
+    std::enable_if_t<IsPlanar<T>>
+>
+{
+    using Matrix = typename T::Matrix;
+    using type = Matrix &;
+};
+
+
+template<typename T>
+struct ReferenceMatrix
+<
+    T,
+    std::enable_if_t<!IsPlanar<T>>
+>
+{
+    using type = T &;
+};
+
+
 /**
  ** GetType returns by const reference or non-const reference depending on the
  ** const-ness of Planes.
@@ -157,14 +209,13 @@ struct GetType_;
 template<typename T>
 struct GetType_<const T &>
 {
-    using type = const typename T::Matrix &;
+    using type = typename ConstReferenceMatrix<std::remove_cvref_t<T>>::type;
 };
-
 
 template<typename T>
 struct GetType_<T &>
 {
-    using type = typename T::Matrix &;
+    using type = typename ReferenceMatrix<std::remove_cvref_t<T>>::type;
 };
 
 

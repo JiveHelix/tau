@@ -766,4 +766,43 @@ template<typename P, typename U>
 using PlanarLike = Planar<P::count, U, P::rows, P::columns, P::options>;
 
 
+template<typename T>
+struct IsPlanar_: std::false_type {};
+
+
+template
+<
+    size_t count_,
+    typename T,
+    int rows_,
+    int columns_
+>
+struct IsPlanar_<Planar<count_, T, rows_, columns_>>
+    :
+    std::true_type
+{
+
+};
+
+
+template
+<
+    size_t count_,
+    typename T,
+    int rows_,
+    int columns_,
+    int options_
+>
+struct IsPlanar_<Planar<count_, T, rows_, columns_, options_>>
+    :
+    std::true_type
+{
+
+};
+
+
+template<typename T>
+inline constexpr bool IsPlanar = IsPlanar_<T>::value;
+
+
 } // end namespace tau
