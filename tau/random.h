@@ -231,5 +231,60 @@ private:
 };
 
 
+template
+<
+    typename Scalar_,
+    typename Generator = std::mt19937
+>
+struct Normal
+{
+public:
+    using Scalar = Scalar_;
+
+public:
+    Normal()
+        :
+        distribution_()
+    {
+
+    }
+
+    Normal(Scalar mean, Scalar stddev)
+        :
+        distribution_(mean, stddev)
+    {
+
+    }
+
+    Scalar operator()()
+    {
+        return static_cast<Scalar>(this->distribution_(this->generator_));
+    }
+
+    template<typename Matrix>
+    void operator()(Matrix &matrix)
+    {
+        for (auto i: jive::Range<Eigen::Index>(0, matrix.rows()))
+        {
+            for (auto j: jive::Range<Eigen::Index>(0, matrix.cols()))
+            {
+                matrix(i, j) = this->operator()();
+            }
+        }
+    }
+
+private:
+    // Make global generator thread_local.
+    // Each thread get its own, simplifying thread-safe operation without
+    // depleting system entropy.
+    static thread_local Generator generator_;
+    std::normal_distribution<Scalar> distribution_;
+};
+
+
+template<typename Scalar, typename Generator>
+thread_local Generator Normal<Scalar, Generator>::generator_{
+    std::random_device{}()};
+
 
 } // end namespace tau

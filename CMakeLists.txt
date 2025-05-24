@@ -13,21 +13,5 @@ endif ()
 
 add_subdirectory(tau)
 
-if (${PROJECT_IS_TOP_LEVEL})
-    option(
-        BUILD_EXAMPLES
-        "Build the example targets"
-        ${ENABLES_DEFAULT})
-endif ()
-
-if (${PROJECT_IS_TOP_LEVEL})
-
-    if (ENABLE_TESTING)
-        add_subdirectory(test)
-    endif ()
-
-    if (${BUILD_EXAMPLES})
-        add_subdirectory(examples)
-    endif ()
-
-endif ()
+include(${CMAKE_CURRENT_LIST_DIR}/cmake_includes/enable_extras.cmake)
+enable_extras()

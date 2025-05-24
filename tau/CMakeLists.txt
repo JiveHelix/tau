@@ -4,18 +4,25 @@ if (${fPIC})
     set_property(TARGET tau PROPERTY POSITION_INDEPENDENT_CODE ON)
 endif ()
 
+find_package(Fmt REQUIRED)
+find_package(Jive REQUIRED)
+find_package(Fields REQUIRED)
+find_package(Pex REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(Nlohmann_json REQUIRED)
+
 # Projects that include this project must #include "tau/<header-name>"
 target_include_directories(tau PUBLIC ${PROJECT_SOURCE_DIR})
 
 target_link_libraries(
     tau
     PUBLIC
-    CONAN_PKG::jive
-    CONAN_PKG::fields
-    CONAN_PKG::pex
-    CONAN_PKG::eigen
-    CONAN_PKG::fmt
-    CONAN_PKG::nlohmann_json)
+    jive::jive
+    fields::fields
+    pex::pex
+    Eigen3::Eigen
+    fmt::fmt
+    nlohmann_json::nlohmann_json)
 
 target_sources(
     tau

@@ -137,6 +137,16 @@ public:
         return CastFields<Projection<U>, U, Style>(*this);
     }
 
+    const Intrinsics<T> & GetIntrinsics() const
+    {
+        return this->intrinsics_;
+    }
+
+    const Pose<T> & GetPose() const
+    {
+        return this->pose_;
+    }
+
 private:
     Intrinsics<T> intrinsics_;
     Pose<T> pose_;

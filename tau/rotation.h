@@ -175,6 +175,23 @@ RotationMatrix<T> MakeIntrinsic(
 }
 
 
+struct AxisOrderChoices
+{
+    using Type = AxisOrder;
+
+    static std::vector<Type> GetChoices()
+    {
+        return {
+            {2, 1, 0},
+            {2, 0, 1},
+            {1, 2, 0},
+            {1, 0, 2},
+            {0, 2, 1},
+            {0, 1, 2}};
+    }
+};
+
+
 template<typename T>
 struct RotationAnglesFields
 {
@@ -184,6 +201,18 @@ struct RotationAnglesFields
         fields::Field(&T::roll, "roll"),
         fields::Field(&T::axisOrder, "axisOrder"));
 };
+
+
+using AxisOrderSelect = pex::MakeSelect<AxisOrderChoices>;
+
+static_assert(
+    std::is_same_v
+    <
+        std::vector<typename AxisOrderChoices::Type>,
+        decltype(AxisOrderChoices::GetChoices())
+    >);
+
+static_assert(pex::HasGetChoices<AxisOrderChoices>);
 
 
 template<typename U>
@@ -197,12 +226,57 @@ struct RotationAnglesTemplate
         T<AngleRange> yaw;
         T<AngleRange> pitch;
         T<AngleRange> roll;
-        T<pex::MakeSelect<AxisOrder>> axisOrder;
+        T<pex::MakeSelect<AxisOrderChoices>> axisOrder;
 
         static constexpr auto fields = RotationAnglesFields<Template>::fields;
         static constexpr auto fieldsTypeName = "RotationAngles";
     };
 };
+
+
+template<typename Derived>
+Eigen::Vector3<typename Derived::Scalar>
+CanonicalEuler(
+    const Eigen::MatrixBase<Derived>& rotationMatrix,
+    Eigen::Index first,
+    Eigen::Index second,
+    Eigen::Index third)
+{
+    using T = typename Derived::Scalar;
+    static constexpr auto tau = Angles<T>::tau;
+    static constexpr auto pi = Angles<T>::pi;
+    static constexpr auto halfPi = pi / 2;
+
+    Eigen::Matrix<T, 3, 1> angles =
+        rotationMatrix.eulerAngles(first, second, third);
+
+    if (first == third)
+    {
+        // Proper euler angles are already in the expected range.
+        return angles;
+    }
+
+    // Tait-Bryan angles
+
+    if (std::abs(angles(1)) > halfPi)
+    {
+        // The middle rotation is outside of the range -90 to 90.
+        // Correct angles to fix the range of the second rotation.
+        // Get the sign of original middle angle
+        T sign = (angles(1) > 0) ? +1 : -1;
+        angles(0) += sign * pi;
+        angles(1) = sign * (pi - std::abs(angles(1)));
+        angles(2) += sign * pi;
+    }
+
+    // wrap all three back into (-pi, pi]
+    for (int i = 0; i < 3; ++i)
+    {
+        angles(i) = std::remainder(angles(i), tau);
+    }
+
+    return angles;
+}
 
 
 template<typename T>
@@ -255,7 +329,8 @@ struct RotationAnglesTemplates_
             using Eigen::Index;
 
             Vector angles = tau::ToDegrees(
-                rotation.eulerAngles(
+                CanonicalEuler(
+                    rotation,
                     static_cast<Index>(axisOrder_.first),
                     static_cast<Index>(axisOrder_.second),
                     static_cast<Index>(axisOrder_.third)));
@@ -314,25 +389,6 @@ struct RotationAnglesTemplates_
 
         }
     };
-
-
-    template<typename GroupBase>
-    struct Model: public GroupBase
-    {
-        Model()
-            :
-            GroupBase()
-        {
-            this->axisOrder.SetChoices(
-                {
-                    {2, 1, 0},
-                    {2, 0, 1},
-                    {1, 2, 0},
-                    {1, 0, 2},
-                    {0, 2, 1},
-                    {0, 1, 2}});
-        }
-    };
 };
 
 
@@ -355,7 +411,7 @@ DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<double>)
 
 
 template<typename T>
-using AnglesControl =
+using RotationAnglesControl =
     typename RotationAnglesGroup<T>::Control;
 
 

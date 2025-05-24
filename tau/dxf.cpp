@@ -19,6 +19,9 @@ Point3d<double> ImportPoint(std::istream &input)
         std::getline(input, label, '\n');
         std::getline(input, value, '\n');
 
+        label = jive::strings::Trim(label);
+        value = jive::strings::Trim(value);
+
         auto key = jive::ToInteger<int>(label);
 
         switch (key)
