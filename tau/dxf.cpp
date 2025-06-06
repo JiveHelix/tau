@@ -53,6 +53,11 @@ std::vector<Point3d<double>> ImportDxfPoints(const std::string &fileName)
 
     auto input = std::ifstream(fileName);
 
+    if (!input)
+    {
+        throw std::runtime_error("File cannot be opened");
+    }
+
     std::string line;
 
     while (input)
