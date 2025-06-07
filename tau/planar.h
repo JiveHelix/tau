@@ -80,21 +80,11 @@ public:
     {
         Value result{};
 
-#if defined _MSC_VER
-        // MSVC is confused by correct C++ syntax...
-        this->template Planar::GetValue_(
+        this->GetValue_(
             result,
             row,
             column,
             std::make_index_sequence<count>{});
-#else
-        // Clang and GCC are not
-        this->template GetValue_(
-            result,
-            row,
-            column,
-            std::make_index_sequence<count>{});
-#endif
 
         return result;
     }
@@ -103,21 +93,11 @@ public:
     {
         Eigen::Vector<T, int(count)> result;
 
-#if defined _MSC_VER
-        // MSVC is confused by correct C++ syntax...
-        this->template Planar::GetVector_(
+        this->GetVector_(
             result,
             row,
             column,
             std::make_index_sequence<count>{});
-#else
-        // Clang and GCC are not
-        this->template GetVector_(
-            result,
-            row,
-            column,
-            std::make_index_sequence<count>{});
-#endif
 
         return result;
     }
@@ -130,21 +110,11 @@ public:
     {
         Eigen::Vector<T, int(sizeof...(I))> result;
 
-#if defined _MSC_VER
-        // MSVC is confused by correct C++ syntax...
-        this->template Planar::GetVector_(
+        this->GetVector_(
             result,
             row,
             column,
             indices);
-#else
-        // Clang and GCC are not
-        this->template GetVector_(
-            result,
-            row,
-            column,
-            indices);
-#endif
 
         return result;
     }
@@ -380,15 +350,7 @@ public:
             result = Result(size, count);
         }
 
-#if defined _MSC_VER
-        // MSVC is confused by correct C++ syntax...
-        this->template Planar::Interleave_(
-            result,
-            std::make_index_sequence<count>{});
-#else
-        // Clang and GCC are not
-        this->template Interleave_(result, std::make_index_sequence<count>{});
-#endif
+        this->Interleave_(result, std::make_index_sequence<count>{});
 
         return result;
     }
@@ -401,28 +363,28 @@ public:
 
     Planar & operator *=(T scalar)
     {
-        return this->template MultiplyAssign_(
+        return this->MultiplyAssign_(
             std::make_index_sequence<count>{},
             scalar);
     }
 
     Planar & operator /=(T scalar)
     {
-        return this->template DivideAssign_(
+        return this->DivideAssign_(
             std::make_index_sequence<count>{},
             scalar);
     }
 
     Planar & operator +=(T scalar)
     {
-        return this->template AddAssign_(
+        return this->AddAssign_(
             std::make_index_sequence<count>{},
             scalar);
     }
 
     Planar & operator -=(T scalar)
     {
-        return this->template SubtractAssign_(
+        return this->SubtractAssign_(
             std::make_index_sequence<count>{},
             scalar);
     }
@@ -516,7 +478,7 @@ public:
     {
         Planar result;
 
-        result.template Zero_(std::make_index_sequence<count>{}, size);
+        result.Zero_(std::make_index_sequence<count>{}, size);
 
         return result;
     }
@@ -549,7 +511,7 @@ public:
 
         if constexpr (!std::is_same_v<T, U>)
         {
-            result.template AssignMiddle_(
+            result.AssignMiddle_(
                 std::make_index_sequence<count>{},
                 this->template Cast<U>(),
                 offsets.y,
@@ -557,7 +519,7 @@ public:
         }
         else
         {
-            result.template AssignMiddle_(
+            result.AssignMiddle_(
                 std::make_index_sequence<count>{},
                 *this,
                 offsets.y,
@@ -575,7 +537,7 @@ public:
 
     void Constrain(T minimum, T maximum)
     {
-        this->template Constrain_(
+        this->Constrain_(
             std::make_index_sequence<count>{},
             minimum,
             maximum);
