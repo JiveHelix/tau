@@ -29,6 +29,9 @@ struct RegionTemplate
     {
         V<Point2dGroup<T>> topLeft;
         V<SizeGroup<T>> size;
+
+        static constexpr auto fields = RegionFields<Template>::fields;
+        static constexpr auto fieldsTypeName = "Region";
     };
 };
 

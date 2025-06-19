@@ -723,6 +723,7 @@ struct HsvTemplate
         V<UnitRange<U>> value;
 
         static constexpr auto fields = HsvFields<MemberTemplate>::fields;
+        static constexpr auto fieldsTypeName = "Hsv";
     };
 };
 
@@ -775,6 +776,7 @@ struct HsvaTemplate
         V<UnitRange<U>> alpha;
 
         static constexpr auto fields = HsvaFields<MemberTemplate>::fields;
+        static constexpr auto fieldsTypeName = "Hsva";
     };
 };
 
