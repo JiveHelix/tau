@@ -87,10 +87,12 @@ struct Pixels
             pixelCount,
             static_cast<Eigen::Index>(componentCount));
 
+        assert(pixelCount > 0);
+
         std::memcpy(
             result.data.data(),
             initialData,
-            static_cast<size_t>(pixelCount * componentCount));
+            static_cast<size_t>(pixelCount) * componentCount);
 
         return result;
     }

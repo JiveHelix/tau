@@ -1,9 +1,12 @@
-from cmake_includes.conan import LibraryConanFile
+from conan import ConanFile
 
 
-class TauConan(LibraryConanFile):
+class TauConan(ConanFile):
     name = "tau"
     version = "1.11.0"
+
+    python_requires = "boiler/0.1"
+    python_requires_extend = "boiler.LibraryConanFile"
 
     license = "MIT"
     author = "Jive Helix (jivehelix@gmail.com)"
