@@ -185,12 +185,19 @@ struct Size
 
 
 template<typename T>
+struct SizeCustom
+{
+    using Plain = Size<T>;
+};
+
+
+template<typename T>
 using SizeGroup =
     pex::Group
     <
         SizeFields,
         SizeTemplate<T>::template Template,
-        pex::PlainT<Size<T>>
+        SizeCustom<T>
     >;
 
 
@@ -226,70 +233,70 @@ extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int8_t>::template Template,
-        pex::PlainT<tau::Size<int8_t>>
+        tau::SizeCustom<int8_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int16_t>::template Template,
-        pex::PlainT<tau::Size<int16_t>>
+        tau::SizeCustom<int16_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int32_t>::template Template,
-        pex::PlainT<tau::Size<int32_t>>
+        tau::SizeCustom<int32_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<int64_t>::template Template,
-        pex::PlainT<tau::Size<int64_t>>
+        tau::SizeCustom<int64_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint8_t>::template Template,
-        pex::PlainT<tau::Size<uint8_t>>
+        tau::SizeCustom<uint8_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint16_t>::template Template,
-        pex::PlainT<tau::Size<uint16_t>>
+        tau::SizeCustom<uint16_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint32_t>::template Template,
-        pex::PlainT<tau::Size<uint32_t>>
+        tau::SizeCustom<uint32_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<uint64_t>::template Template,
-        pex::PlainT<tau::Size<uint64_t>>
+        tau::SizeCustom<uint64_t>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<float>::template Template,
-        pex::PlainT<tau::Size<float>>
+        tau::SizeCustom<float>
     >;
 
 extern template struct Group
     <
         tau::SizeFields,
         tau::SizeTemplate<double>::template Template,
-        pex::PlainT<tau::Size<double>>
+        tau::SizeCustom<double>
     >;
 
 

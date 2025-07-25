@@ -749,6 +749,23 @@ struct Hsv: public HsvTemplate<T>::template MemberTemplate<pex::Identity>
 };
 
 
+template<typename T>
+struct HsvCustom
+{
+    using Plain = Hsv<T>;
+};
+
+
+template<typename T>
+using HsvGroup =
+    pex::Group
+    <
+        HsvFields,
+        HsvTemplate<T>::template MemberTemplate,
+        HsvCustom<T>
+    >;
+
+
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<float>)
 DECLARE_OUTPUT_STREAM_OPERATOR(Hsv<double>)
 DECLARE_COMPARISON_OPERATORS(Hsv<float>)
@@ -962,15 +979,6 @@ struct HasAlpha_<Color, decltype((void)Color::alpha, 0)>: std::true_type {};
 template<typename Color>
 inline constexpr bool HasAlpha = HasAlpha_<Color>::value;
 
-
-template<typename T>
-using HsvGroup =
-    pex::Group
-    <
-        HsvFields,
-        HsvTemplate<T>::template MemberTemplate,
-        pex::PlainT<Hsv<T>>
-    >;
 
 
 template<typename T>

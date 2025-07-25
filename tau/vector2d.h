@@ -225,13 +225,53 @@ TEMPLATE_OUTPUT_STREAM(Vector2d)
 
 
 template<typename T>
+struct Vector2dCustom
+{
+    using Plain = Vector2d<T>;
+
+    template<typename Base>
+    struct Control: public Base
+    {
+        using Base::Base;
+
+        Control()
+            :
+            Base{}
+        {
+            REGISTER_PEX_NAME(this, "Vector2dControl");
+        }
+    };
+};
+
+
+template<typename T>
 using Vector2dGroup =
     pex::Group
     <
         Vector2dFields,
         Vector2dTemplate<T>::template Template,
-        pex::PlainT<Vector2d<T>>
+        Vector2dCustom<T>
     >;
+
+
+template<typename T>
+struct Point2dCustom
+{
+    using Plain = Point2d<T>;
+
+    template<typename Base>
+    struct Control: public Base
+    {
+        using Base::Base;
+
+        Control()
+            :
+            Base{}
+        {
+            REGISTER_PEX_NAME(this, "Vector2dControl");
+        }
+    };
+};
 
 
 template<typename T>
@@ -240,7 +280,7 @@ using Point2dGroup =
     <
         Vector2dFields,
         Vector2dTemplate<T>::template Template,
-        pex::PlainT<Point2d<T>>
+        Point2dCustom<T>
     >;
 
 
