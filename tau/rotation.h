@@ -346,6 +346,19 @@ struct RotationAnglesTemplates_
             return Plain(this->GetRotation(), axisOrder);
         }
 
+        bool operator==(const Plain &other) const
+        {
+            // The same rotation matrix can be represented by different
+            // combinations of rotation angles.
+
+            return this->GetRotation().isApprox(other.GetRotation());
+        }
+
+        bool operator!=(const Plain &other) const
+        {
+            return !this->operator==(other);
+        }
+
         T & operator()(size_t axis)
         {
             switch (axis)

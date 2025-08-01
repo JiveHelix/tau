@@ -288,4 +288,10 @@ Eigen::Index Csv::GetColumnCount() const
 }
 
 
+bool Csv::HasKey(const std::string &key) const
+{
+    return this->headerMap_.count(key) == 1;
+}
+
+
 } // end namespace tau

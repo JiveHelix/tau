@@ -238,7 +238,7 @@ struct Vector2dCustom
             :
             Base{}
         {
-            REGISTER_PEX_NAME(this, "Vector2dControl");
+            PEX_NAME("Vector2dControl");
         }
     };
 };
@@ -268,7 +268,7 @@ struct Point2dCustom
             :
             Base{}
         {
-            REGISTER_PEX_NAME(this, "Vector2dControl");
+            PEX_NAME("Vector2dControl");
         }
     };
 };

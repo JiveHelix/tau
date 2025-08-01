@@ -7,6 +7,7 @@
 #include <jive/zip_apply.h>
 #include <jive/constexpr_shim.h>
 #include <jive/overflow.h>
+#include <jive/comparison_operators.h>
 
 #include "tau/eigen.h"
 
@@ -507,12 +508,14 @@ struct BasicArithmetic
     }
 
     friend bool operator==(const This &left, const This &right)
+        requires (!jive::HasMemberEqualTo<This>)
     {
         return fields::ComparisonTuple(left)
             == fields::ComparisonTuple(right);
     }
 
     friend bool operator!=(const This &left, const This &right)
+        requires (!jive::HasMemberNotEqualTo<This>)
     {
         return fields::ComparisonTuple(left)
             != fields::ComparisonTuple(right);
@@ -524,24 +527,28 @@ struct BasicArithmetic
     */
 
     friend bool operator<(const This &left, const This &right)
+        requires (!jive::HasMemberLess<This>)
     {
         return fields::ComparisonTuple(left)
             < fields::ComparisonTuple(right);
     }
 
     friend bool operator>(const This &left, const This &right)
+        requires (!jive::HasMemberGreater<This>)
     {
         return fields::ComparisonTuple(left)
             > fields::ComparisonTuple(right);
     }
 
     friend bool operator<=(const This &left, const This &right)
+        requires (!jive::HasMemberLessEqual<This>)
     {
         return fields::ComparisonTuple(left)
             <= fields::ComparisonTuple(right);
     }
 
     friend bool operator>=(const This &left, const This &right)
+        requires (!jive::HasMemberGreaterEqual<This>)
     {
         return fields::ComparisonTuple(left)
             >= fields::ComparisonTuple(right);

@@ -66,6 +66,7 @@ TEMPLATE_TEST_CASE("Rotation about X", "[rotation]", float, double)
     REQUIRE(expected.isApprox(rotated));
 }
 
+
 TEMPLATE_TEST_CASE("Rotation about Y", "[rotation]", float, double)
 {
     using C = Constants<TestType>;
@@ -75,6 +76,7 @@ TEMPLATE_TEST_CASE("Rotation about Y", "[rotation]", float, double)
 
     REQUIRE(expected.isApprox(rotated));
 }
+
 
 TEMPLATE_TEST_CASE("Rotation about Z", "[rotation]", float, double)
 {
@@ -201,6 +203,7 @@ TEMPLATE_TEST_CASE(
     Vector3<TestType> swapped = p.transpose() * rotation;
     REQUIRE(swapped.isApprox(steppedSwapped));
 }
+
 
 /*
 TEMPLATE_TEST_CASE(

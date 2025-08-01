@@ -195,6 +195,8 @@ public:
 
     Index GetColumnCount() const;
 
+    bool HasKey(const std::string &key) const;
+
 private:
     std::vector<std::string> headers_;
     std::unordered_map<std::string, Index> headerMap_;
