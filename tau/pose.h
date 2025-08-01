@@ -19,9 +19,7 @@ struct PoseFields
 {
     static constexpr auto fields = std::make_tuple(
         fields::Field(&T::rotation, "rotation"),
-        fields::Field(&T::x_m, "x_m"),
-        fields::Field(&T::y_m, "y_m"),
-        fields::Field(&T::z_m, "z_m"));
+        fields::Field(&T::point_m, "point_m"));
 };
 
 
@@ -32,9 +30,7 @@ struct PoseTemplate
     struct Template
     {
         T<RotationAnglesGroup<Float>> rotation;
-        T<Float> x_m;
-        T<Float> y_m;
-        T<Float> z_m;
+        T<Point3dGroup<Float>> point_m;
 
         static constexpr auto fields = PoseFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Pose";
@@ -76,30 +72,29 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 
     Pose()
         :
-        Base{
-            RotationAngles<T>(),
-            {},
-            {},
-            {}}
+        Base{RotationAngles<T>(), {}}
     {
 
     }
 
-    Pose(const RotationAngles<T> &rotation_, T x_m_, T y_m_, T z_m_)
+    Pose(const RotationAngles<T> &rotation_, const Point3d<T> &point_m_)
+        :
+        Base{rotation_, point_m_}
+    {
+
+    }
+
+    Pose(const RotationAngles<T> &rotation_, T x_m, T y_m, T z_m)
         :
         Base{
-            rotation_,
-            x_m_,
-            y_m_,
-            z_m_}
+            rotation_, {x_m, y_m, z_m}}
     {
 
     }
 
     Vector3<T> GetTranslation_m() const
     {
-        return Vector3<T>{
-            {this->x_m, this->y_m, this->z_m}};
+        return this->point_m.ToEigen();
     }
 
     Vector3<T> GetTranslation_pixels(const Intrinsics<T> &intrinsics) const
@@ -152,7 +147,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 
     Point3d<T> GetPosition_m() const
     {
-        return {this->x_m, this->y_m, this->z_m};
+        return this->point_m;
     }
 
     Point3d<T> GetPosition_pixels(const Intrinsics<T> &intrinsics) const

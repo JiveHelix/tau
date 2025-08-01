@@ -76,7 +76,7 @@ TEST_CASE("Pose shifted projection", "[pose]")
     // At origin, no rotation.
     // Camera is is facing the x-axis
     auto pose = tau::Pose<float>();
-    pose.y_m = 2_f;
+    pose.point_m.y = 2_f;
 
     auto projection = tau::Projection<float>(intrinsics, pose);
 
@@ -98,15 +98,7 @@ TEST_CASE("Pose rotated projection", "[pose]")
         1080_f / 2_f,
         0}};
 
-    auto pose = tau::Pose<float>(
-        {
-            45_f,
-            0_f,
-            0_f},
-        0_f,
-        0_f,
-        0_f);
-
+    auto pose = tau::Pose<float>({45_f, 0_f, 0_f}, {});
     auto projection = tau::Projection<float>(intrinsics, pose);
 
     auto pixel = Pixel{1920_f / 2_f, 1080_f / 2_f};

@@ -51,7 +51,7 @@ TEST_CASE("Shifted world to Camera", "[projection]")
     auto noShift = tau::Pose<float>{};
 
     auto pose = tau::Pose<float>{};
-    pose.y_m = 1.0_f;
+    pose.point_m.y = 1.0_f;
 
     tau::Vector3<float> world(5.0_f, 0.0_f, 0.0_f);
     tau::Projection noShiftProjection(intrinsics, noShift);
