@@ -263,9 +263,9 @@ TEST_CASE("Simple swap rotation order", "[rotation]")
     auto recoveredYawPitchRoll =
         TestAngles(pitchYawRoll.GetRotation(), tau::AxisOrder{2, 1, 0});
 
-    REQUIRE(jive::Roughly(recoveredYawPitchRoll.yaw, 1e-4) == thetaZ);
-    REQUIRE(jive::Roughly(recoveredYawPitchRoll.pitch, 1e-4) == thetaY);
-    REQUIRE(jive::Roughly(recoveredYawPitchRoll.roll, 1e-4) == thetaX);
+    REQUIRE(jive::Roughly(recoveredYawPitchRoll.yaw_deg, 1e-4) == thetaZ);
+    REQUIRE(jive::Roughly(recoveredYawPitchRoll.pitch_deg, 1e-4) == thetaY);
+    REQUIRE(jive::Roughly(recoveredYawPitchRoll.roll_deg, 1e-4) == thetaX);
 }
 
 

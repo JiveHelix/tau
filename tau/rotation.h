@@ -196,9 +196,9 @@ template<typename T>
 struct RotationAnglesFields
 {
     static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::yaw, "yaw"),
-        fields::Field(&T::pitch, "pitch"),
-        fields::Field(&T::roll, "roll"),
+        fields::Field(&T::yaw_deg, "yaw_deg", "yaw"),
+        fields::Field(&T::pitch_deg, "pitch_deg", "pitch"),
+        fields::Field(&T::roll_deg, "roll_deg", "roll"),
         fields::Field(&T::axisOrder, "axisOrder"));
 };
 
@@ -223,9 +223,10 @@ struct RotationAnglesTemplate
     template<template<typename> typename T>
     struct Template
     {
-        T<AngleRange> yaw;
-        T<AngleRange> pitch;
-        T<AngleRange> roll;
+        // Rotation angles in degrees.
+        T<AngleRange> yaw_deg;
+        T<AngleRange> pitch_deg;
+        T<AngleRange> roll_deg;
         T<pex::MakeSelect<AxisOrderChoices>> axisOrder;
 
         static constexpr auto fields = RotationAnglesFields<Template>::fields;
@@ -364,13 +365,13 @@ struct RotationAnglesTemplates_
             switch (axis)
             {
                 case 0:
-                    return this->roll;
+                    return this->roll_deg;
 
                 case 1:
-                    return this->pitch;
+                    return this->pitch_deg;
 
                 case 2:
-                    return this->yaw;
+                    return this->yaw_deg;
 
                 default:
                     throw RotationError("out of bounds index");
@@ -471,9 +472,9 @@ RotationMatrix<T> MakeYxz(T y_deg, T x_deg, T z_deg)
  *      Z up (yaw axis)
  */
 template<typename T>
-RotationMatrix<T> MakeYawPitchRoll(T yaw, T pitch, T roll)
+RotationMatrix<T> MakeYawPitchRoll(T yaw_deg, T pitch_deg, T roll_deg)
 {
-    return MakeIntrinsic<2, 1, 0>(yaw, pitch, roll);
+    return MakeIntrinsic<2, 1, 0>(yaw_deg, pitch_deg, roll_deg);
 }
 
 
@@ -483,9 +484,9 @@ RotationMatrix<T> MakeYawPitchRoll(T yaw, T pitch, T roll)
  *      Z up (yaw axis)
  */
 template<typename T>
-RotationMatrix<T> MakePitchYawRoll(T pitch, T yaw, T roll)
+RotationMatrix<T> MakePitchYawRoll(T pitch_deg, T yaw_deg, T roll_deg)
 {
-    return MakeIntrinsic<1, 2, 0>(pitch, yaw, roll);
+    return MakeIntrinsic<1, 2, 0>(pitch_deg, yaw_deg, roll_deg);
 }
 
 
