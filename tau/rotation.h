@@ -12,6 +12,22 @@
 #include "tau/arithmetic.h"
 
 
+/*
+ * Right-handed rotation matrices for column-vector convention (v' = R * v).
+ * Positive angles follow the right-hand rule.
+ *
+ * MakeAxial_deg<0/1/2>() produces canonical X/Y/Z axis rotations.
+ *
+ * To perform WORLD rotations on a basis (about world axes), pre-multiply:
+ *      RotationMatrix rotated = MakeAxial_deg<2>(-37.0) * basis;
+ *
+ * To perform LOCAL rotations on a basis (about its own axes), post-multiply:
+ *      RotationMatrix rotated = basis * MakeAxial_deg<1>(45.0);
+ *
+ * To rotate a world vector v -37 degrees about world Z:
+ *      Eigen::Vector<double, 3> rotated = MakeAxial_deg<2>(-37.0) * v;
+ */
+
 namespace tau
 {
 
