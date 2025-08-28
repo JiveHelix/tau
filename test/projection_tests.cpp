@@ -12,6 +12,7 @@ TEST_CASE("Camera to World to Camera round trip.", "[projection]")
     auto intrinsics = tau::Intrinsics<float>{};
 
     tau::Pose<float> pose(
+        tau::PixelOrigin::topLeft,
         {
             -10_f, // rotation about x
             13.0_f, //  rotation about y

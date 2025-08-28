@@ -30,6 +30,7 @@ target_sources(
     csv.cpp
     dxf.cpp
     line2d.cpp
+    pixel_origin.cpp
     pose.cpp
     rotation.cpp
     scale.cpp

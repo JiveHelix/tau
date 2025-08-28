@@ -505,7 +505,7 @@ RotationMatrix<T> MakePitchYawRoll(T pitch_deg, T yaw_deg, T roll_deg)
     return MakeIntrinsic<1, 2, 0>(pitch_deg, yaw_deg, roll_deg);
 }
 
-
+#if 0
 /* The rotation of the sensor axes relative to the world axes */
 template<typename T>
 RotationMatrix<T> SensorRelativeToWorld()
@@ -533,6 +533,7 @@ RotationMatrix<T> WorldRelativeToSensor()
         static_cast<T>(-90),
         static_cast<T>(0));
 }
+#endif
 
 
 } // namespace tau

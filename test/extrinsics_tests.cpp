@@ -98,7 +98,11 @@ TEST_CASE("Pose rotated projection", "[pose]")
         1080_f / 2_f,
         0}};
 
-    auto pose = tau::Pose<float>({45_f, 0_f, 0_f}, {});
+    auto pose = tau::Pose<float>(
+        tau::PixelOrigin::topRight,
+        {45_f, 0_f, 0_f},
+        {});
+
     auto projection = tau::Projection<float>(intrinsics, pose);
 
     auto pixel = Pixel{1920_f / 2_f, 1080_f / 2_f};

@@ -8,6 +8,7 @@
 #include "tau/vector3d.h"
 #include "tau/intrinsics.h"
 #include "tau/rotation.h"
+#include <tau/pixel_origin.h>
 
 
 namespace tau
@@ -18,6 +19,7 @@ template<typename T>
 struct PoseFields
 {
     static constexpr auto fields = std::make_tuple(
+        fields::Field(&T::pixelOrigin, "pixelOrigin"),
         fields::Field(&T::rotation, "rotation"),
         fields::Field(&T::point_m, "point_m"));
 };
@@ -29,6 +31,7 @@ struct PoseTemplate
     template<template<typename> typename T>
     struct Template
     {
+        T<PixelOrigin> pixelOrigin;
         T<RotationAnglesGroup<Float>> rotation;
         T<Point3dGroup<Float>> point_m;
 
@@ -72,22 +75,32 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 
     Pose()
         :
-        Base{RotationAngles<T>(), {}}
+        Base{{}, RotationAngles<T>(), {}}
     {
 
     }
 
-    Pose(const RotationAngles<T> &rotation_, const Point3d<T> &point_m_)
+    Pose(
+        PixelOrigin pixelOrigin,
+        const RotationAngles<T> &rotation_,
+        const Point3d<T> &point_m_)
         :
-        Base{rotation_, point_m_}
+        Base{pixelOrigin, rotation_, point_m_}
     {
 
     }
 
-    Pose(const RotationAngles<T> &rotation_, T x_m, T y_m, T z_m)
+    Pose(
+        PixelOrigin pixelOrigin,
+        const RotationAngles<T> &rotation_,
+        T x_m,
+        T y_m,
+        T z_m)
         :
         Base{
-            rotation_, {x_m, y_m, z_m}}
+            pixelOrigin,
+            rotation_,
+            {x_m, y_m, z_m}}
     {
 
     }
@@ -105,7 +118,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
     RotationMatrix<T> GetRotation() const
     {
         return this->rotation.GetRotation()
-            * SensorRelativeToWorld<T>();
+            * SensorRelativeToWorld<T>(this->pixelOrigin);
     }
 
     auto GetArray_pixels(const Intrinsics<T> &intrinsics) const
