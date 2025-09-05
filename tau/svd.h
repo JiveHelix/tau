@@ -2,7 +2,7 @@
 
 
 #include <iostream>
-#include <Eigen/Dense>
+#include <tau/eigen_shim.h>
 #include <jive/equal.h>
 #include <tau/error.h>
 

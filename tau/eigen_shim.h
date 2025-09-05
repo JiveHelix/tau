@@ -13,6 +13,16 @@
 #define EIGEN_SHIM_POP_IGNORES \
     __pragma(warning(pop))
 
+#elif __GNUC__ == 13 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ == 0
+
+#define EIGEN_SHIM_PUSH_IGNORES \
+    _Pragma("GCC diagnostic push") \
+    _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+    _Pragma("GCC diagnostic ignored \"-Wnull-dereference\"")
+
+#define EIGEN_SHIM_POP_IGNORES \
+    _Pragma("GCC diagnostic pop")
+
 #else
 
 #define EIGEN_SHIM_PUSH_IGNORES

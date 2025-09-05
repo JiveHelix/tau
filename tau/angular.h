@@ -14,6 +14,12 @@ template<typename T, typename Lines>
 static T GetAverageAngleRadians(const Lines &lines)
 {
     auto lineCount = static_cast<Eigen::Index>(lines.size());
+
+    if (!lineCount)
+    {
+        throw std::runtime_error("lines must not be empty");
+    }
+
     Eigen::VectorX<T> angles(lineCount);
 
     for (Eigen::Index i = 0; i < lineCount; ++i)
@@ -34,7 +40,9 @@ static T GetAverageAngleRadians(const Lines &lines)
     // All points are expected to be close to a line.
     // If that line is close to 0/180, averaging 179 with 1 will not yield
     // the expected result.
+    EIGEN_SHIM_PUSH_IGNORES
     T first = shiftedAngles(0);
+    EIGEN_SHIM_POP_IGNORES
 
     if (first < (pi / 4) || first > (3 * pi / 4))
     {

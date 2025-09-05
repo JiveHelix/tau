@@ -81,24 +81,24 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
     }
 
     Pose(
-        PixelOrigin pixelOrigin,
+        PixelOrigin pixelOrigin_,
         const RotationAngles<T> &rotation_,
         const Point3d<T> &point_m_)
         :
-        Base{pixelOrigin, rotation_, point_m_}
+        Base{pixelOrigin_, rotation_, point_m_}
     {
 
     }
 
     Pose(
-        PixelOrigin pixelOrigin,
+        PixelOrigin pixelOrigin_,
         const RotationAngles<T> &rotation_,
         T x_m,
         T y_m,
         T z_m)
         :
         Base{
-            pixelOrigin,
+            pixelOrigin_,
             rotation_,
             {x_m, y_m, z_m}}
     {
