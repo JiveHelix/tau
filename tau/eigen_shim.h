@@ -1,7 +1,8 @@
 #pragma once
 
+#include <jive/compiler.h>
 
-#if defined _WIN32 && !(defined __MINGW32__ || defined __MINGW64__)
+#if defined(MSC_COMPILER)
 
 #define EIGEN_SHIM_PUSH_IGNORES \
     __pragma(warning(push)) \
@@ -13,7 +14,7 @@
 #define EIGEN_SHIM_POP_IGNORES \
     __pragma(warning(pop))
 
-#elif __GNUC__ == 13 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ == 0
+#elif defined(GCC_COMPILER)
 
 #define EIGEN_SHIM_PUSH_IGNORES \
     _Pragma("GCC diagnostic push") \
