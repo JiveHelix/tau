@@ -99,7 +99,6 @@ TEST_CASE("Pose rotated projection", "[pose]")
         0}};
 
     auto pose = tau::Pose<float>(
-        tau::PixelOrigin::topRight,
         {45_f, 0_f, 0_f},
         {});
 

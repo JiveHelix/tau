@@ -299,7 +299,7 @@ template<typename T>
 using IntrinsicsModel = typename IntrinsicsGroup<T>::Model;
 
 template<typename T>
-using IntrinsicsControl = typename IntrinsicsGroup<T>::Control;
+using IntrinsicsControl = typename IntrinsicsGroup<T>::DefaultControl;
 
 
 } // end namespace tau

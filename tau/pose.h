@@ -19,7 +19,6 @@ template<typename T>
 struct PoseFields
 {
     static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::pixelOrigin, "pixelOrigin"),
         fields::Field(&T::rotation, "rotation"),
         fields::Field(&T::point_m, "point_m"));
 };
@@ -31,7 +30,6 @@ struct PoseTemplate
     template<template<typename> typename T>
     struct Template
     {
-        T<PixelOrigin> pixelOrigin;
         T<RotationAnglesGroup<Float>> rotation;
         T<Point3dGroup<Float>> point_m;
 
@@ -67,38 +65,35 @@ using Extrinsic = Eigen::Matrix<T, 4, 4>;
  ** at the origin from the positive X axis.
  **
  **/
-template<typename T>
-struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
+template<typename T, PixelOrigin pixelOrigin>
+struct Pose_: public PoseTemplate<T>::template Template<pex::Identity>
 {
     static constexpr auto version = jive::Version<uint8_t>(1, 0, 0);
     using Base = typename PoseTemplate<T>::template Template<pex::Identity>;
 
-    Pose()
+    Pose_()
         :
-        Base{{}, RotationAngles<T>(), {}}
+        Base{RotationAngles<T>(), {}}
     {
 
     }
 
-    Pose(
-        PixelOrigin pixelOrigin_,
+    Pose_(
         const RotationAngles<T> &rotation_,
         const Point3d<T> &point_m_)
         :
-        Base{pixelOrigin_, rotation_, point_m_}
+        Base{rotation_, point_m_}
     {
 
     }
 
-    Pose(
-        PixelOrigin pixelOrigin_,
+    Pose_(
         const RotationAngles<T> &rotation_,
         T x_m,
         T y_m,
         T z_m)
         :
         Base{
-            pixelOrigin_,
             rotation_,
             {x_m, y_m, z_m}}
     {
@@ -118,7 +113,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
     RotationMatrix<T> GetRotation() const
     {
         return this->rotation.GetRotation()
-            * SensorRelativeToWorld<T>(this->pixelOrigin);
+            * ImageRelativeToWorld<T>(pixelOrigin);
     }
 
     auto GetArray_pixels(const Intrinsics<T> &intrinsics) const
@@ -169,7 +164,7 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
         return intrinsics.MetersToPixels(position);
     }
 
-    static Pose Deserialize(const std::string &asString)
+    static Pose_ Deserialize(const std::string &asString)
     {
         auto unstructured = nlohmann::json::parse(asString);
         auto fileVersion = jive::Version<uint8_t>(unstructured["version"]);
@@ -180,22 +175,28 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
             throw std::runtime_error("Incompatible file version");
         }
 
-        return fields::Structure<Pose>(unstructured);
+        return fields::Structure<Pose_>(unstructured);
     }
 
     std::string Serialize() const
     {
         auto unstructured = fields::Unstructure<nlohmann::json>(*this);
-        unstructured["version"] = Pose::version.ToString();
+        unstructured["version"] = Pose_::version.ToString();
         return unstructured.dump(4);
     }
 
     template<typename U, typename Style = Round>
-    Pose<U> Cast() const
+    Pose_<U, pixelOrigin> Cast() const
     {
-        return CastFields<Pose<U>, U, Style>(*this);
+        return CastFields<Pose_<U, pixelOrigin>, U, Style>(*this);
     }
 };
+
+
+// Default position of pixel (0,0) is bottom left of sensor array.
+// Top-left of image plane.
+template<typename Float>
+using Pose = Pose_<Float, PixelOrigin::bottomLeft>;
 
 
 TEMPLATE_OUTPUT_STREAM(Pose)
@@ -215,11 +216,11 @@ template<typename T>
 using PoseModel = typename PoseGroup<T>::Model;
 
 template<typename T>
-using PoseControl = typename PoseGroup<T>::Control;
+using PoseControl = typename PoseGroup<T>::DefaultControl;
 
 
-extern template struct Pose<float>;
-extern template struct Pose<double>;
+extern template struct Pose_<float, PixelOrigin::bottomLeft>;
+extern template struct Pose_<double, PixelOrigin::bottomLeft>;
 
 
 } // end namespace tau

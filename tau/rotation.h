@@ -442,7 +442,7 @@ DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<double>)
 
 template<typename T>
 using RotationAnglesControl =
-    typename RotationAnglesGroup<T>::Control;
+    typename RotationAnglesGroup<T>::DefaultControl;
 
 
 template<typename T>
