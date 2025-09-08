@@ -65,20 +65,20 @@ using Extrinsic = Eigen::Matrix<T, 4, 4>;
  ** at the origin from the positive X axis.
  **
  **/
-template<typename T, PixelOrigin pixelOrigin>
-struct Pose_: public PoseTemplate<T>::template Template<pex::Identity>
+template<typename T>
+struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
 {
     static constexpr auto version = jive::Version<uint8_t>(1, 0, 0);
     using Base = typename PoseTemplate<T>::template Template<pex::Identity>;
 
-    Pose_()
+    Pose()
         :
         Base{RotationAngles<T>(), {}}
     {
 
     }
 
-    Pose_(
+    Pose(
         const RotationAngles<T> &rotation_,
         const Point3d<T> &point_m_)
         :
@@ -87,7 +87,7 @@ struct Pose_: public PoseTemplate<T>::template Template<pex::Identity>
 
     }
 
-    Pose_(
+    Pose(
         const RotationAngles<T> &rotation_,
         T x_m,
         T y_m,
@@ -110,7 +110,8 @@ struct Pose_: public PoseTemplate<T>::template Template<pex::Identity>
         return intrinsics.MetersToPixels(this->GetTranslation_m());
     }
 
-    RotationMatrix<T> GetRotation() const
+    RotationMatrix<T> GetRotation(
+        PixelOrigin pixelOrigin = PixelOrigin::bottomLeft) const
     {
         return this->rotation.GetRotation()
             * ImageRelativeToWorld<T>(pixelOrigin);
@@ -164,7 +165,7 @@ struct Pose_: public PoseTemplate<T>::template Template<pex::Identity>
         return intrinsics.MetersToPixels(position);
     }
 
-    static Pose_ Deserialize(const std::string &asString)
+    static Pose Deserialize(const std::string &asString)
     {
         auto unstructured = nlohmann::json::parse(asString);
         auto fileVersion = jive::Version<uint8_t>(unstructured["version"]);
@@ -175,28 +176,22 @@ struct Pose_: public PoseTemplate<T>::template Template<pex::Identity>
             throw std::runtime_error("Incompatible file version");
         }
 
-        return fields::Structure<Pose_>(unstructured);
+        return fields::Structure<Pose>(unstructured);
     }
 
     std::string Serialize() const
     {
         auto unstructured = fields::Unstructure<nlohmann::json>(*this);
-        unstructured["version"] = Pose_::version.ToString();
+        unstructured["version"] = Pose::version.ToString();
         return unstructured.dump(4);
     }
 
     template<typename U, typename Style = Round>
-    Pose_<U, pixelOrigin> Cast() const
+    Pose<U> Cast() const
     {
-        return CastFields<Pose_<U, pixelOrigin>, U, Style>(*this);
+        return CastFields<Pose<U>, U, Style>(*this);
     }
 };
-
-
-// Default position of pixel (0,0) is bottom left of sensor array.
-// Top-left of image plane.
-template<typename Float>
-using Pose = Pose_<Float, PixelOrigin::bottomLeft>;
 
 
 TEMPLATE_OUTPUT_STREAM(Pose)
@@ -219,8 +214,8 @@ template<typename T>
 using PoseControl = typename PoseGroup<T>::DefaultControl;
 
 
-extern template struct Pose_<float, PixelOrigin::bottomLeft>;
-extern template struct Pose_<double, PixelOrigin::bottomLeft>;
+extern template struct Pose<float>;
+extern template struct Pose<double>;
 
 
 } // end namespace tau

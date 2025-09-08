@@ -305,7 +305,7 @@ template<typename T>
 struct RotationAnglesTemplates_
 {
     template<typename Base>
-    struct Plain: public Base, public BasicArithmetic<T, Plain<Base>>
+    struct Plain: public Base // , public BasicArithmetic<T, Plain<Base>>
     {
         // 0: roll (about x)
         // 1: pitch (about y)
@@ -418,6 +418,54 @@ struct RotationAnglesTemplates_
             return CastFields<Result, U, Style>(*this);
 
         }
+
+        Plain Difference(const Plain &other) const
+        {
+            Plain corrected;
+
+            if (other.axisOrder != this->axisOrder)
+            {
+                corrected = Plain(other.GetRotation(), this->axisOrder);
+            }
+            else
+            {
+                corrected = other;
+            }
+
+            Plain result(*this);
+
+            result.yaw_deg -= other.yaw_deg;
+            result.pitch_deg -= other.pitch_deg;
+            result.roll_deg -= other.roll_deg;
+
+            // Pass the resulting matrix back through the constructor to make
+            // the angle ranges canonical.
+            return Plain(result.GetRotation(), this->axisOrder);
+        }
+
+        Plain Sum(const Plain &other) const
+        {
+            Plain corrected;
+
+            if (other.axisOrder != this->axisOrder)
+            {
+                corrected = Plain(other.GetRotation(), this->axisOrder);
+            }
+            else
+            {
+                corrected = other;
+            }
+
+            Plain result(*this);
+
+            result.yaw_deg += other.yaw_deg;
+            result.pitch_deg += other.pitch_deg;
+            result.roll_deg += other.roll_deg;
+
+            // Pass the resulting matrix back through the constructor to make
+            // the angle ranges canonical.
+            return Plain(result.GetRotation(), this->axisOrder);
+        }
     };
 };
 
@@ -438,6 +486,25 @@ using RotationAngles = typename RotationAnglesGroup<T>::Plain;
 
 DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<float>)
 DECLARE_OUTPUT_STREAM_OPERATOR(RotationAngles<double>)
+
+
+RotationAngles<float> operator+(
+    const RotationAngles<float> &left,
+    const RotationAngles<float> &right);
+
+
+RotationAngles<float> operator-(
+    const RotationAngles<float> &left,
+    const RotationAngles<float> &right);
+
+RotationAngles<double> operator+(
+    const RotationAngles<double> &left,
+    const RotationAngles<double> &right);
+
+
+RotationAngles<double> operator-(
+    const RotationAngles<double> &left,
+    const RotationAngles<double> &right);
 
 
 template<typename T>
@@ -504,36 +571,6 @@ RotationMatrix<T> MakePitchYawRoll(T pitch_deg, T yaw_deg, T roll_deg)
 {
     return MakeIntrinsic<1, 2, 0>(pitch_deg, yaw_deg, roll_deg);
 }
-
-#if 0
-/* The rotation of the sensor axes relative to the world axes */
-template<typename T>
-RotationMatrix<T> SensorRelativeToWorld()
-{
-    // To move from world coordinates to sensor coordinates:
-    // Yaw is -90
-    // Pitch is 0
-    // Roll is -90
-    return MakeYawPitchRoll(
-        static_cast<T>(-90),
-        static_cast<T>(0),
-        static_cast<T>(-90));
-}
-
-/* The rotation of the world axes relative to the sensor axes */
-template<typename T>
-RotationMatrix<T> WorldRelativeToSensor()
-{
-    // To move from sensor coordinates to world coordinates:
-    // Yaw is 90
-    // Pitch is -90
-    // Roll is 0
-    return MakeYawPitchRoll(
-        static_cast<T>(90),
-        static_cast<T>(-90),
-        static_cast<T>(0));
-}
-#endif
 
 
 } // namespace tau

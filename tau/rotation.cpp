@@ -63,6 +63,39 @@ std::ostream & operator<<(
 }
 
 
+RotationAngles<float> operator+(
+    const RotationAngles<float> &left,
+    const RotationAngles<float> &right)
+{
+    return left.Sum(right);
+}
+
+
+RotationAngles<float> operator-(
+    const RotationAngles<float> &left,
+    const RotationAngles<float> &right)
+{
+    return left.Difference(right);
+}
+
+
+RotationAngles<double> operator+(
+    const RotationAngles<double> &left,
+    const RotationAngles<double> &right)
+{
+    return left.Sum(right);
+}
+
+
+RotationAngles<double> operator-(
+    const RotationAngles<double> &left,
+    const RotationAngles<double> &right)
+{
+    return left.Difference(right);
+}
+
+
+
 } // namespace tau
 
 

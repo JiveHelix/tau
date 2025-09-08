@@ -5,8 +5,8 @@ namespace tau
 {
 
 
-template struct Pose_<float, PixelOrigin::bottomLeft>;
-template struct Pose_<double, PixelOrigin::bottomLeft>;
+template struct Pose<float>;
+template struct Pose<double>;
 
 
 } // end namespace tau
