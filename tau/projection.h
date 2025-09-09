@@ -154,12 +154,12 @@ private:
     Eigen::Matrix<T, 4, 4> worldToCamera_;
     Eigen::Matrix<T, 3, 3> cameraToWorld_;
 
+public:
     static constexpr auto fields = std::make_tuple(
         fields::Field(&Projection::intrinsics_, "intrinsics"),
         fields::Field(&Projection::pose_, "pose"),
         fields::Field(&Projection::worldToCamera_, "worldToCamera"),
         fields::Field(&Projection::cameraToWorld_, "cameraToWorld"));
-
 
 };
 
