@@ -3,7 +3,7 @@ from conan import ConanFile
 
 class TauConan(ConanFile):
     name = "tau"
-    version = "1.12.1"
+    version = "1.12.2"
 
     python_requires = "boiler/0.1"
     python_requires_extend = "boiler.LibraryConanFile"

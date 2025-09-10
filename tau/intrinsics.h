@@ -29,6 +29,11 @@ public:
 
     }
 
+    T GetPixelSize_um() const
+    {
+        return this->pixelSize_um_;
+    }
+
     PixelConvert(T pixelSize_um)
         :
         pixelSize_um_(pixelSize_um)
@@ -133,8 +138,6 @@ struct Intrinsics:
     using Base =
         typename IntrinsicsTemplate<T>::template Template<pex::Identity>;
 
-    PixelConvert<T> pixelConvert;
-
     static constexpr auto version = jive::Version<uint8_t>(1, 0, 0);
     static constexpr auto millimetersPerMeter = static_cast<T>(1e3);
 
@@ -149,40 +152,46 @@ struct Intrinsics:
                 static_cast<T>(25),
                 static_cast<T>(1920.0 / 2.0),
                 static_cast<T>(1080.0 / 2.0),
-                static_cast<T>(0)}),
-        pixelConvert(this->pixelSize_um)
+                static_cast<T>(0)})
     {
 
     }
 
     Intrinsics(const Base &base)
         :
-        Base(base),
-        pixelConvert(this->pixelSize_um)
+        Base(base)
     {
 
+    }
+
+    Intrinsics(T pixelSize_um_)
+        :
+        Base{}
+    {
+        this->pixelSize_um = pixelSize_um_;
     }
 
     template<typename Value>
     auto MetersToPixels(const Value &meters) const
     {
-        return this->pixelConvert.MetersToPixels(meters);
+        return PixelConvert(this->pixelSize_um).MetersToPixels(meters);
     }
 
     template<typename Value>
     auto PixelsToMeters(const Value &pixels) const
     {
-        return this->pixelConvert.PixelsToMeters(pixels);
+        return PixelConvert(this->pixelSize_um).PixelsToMeters(pixels);
     }
 
     static Intrinsics FromArray(
         T pixelSize_um_,
         const Matrix &array_pixels)
     {
-        Intrinsics result;
+        Intrinsics result{};
         result.pixelSize_um = pixelSize_um_;
-        T focalLengthX_m = result.PixelsToMeters(array_pixels(0, 0));
-        T focalLengthY_m = result.PixelsToMeters(array_pixels(1, 1));
+        auto pixelConvert = PixelConvert(pixelSize_um_);
+        T focalLengthX_m = pixelConvert.PixelsToMeters(array_pixels(0, 0));
+        T focalLengthY_m = pixelConvert.PixelsToMeters(array_pixels(1, 1));
         result.focalLengthX_mm = focalLengthX_m * millimetersPerMeter;
         result.focalLengthY_mm = focalLengthY_m * millimetersPerMeter;
         result.skew = array_pixels(0, 1);
@@ -208,10 +217,12 @@ struct Intrinsics:
 
     Matrix GetArray_pixels() const
     {
-        auto focalLengthX_pixels = this->MetersToPixels(
+        auto pixelConvert = PixelConvert(this->pixelSize_um);
+
+        auto focalLengthX_pixels = pixelConvert.MetersToPixels(
             this->focalLengthX_mm / millimetersPerMeter);
 
-        auto focalLengthY_pixels = this->MetersToPixels(
+        auto focalLengthY_pixels = pixelConvert.MetersToPixels(
             this->focalLengthY_mm / millimetersPerMeter);
 
         Matrix m{
@@ -224,15 +235,18 @@ struct Intrinsics:
 
     Matrix GetArray_m() const
     {
-        return this->PixelsToMeters(this->GetArray_pixels());
+        return PixelConvert(this->pixelSize_um)
+            .PixelsToMeters(this->GetArray_pixels());
     }
 
     Matrix GetInverse_pixels() const
     {
-        auto focalLengthX_pixels = this->MetersToPixels(
+        auto pixelConvert = PixelConvert(this->pixelSize_um);
+
+        auto focalLengthX_pixels = pixelConvert.MetersToPixels(
             this->focalLengthX_mm / millimetersPerMeter);
 
-        auto focalLengthY_pixels = this->MetersToPixels(
+        auto focalLengthY_pixels = pixelConvert.MetersToPixels(
             this->focalLengthY_mm / millimetersPerMeter);
 
         auto inversePrincipalX =
