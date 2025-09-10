@@ -68,14 +68,10 @@ public:
                 (this->intrinsics_.GetArray_m() * topThreeRows).eval(),
                 tau::RowVector<4, T>(T(0), T(0), T(0), T(1)));
 
-        this->worldToCamera_.normalize();
-
         auto intrinsicsInverse = this->intrinsics_.GetInverse_pixels();
 
         this->cameraToWorld_ =
             (this->pose_.GetRotation() * intrinsicsInverse);
-
-        this->cameraToWorld_.normalize();
     }
 
     Extrinsic<T> GetExtrinsic_m() const
@@ -123,6 +119,16 @@ public:
         return Line3d<T>(
             this->pose_.GetPosition_m(),
             this->CameraToWorld(pixel.GetHomogeneous()).normalized());
+    }
+
+    Eigen::Matrix<T, 4, 4> GetWorldToCamera() const
+    {
+        return this->worldToCamera_;
+    }
+
+    Eigen::Matrix<T, 3, 3> GetCameraToWorld() const
+    {
+        return this->cameraToWorld_;
     }
 
     template<typename>
