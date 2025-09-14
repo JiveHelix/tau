@@ -13,9 +13,10 @@ TEST_CASE("Camera to World to Camera round trip.", "[projection]")
 
     tau::Pose<float> pose(
         {
-            -10_f, // rotation about x
+            -10_f, // rotation about z
             13.0_f, //  rotation about y
-            0.0_f}, // rotation about z
+            0.0_f,
+            tau::AxisOrder{2, 1, 0}}, // rotation about x
         1.0_f, // x
         -3_f, // y
         2_f); // z

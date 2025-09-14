@@ -65,7 +65,7 @@ public:
 
         this->worldToCamera_ =
             tau::VerticalStack(
-                (this->intrinsics_.GetArray_m() * topThreeRows).eval(),
+                (this->intrinsics_.GetArray_pixels() * topThreeRows).eval(),
                 tau::RowVector<4, T>(T(0), T(0), T(0), T(1)));
 
         auto intrinsicsInverse = this->intrinsics_.GetInverse_pixels();

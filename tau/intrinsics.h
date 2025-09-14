@@ -183,7 +183,31 @@ struct Intrinsics:
         return PixelConvert(this->pixelSize_um).PixelsToMeters(pixels);
     }
 
-    static Intrinsics FromArray(
+    static Intrinsics FromArray_meters(
+        T pixelSize_um_,
+        const Matrix &array_meters)
+    {
+        Intrinsics result{};
+        result.pixelSize_um = pixelSize_um_;
+        auto pixelConvert = PixelConvert(pixelSize_um_);
+        T focalLengthX_m = array_meters(0, 0);
+        T focalLengthY_m = array_meters(1, 1);
+        result.focalLengthX_mm = focalLengthX_m * millimetersPerMeter;
+        result.focalLengthY_mm = focalLengthY_m * millimetersPerMeter;
+
+        // We store skew in pixels.
+        result.skew = pixelConvert.MetersToPixels(array_meters(0, 1));
+
+        result.principalX_pixels =
+            pixelConvert.MetersToPixels(array_meters(0, 2));
+
+        result.principalY_pixels =
+            pixelConvert.MetersToPixels(array_meters(1, 2));
+
+        return result;
+    }
+
+    static Intrinsics FromArray_pixels(
         T pixelSize_um_,
         const Matrix &array_pixels)
     {
@@ -194,7 +218,10 @@ struct Intrinsics:
         T focalLengthY_m = pixelConvert.PixelsToMeters(array_pixels(1, 1));
         result.focalLengthX_mm = focalLengthX_m * millimetersPerMeter;
         result.focalLengthY_mm = focalLengthY_m * millimetersPerMeter;
+
+        // We store skew in pixels.
         result.skew = array_pixels(0, 1);
+
         result.principalX_pixels = array_pixels(0, 2);
         result.principalY_pixels = array_pixels(1, 2);
 
@@ -235,8 +262,13 @@ struct Intrinsics:
 
     Matrix GetArray_m() const
     {
-        return PixelConvert(this->pixelSize_um)
+        Matrix result = PixelConvert(this->pixelSize_um)
             .PixelsToMeters(this->GetArray_pixels());
+
+        // Keep the bottom right value.
+        result(2, 2) = 1.0;
+
+        return result;
     }
 
     Matrix GetInverse_pixels() const

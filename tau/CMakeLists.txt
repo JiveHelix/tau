@@ -27,6 +27,7 @@ target_link_libraries(
 target_sources(
     tau
     PRIVATE
+    camera_parameters.cpp
     csv.cpp
     dxf.cpp
     line2d.cpp
