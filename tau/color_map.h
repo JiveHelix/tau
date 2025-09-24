@@ -11,16 +11,19 @@
 
 #pragma once
 
-#include "tau/eigen.h"
-#include "tau/color_maps/rgb.h"
+#include <tau/eigen.h>
+#include <tau/color_maps/rgb.h>
+#include <tau/color_maps/turbo.h>
+#include <tau/color_maps/gray.h>
+#include <tau/mono_image.h>
+#include <tau/color_map_settings.h>
 
-#include <iostream>
 
 namespace tau
 {
 
 template<typename ColorType>
-class ColorMap
+class BasicColorMap
 {
 public:
     using Colors = ColorType;
@@ -32,7 +35,7 @@ public:
     static constexpr auto pixelSizeBytes =
         ColorsTraits::columns * sizeof(typename ColorsTraits::type);
 
-    ColorMap(const Colors &map)
+    BasicColorMap(const Colors &map)
         :
         map_(map)
     {
@@ -147,10 +150,10 @@ template<
     typename ColorType,
     typename Bound,
     typename Float = double>
-class ScaledColorMap: public ColorMap<ColorType>
+class ScaledColorMap: public BasicColorMap<ColorType>
 {
 public:
-    using Base = ColorMap<ColorType>;
+    using Base = BasicColorMap<ColorType>;
 
     ScaledColorMap(const ColorType &map, Bound minimum, Bound maximum)
         :
@@ -180,10 +183,10 @@ private:
 
 
 template<typename ColorType, typename Bound>
-class LimitedColorMap: public ColorMap<ColorType>
+class LimitedColorMap: public BasicColorMap<ColorType>
 {
 public:
-    using Base = ColorMap<ColorType>;
+    using Base = BasicColorMap<ColorType>;
 
     LimitedColorMap(const ColorType &map, Bound minimum, Bound maximum)
         :
@@ -215,6 +218,69 @@ private:
     Rescale<Bound> rescale_;
 };
 
+
+template<typename Pixels, typename T>
+auto MakeColorMap(const ColorMapSettings<T> &colorMapSettings)
+{
+    using PixelMatrix = typename Pixels::Data;
+    auto low = colorMapSettings.range.low;
+    auto high = colorMapSettings.range.high;
+
+    static constexpr auto maximum =
+        static_cast<decltype(low)>(std::numeric_limits<T>::max());
+
+    high = std::min(maximum, high);
+    low = std::min(high - 1, low);
+
+    assert(low < high);
+
+    size_t count = static_cast<size_t>(1 + high - low);
+
+    if (colorMapSettings.turbo)
+    {
+        return tau::LimitedColorMap<PixelMatrix, T>(
+            tau::turbo::MakeRgb8(count),
+            static_cast<T>(low),
+            static_cast<T>(high));
+    }
+    else
+    {
+        return tau::LimitedColorMap<PixelMatrix, T>(
+            tau::gray::MakeRgb8(count),
+            static_cast<T>(low),
+            static_cast<T>(high));
+    }
+}
+
+
+template<typename Value>
+class ColorMap
+{
+public:
+    using Matrix = MonoImage<Value>;
+    using Pixels = RgbPixels<uint8_t>;
+
+    ColorMap(const ColorMapSettings<Value> &colorMapSettings)
+        :
+        colorMap_(MakeColorMap<Pixels>(colorMapSettings))
+    {
+
+    }
+
+    Pixels Filter(const Matrix &data) const
+    {
+        RgbPixels<uint8_t> result{{}, {data.cols(), data.rows()}};
+        this->colorMap_(data, &result.data);
+
+        return result;
+    }
+
+protected:
+    LimitedColorMap<typename Pixels::Data, Value> colorMap_;
+};
+
+
+extern template class ColorMap<int32_t>;
 
 
 } // end namespace tau

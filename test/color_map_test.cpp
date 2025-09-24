@@ -59,9 +59,9 @@ TEST_CASE("Test indexing an RGB8 color map.", "[tau]")
             {7, 0, 4},
             {4, 7, 0}});
 
-    auto mapped = 
+    auto mapped =
         map(indices.reshaped<Eigen::AutoOrder>().array(), Eigen::all).eval();
-    
+
     REQUIRE(mapped.rows() == indices.size());
     REQUIRE(mapped.cols() == 3);
 }
@@ -71,7 +71,7 @@ TEST_CASE("Use ColorMap class to create RGB8 colors.", "[tau]")
 {
     auto turbo = tau::turbo::MakeRgb8(8).eval();
 
-    auto map = tau::ColorMap(turbo);
+    auto map = tau::BasicColorMap(turbo);
 
     Eigen::Matrix<int, 2, 3, Eigen::RowMajor> indices(
         {
@@ -133,10 +133,10 @@ TEST_CASE("Test ScaledColorMap.", "[tau]")
     Eigen::Matrix<uint8_t, 8, 3> mapped;
 
     scaledColorMap(test, &mapped);
-    
+
     Eigen::Matrix<uint8_t, 8, 3> expected;
 
-    expected << 
+    expected <<
         turbo(0, Eigen::all),
         turbo(1, Eigen::all),
         turbo(2, Eigen::all),

@@ -28,6 +28,8 @@ target_sources(
     tau
     PRIVATE
     camera_parameters.cpp
+    color_map.cpp
+    color_map_settings.cpp
     csv.cpp
     dxf.cpp
     line2d.cpp
