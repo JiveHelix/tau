@@ -240,6 +240,16 @@ struct Vector2dCustom
         {
             PEX_NAME("Vector2dControl");
         }
+
+        void Emplace(typename Base::Upstream &upstream)
+        {
+            this->StandardEmplace_(upstream);
+        }
+
+        void Emplace(const Control &other)
+        {
+            this->StandardEmplace_(other);
+        }
     };
 };
 
@@ -269,6 +279,16 @@ struct Point2dCustom
             Base{}
         {
             PEX_NAME("Vector2dControl");
+        }
+
+        void Emplace(typename Base::Upstream &upstream)
+        {
+            this->StandardEmplace_(upstream);
+        }
+
+        void Emplace(const Control &other)
+        {
+            this->StandardEmplace_(other);
         }
     };
 };

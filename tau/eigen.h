@@ -10,10 +10,10 @@
 
 #pragma once
 
+#include <cstdint>
 #include <type_traits>
 #include <numeric>
 
-#include <jive/platform.h>
 #include <jive/type_traits.h>
 #include <jive/future.h>
 
@@ -94,6 +94,7 @@ struct TraitBuilder
     static constexpr int options = options_;
     static constexpr int maxRows = maxRows_;
     static constexpr int maxColumns = maxColumns_;
+
     static constexpr bool isDynamic = (
         columns == Eigen::Dynamic
         || rows == Eigen::Dynamic);
@@ -542,7 +543,7 @@ Matrix Modulo(const Matrix &x, T y)
     }
     else
     {
-        return detail::Modulo<Type, ssize_t>(x, y);
+        return detail::Modulo<Type, int64_t>(x, y);
     }
 }
 
@@ -568,8 +569,8 @@ IndexCheck(T value)
 {
     if constexpr (std::is_signed_v<T>)
     {
-        int64_t maximum = std::numeric_limits<int16_t>::max();
-        int64_t lowest = std::numeric_limits<int16_t>::lowest();
+        Eigen::Index maximum = std::numeric_limits<int16_t>::max();
+        Eigen::Index lowest = std::numeric_limits<int16_t>::lowest();
 
         if (value > maximum || value < lowest)
         {
@@ -640,15 +641,15 @@ void Constrain(Input &input, Bound minimum, Bound maximum)
 
     if constexpr (std::is_same_v<type, Bound>)
     {
-        Select(input) < minimum = minimum;
-        Select(input) > maximum = maximum;
+        (Select(input) < minimum) = minimum;
+        (Select(input) > maximum) = maximum;
     }
     else
     {
         auto typedMinimum = static_cast<type>(minimum);
         auto typedMaximum = static_cast<type>(maximum);
-        Select(input) < typedMinimum = typedMinimum;
-        Select(input) > typedMaximum = typedMaximum;
+        (Select(input) < typedMinimum) = typedMinimum;
+        (Select(input) > typedMaximum) = typedMaximum;
     }
 }
 

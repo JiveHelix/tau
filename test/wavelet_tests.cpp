@@ -32,7 +32,7 @@ Eigen::RowVector<double, Eigen::Dynamic> MakeTestSignal(tau::Seed seed)
 
     auto random = tau::UniformRandom<double>(seed, -5, 5);
 
-    for (ssize_t i = 0; i < y.size(); ++i)
+    for (Eigen::Index i = 0; i < y.size(); ++i)
     {
         y(i) += random();
     }
@@ -63,13 +63,13 @@ Eigen::RowVector<double, Eigen::Dynamic> MakeWorstCaseTestSignal(
 #if 1
     auto wavelet = tau::GetWavelet<double>(name);
 
-    for (ssize_t i = 0; i < wavelet.decompose.low.size(); ++i)
+    for (Eigen::Index i = 0; i < wavelet.decompose.low.size(); ++i)
     {
         result(seqN(350 + i, wavelet.decompose.low.size())).array()
             += wavelet.decompose.low.array();
     }
 
-    for (ssize_t i = 0; i < wavelet.decompose.high.size(); ++i)
+    for (Eigen::Index i = 0; i < wavelet.decompose.high.size(); ++i)
     {
         result(seqN(700 + i, wavelet.decompose.high.size())).array()
             += wavelet.decompose.high.array();

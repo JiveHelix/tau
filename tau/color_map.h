@@ -35,6 +35,13 @@ public:
     static constexpr auto pixelSizeBytes =
         ColorsTraits::columns * sizeof(typename ColorsTraits::type);
 
+    BasicColorMap()
+        :
+        map_()
+    {
+
+    }
+
     BasicColorMap(const Colors &map)
         :
         map_(map)
@@ -120,6 +127,14 @@ template<typename Bound>
 class Rescale
 {
 public:
+    Rescale()
+        :
+        minimum_(),
+        maximum_()
+    {
+
+    }
+
     Rescale(Bound minimum, Bound maximum)
         :
         minimum_(minimum),
@@ -155,6 +170,13 @@ class ScaledColorMap: public BasicColorMap<ColorType>
 public:
     using Base = BasicColorMap<ColorType>;
 
+    ScaledColorMap()
+        :
+        Base()
+    {
+
+    }
+
     ScaledColorMap(const ColorType &map, Bound minimum, Bound maximum)
         :
         Base(map),
@@ -187,6 +209,13 @@ class LimitedColorMap: public BasicColorMap<ColorType>
 {
 public:
     using Base = BasicColorMap<ColorType>;
+
+    LimitedColorMap()
+        :
+        Base()
+    {
+
+    }
 
     LimitedColorMap(const ColorType &map, Bound minimum, Bound maximum)
         :
@@ -260,6 +289,13 @@ public:
     using Matrix = MonoImage<Value>;
     using Pixels = RgbPixels<uint8_t>;
 
+    ColorMap()
+        :
+        colorMap_()
+    {
+
+    }
+
     ColorMap(const ColorMapSettings<Value> &colorMapSettings)
         :
         colorMap_(MakeColorMap<Pixels>(colorMapSettings))
@@ -267,12 +303,19 @@ public:
 
     }
 
-    Pixels Filter(const Matrix &data) const
+    std::shared_ptr<Pixels> Filter(const Matrix &data) const
     {
-        RgbPixels<uint8_t> result{{}, {data.cols(), data.rows()}};
-        this->colorMap_(data, &result.data);
+        auto size = Size<Eigen::Index>(data.cols(), data.rows());
+        auto result = Pixels::CreateShared(size);
+        this->colorMap_(data, &result->data);
 
         return result;
+    }
+
+    void Filter(const Matrix &input, Pixels &output) const
+    {
+        output.SetSize({input.cols(), input.rows()});
+        this->colorMap_(input, &output.data);
     }
 
 protected:

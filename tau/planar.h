@@ -2,8 +2,9 @@
 
 #include <jive/power.h>
 #include <jive/range.h>
-#include "tau/eigen.h"
-#include "tau/size.h"
+#include <tau/eigen.h>
+#include <tau/size.h>
+#include <tau/margins.h>
 
 
 namespace tau
@@ -67,7 +68,7 @@ public:
         }
     }
 
-    Planar([[maybe_unused]] const Size<Index> &size)
+    Planar(const Size<Index> &size)
         :
         Planar(size.height, size.width)
     {
@@ -117,6 +118,32 @@ public:
             indices);
 
         return result;
+    }
+
+    T GetMaximum() const
+    {
+        T value = std::numeric_limits<T>::min();
+
+        for (auto &plane: planes)
+        {
+            auto planeMaximum = plane.maxCoeff();
+            value = std::max(planeMaximum, value);
+        }
+
+        return value;
+    }
+
+    T GetMinimum() const
+    {
+        T value = std::numeric_limits<T>::max();
+
+        for (auto &plane: planes)
+        {
+            auto planeMinimum = plane.minCoeff();
+            value = std::min(planeMinimum, value);
+        }
+
+        return value;
     }
 
     // First plane contains minima, and second plane contains maxima.
@@ -241,7 +268,7 @@ public:
     {
         static_assert(std::is_same_v<typename Derived::Scalar, T>);
 
-        if (rows == Eigen::Dynamic)
+        if constexpr (rows == Eigen::Dynamic)
         {
             if (rowCount <= 0)
             {
@@ -249,7 +276,7 @@ public:
             }
         }
 
-        if (columns == Eigen::Dynamic)
+        if constexpr (columns == Eigen::Dynamic)
         {
             if (columnCount <= 0)
             {
@@ -463,6 +490,24 @@ public:
     }
 
     template<size_t index>
+    void AddMargin(
+        const Margins &margins,
+        const Planar &source)
+    {
+        std::get<index>(this->planes) =
+            margins.AddMargin(std::get<index>(source.planes));
+    }
+
+    template<size_t index>
+    void RemoveMargin(
+        const Margins &margins,
+        const Planar &source)
+    {
+        std::get<index>(this->planes) =
+            margins.RemoveMargin(std::get<index>(source.planes));
+    }
+
+    template<size_t index>
     void SubtractAssign(T scalar)
     {
         std::get<index>(this->planes).array() -= scalar;
@@ -489,17 +534,14 @@ public:
     }
 
     template<typename U>
-    using PlanarLike = Planar<count, U, rows, columns, options>;
+    using PlanarLike =
+        Planar<count, U, Eigen::Dynamic, Eigen::Dynamic, options>;
 
     template<typename U = T>
     PlanarLike<U> PadZeros(const Size<Index> &paddedSize) const
     {
         // We are growing the rows and columns.
-        // This could be down with compile-time sizes, but has been omitted
-        // here for simplicity.
         // Run-time sizes only.
-        static_assert(rows == Eigen::Dynamic);
-        static_assert(columns == Eigen::Dynamic);
 
         using Result = PlanarLike<U>;
         auto size = this->GetSize();
@@ -533,6 +575,48 @@ public:
     PlanarLike<U> PadZeros(Index height, Index width)
     {
         return this->template PadZeros<U>(Size<Index>(width, height));
+    }
+
+    Planar AddMargin(const Margins &margins) const
+    {
+        if (!margins.HasMargin())
+        {
+            return *this;
+        }
+
+        auto extendedSize =
+            GetExtendedSize(
+                this->GetSize(),
+                margins.verticalMargin,
+                margins.horizontalMargin);
+
+        Planar result(extendedSize.rows, extendedSize.columns);
+
+        result.AddMargin_(
+            std::make_index_sequence<count>{},
+            margins,
+            *this);
+
+        return result;
+    }
+
+    Planar RemoveMargin(const Margins &margins) const
+    {
+        if (!margins.HasMargin())
+        {
+            return *this;
+        }
+
+        auto validSize = margins.GetValidSize(std::get<0>(this->planes));
+
+        Planar result(validSize.rows, validSize.columns);
+
+        result.RemoveMargin_(
+            std::make_index_sequence<count>{},
+            margins,
+            *this);
+
+        return result;
     }
 
     void Constrain(T minimum, T maximum)
@@ -617,6 +701,28 @@ private:
         Index startColumn)
     {
         (this->template AssignMiddle<I>(source, startRow, startColumn), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & AddMargin_(
+        std::index_sequence<I ...>,
+        const Margins &margins,
+        const Planar &source)
+    {
+        (this->template AddMargin<I>(margins, source), ...);
+
+        return *this;
+    }
+
+    template<size_t ... I>
+    Planar & RemoveMargin_(
+        std::index_sequence<I ...>,
+        const Margins &margins,
+        const Planar &source)
+    {
+        (this->template RemoveMargin<I>(margins, source), ...);
 
         return *this;
     }

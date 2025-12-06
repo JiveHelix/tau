@@ -1,6 +1,9 @@
 #include <catch2/catch.hpp>
-#include <tau/convolve.h>
 
+// #define TAU_CONVOLVE_TRANSPOSE_MAJOR
+#include <tau/convolve.h>
+#include <tau/view.h>
+#include <tau/margins.h>
 
 
 TEMPLATE_TEST_CASE(
@@ -10,42 +13,157 @@ TEMPLATE_TEST_CASE(
     float,
     double)
 {
-    using Partial0 = Eigen::Vector<TestType, 3>;
-    using Partial1 = Eigen::RowVector<TestType, 3>;
+    using ColumnKernel = Eigen::Vector<TestType, 3>;
+    using RowKernel = Eigen::RowVector<TestType, 3>;
 
-    Partial0 partial0(1, 2, 1);
-    Partial1 partial1 = partial0.transpose();
+    ColumnKernel columnKernel(1, 2, 1);
+    RowKernel rowKernel = columnKernel.transpose();
 
-    Eigen::Matrix<TestType, 3, 3> kernel = partial0 * partial1;
+    Eigen::Matrix<TestType, 3, 3> kernel = columnKernel * rowKernel;
 
-    Eigen::Matrix<TestType, 6, 6> input{
-        {15, 20, 25, 25, 15, 10},
-        {20, 15, 50, 30, 20, 15},
-        {20, 50, 55, 60, 30, 20},
-        {20, 15, 65, 30, 15, 30},
-        {15, 20, 30, 20, 25, 30},
-        {20, 25, 15, 20, 10, 15}};
+    Eigen::Matrix<TestType, 4, 4> input{
+        {15, 50, 30, 20},
+        {50, 55, 60, 30},
+        {15, 65, 30, 15},
+        {20, 30, 20, 25}};
 
-    Eigen::Matrix<int, 6, 6> expected{
-        {15, 20, 25, 25, 15, 10},
-        {20, 28, 38, 35, 23, 15},
-        {20, 35, 48, 43, 28, 20},
-        {20, 31, 42, 36, 26, 30},
-        {15, 23, 28, 25, 22, 30},
-        {20, 25, 15, 20, 10, 15}};
+    Eigen::Matrix<TestType, 4, 4> expected{
+        {31, 41, 37, 26},
+        {38, 48, 43, 29},
+        {32, 42, 36, 25},
+        {24, 30, 27, 23}};
 
-    Eigen::Matrix<int, 6, 6> result =
-        tau::Normalize(tau::Convolve2d(input, kernel), kernel)
-            .array().round().template cast<int>();
+    Eigen::Matrix<TestType, 6, 6> extended = tau::Extend(input, 1, 1);
+    tau::Replicate(extended, 1, 1);
+
+    auto twoD = tau::Convolve2d(kernel, extended);
+
+    Eigen::Matrix<TestType, 4, 4> result =
+        tau::Normalize(kernel, twoD)
+            .block(1, 1, 4, 4)
+            .array().round();
 
     REQUIRE(result == expected);
 
-    // Results of DoConvolve2d must be normalized
-    Eigen::Matrix<TestType, 6, 6> separable =
-        tau::DoConvolve2d(input, partial0, partial1);
+    Eigen::Matrix<TestType, 6, 6> separableInOut = tau::Extend(input, 1, 1);
+    tau::Replicate(separableInOut, 1, 1);
 
-    Eigen::Matrix<int, 6, 6> separableResult =
-        tau::Normalize(separable, kernel).array().round().template cast<int>();
+    tau::ConvolveSeparable(
+        tau::Kernel(rowKernel),
+        tau::Kernel(columnKernel),
+        separableInOut);
 
-    REQUIRE(separableResult.block(1, 1, 4, 4) == expected.block(1, 1, 4, 4));
+    Eigen::Matrix<TestType, 4, 4> separableResult =
+        tau::Normalize(kernel, separableInOut).block(1, 1, 4, 4)
+            .array().round();
+
+    REQUIRE(separableResult == expected);
+
+    Eigen::Matrix<TestType, 6, 6> separableInput = tau::Extend(input, 1, 1);
+    tau::Replicate(separableInput, 1, 1);
+
+    Eigen::Matrix<TestType, 6, 6> separableOutput;
+
+    std::cout << "separableInput:\n" << separableInput << std::endl;
+
+    tau::ConvolveSeparable(
+        tau::Kernel(rowKernel),
+        tau::Kernel(columnKernel),
+        separableInput,
+        separableOutput);
+
+    std::cout << "separableOutput:\n" << separableOutput << std::endl;
+
+    Eigen::Matrix<TestType, 4, 4> separableResult2 =
+        tau::Normalize(kernel, separableOutput).block(1, 1, 4, 4)
+            .array().round();
+
+    REQUIRE(separableResult2 == expected);
+
+    Eigen::Matrix<TestType, 6, 6> separableAliased = tau::Extend(input, 1, 1);
+    tau::Replicate(separableAliased, 1, 1);
+
+    tau::ConvolveSeparable(
+        tau::Kernel(rowKernel),
+        tau::Kernel(columnKernel),
+        separableAliased);
+
+    Eigen::Matrix<TestType, 4, 4> separableResult3 =
+        tau::Normalize(kernel, separableAliased).block(1, 1, 4, 4)
+            .array().round();
+
+    REQUIRE(separableResult3 == expected);
+}
+
+
+TEMPLATE_TEST_CASE(
+    "Margin choose largest row/column dimensions.",
+    "[convolve]",
+    int,
+    float,
+    double)
+{
+    using Type1 = Eigen::Matrix<TestType, 4, 6>;
+    using Type2 = Eigen::Matrix<TestType, Eigen::Dynamic, 6>;
+    using Type3 = Eigen::Matrix<TestType, Eigen::Dynamic, Eigen::Dynamic>;
+
+    Type1 type1{};
+    Type2 type2(14, 6);
+    Type3 type3(2, 4);
+    Type3 anotherType3(15, 7);
+
+    auto margins = tau::Margins::Create(type1, type2, type3, anotherType3);
+
+    REQUIRE(margins.horizontalMargin == 3);
+    REQUIRE(margins.verticalMargin == 7);
+}
+
+
+TEST_CASE("Create an Eigen::Ref", "[convolve]")
+{
+    static constexpr auto D = Eigen::Dynamic;
+    using M = Eigen::Matrix<int, D, D>;
+    M data = M::Zero(4, 6);
+
+    using R = Eigen::Ref<Eigen::Matrix<int, D, D>>;
+
+    R r(data.block(0, 0, 3, 3));
+    r(2, 2) = 14;
+
+    REQUIRE(data(2, 2) == 14);
+}
+
+
+TEST_CASE("MakeView creates an Eigen::Ref", "[convolve]")
+{
+    static constexpr auto D = Eigen::Dynamic;
+    using M = Eigen::Matrix<int, D, D>;
+    M data = M::Zero(4, 6);
+    auto view = tau::MakeView(data.block(1, 1, 3, 3));
+    view(1, 1) = 14;
+    REQUIRE(data(2, 2) == 14);
+}
+
+
+TEST_CASE("MakeView creates a const Eigen::Ref", "[convolve]")
+{
+    static constexpr auto D = Eigen::Dynamic;
+    using M = Eigen::Matrix<int, D, D>;
+    M data = M::Zero(4, 6);
+    const M &p = data;
+
+    auto view = tau::MakeView(p.block(1, 1, 3, 3));
+
+    STATIC_REQUIRE(tau::IsEigenConstRef<decltype(view)>);
+}
+
+
+TEST_CASE("Can form a ConstView from non-const source", "[convolve]")
+{
+    static constexpr auto D = Eigen::Dynamic;
+    using M = Eigen::Matrix<int, D, D>;
+    M data = M::Zero(4, 6);
+    auto view = tau::ConstView<M>(data);
+
+    STATIC_REQUIRE(tau::IsEigenConstRef<decltype(view)>);
 }

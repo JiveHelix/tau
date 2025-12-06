@@ -52,6 +52,22 @@ struct Pixels
     // Expect height * width == data.rows()
     Size<Index> size;
 
+    Pixels()
+        :
+        data{},
+        size{}
+    {
+
+    }
+
+    Pixels(const Size<Index> &size_)
+        :
+        data{size_.height * size_.width, componentCount},
+        size{size_}
+    {
+
+    }
+
     static Pixels Create(const PlanarType &planar)
     {
         Pixels result;
@@ -62,6 +78,11 @@ struct Pixels
     }
 
     static Pixels Create(const Size<Index> &size)
+    {
+        return Pixels(size);
+    }
+
+    static Pixels CreateZeroed(const Size<Index> &size)
     {
         Pixels result;
         result.size = size;
@@ -102,9 +123,55 @@ struct Pixels
         return std::make_shared<Pixels>(*this);
     }
 
+    static std::shared_ptr<Pixels> CreateShared(const PlanarType &planar)
+    {
+        auto result = std::make_shared<Pixels>();
+        result->size = planar.GetSize();
+        result->data = planar.GetInterleaved();
+
+        return result;
+    }
+
     static std::shared_ptr<Pixels> CreateShared(const Size<Index> &size)
     {
-        return Pixels::Create(size).MakeShared();
+        return std::make_shared<Pixels>(size);
+    }
+
+
+    static std::shared_ptr<Pixels> CreateSharedZeroed(const Size<Index> &size)
+    {
+        auto result = std::make_shared<Pixels>();
+        result->size = size;
+
+        result->data =
+            Data::Zero(
+                size.height * size.width,
+                static_cast<Eigen::Index>(componentCount));
+
+        return result;
+    }
+
+    static std::shared_ptr<Pixels> CreateShared(
+        const Size<Index> &size,
+        const T *initialData)
+    {
+        auto result = std::make_shared<Pixels>();
+        result->size = size;
+
+        Index pixelCount = size.height * size.width;
+
+        result->data = Data(
+            pixelCount,
+            static_cast<Eigen::Index>(componentCount));
+
+        assert(pixelCount > 0);
+
+        std::memcpy(
+            result->data.data(),
+            initialData,
+            static_cast<size_t>(pixelCount) * componentCount);
+
+        return result;
     }
 
     PlanarType GetPlanar() const
@@ -113,6 +180,12 @@ struct Pixels
             this->data,
             this->size.height,
             this->size.width);
+    }
+
+    void SetSize(const Size<Index> &size)
+    {
+        this->size = size;
+        this->data = Data(size.height, size.width);
     }
 };
 

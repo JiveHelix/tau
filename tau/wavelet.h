@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <ostream>
 #include <string>
 #include <cmath>
@@ -88,7 +89,7 @@ struct Wavelet
         return CastFields<Wavelet<U>, U, Style>(*this);
     }
 
-    size_t GetMaximumLevel(ssize_t signalSize) const
+    size_t GetMaximumLevel(std::ptrdiff_t signalSize) const
     {
         auto filterLength = static_cast<double>(this->decompose.low.size());
         assert(filterLength > 1);
@@ -106,9 +107,9 @@ struct Wavelet
                     signalLength / (filterLength - 1))));
     }
 
-    ssize_t GetRecomposedSize(ssize_t signalLength) const
+    std::ptrdiff_t GetRecomposedSize(std::ptrdiff_t signalLength) const
     {
-        ssize_t result =
+        std::ptrdiff_t result =
             2 * signalLength
             - this->recompose.low.size()
             + 2;
@@ -217,7 +218,7 @@ Eigen::RowVector<T, Eigen::Dynamic> Recompose(
 
     for (size_t i = 1; i < decomposed.size(); ++i)
     {
-        ssize_t count = approximation.size();
+        std::ptrdiff_t count = approximation.size();
 
         RowVector upscaledApproximation = RowVector::Zero(count * 2);
         upscaledApproximation(seqN(0, count, 2)) = approximation;
@@ -225,13 +226,13 @@ Eigen::RowVector<T, Eigen::Dynamic> Recompose(
         RowVector upscaledDetail = RowVector::Zero(count * 2);
         upscaledDetail(seqN(0, count, 2)) = decomposed[i];
 
-        ssize_t convolutionSize = count * 2 + filterLow.size() - 1;
-        ssize_t recomposedSize = wavelet.GetRecomposedSize(count);
+        std::ptrdiff_t convolutionSize = count * 2 + filterLow.size() - 1;
+        std::ptrdiff_t recomposedSize = wavelet.GetRecomposedSize(count);
 
         // Recomposed size may be recomputed below, but the trim start is not
         // affected.
-        ssize_t trimLength = convolutionSize - recomposedSize;
-        ssize_t start = trimLength / 2;
+        std::ptrdiff_t trimLength = convolutionSize - recomposedSize;
+        std::ptrdiff_t start = trimLength / 2;
 
 
         if (i < decomposed.size() - 1)

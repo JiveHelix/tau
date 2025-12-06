@@ -181,7 +181,7 @@ struct Point3d: public Base3d<T, Point3d>
     static constexpr auto fieldsTypeName = "Point3d";
 
     // Compare equal to 6 decimal places.
-    static constexpr ssize_t precision = 6;
+    static constexpr int precision = 6;
 
     Point3d(const Vector3<T> &vector_)
         :
