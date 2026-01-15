@@ -5,6 +5,7 @@
 #include "tau/vector2d.h"
 #include "tau/angular.h"
 #include "tau/region.h"
+#include <tau/margins.h>
 
 
 namespace tau
@@ -139,6 +140,26 @@ struct Line2d: public Line2dBase<T>
     Line2d<U> Cast() const
     {
         return CastFields<Line2d<U>, U, Style>(*this);
+    }
+
+    Line2d AddMargin(const Margins &margins) const
+    {
+        return {
+            Point2d<T>(
+                this->point.x + margins.horizontalMargin,
+                this->point.y + margins.verticalMargin),
+
+            this->vector};
+    }
+
+    Line2d RemoveMargin(const Margins &margins) const
+    {
+        return {
+            Point2d<T>(
+                this->point.x - margins.horizontalMargin,
+                this->point.y - margins.verticalMargin),
+
+            this->vector};
     }
 
     /**

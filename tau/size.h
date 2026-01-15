@@ -152,6 +152,12 @@ struct Size
         && point.AndLess(this->ToPoint2d());
     }
 
+    bool Contains(const Size<Type> &size)
+    {
+        return size.AndGreaterEqual(Size<Type>(0, 0))
+        && size.AndLess(*this);
+    }
+
     auto GetAngle()
     {
         if constexpr (std::is_integral_v<Type>)

@@ -199,11 +199,35 @@ struct Margins
     }
 
     template<typename Derived>
-    MatrixSize GetValidSize(const Eigen::MatrixBase<Derived> &data) const
+    MatrixSize GetValidSize(const Eigen::DenseBase<Derived> &data) const
     {
         return {
             data.rows() - (2 * this->verticalMargin),
             data.cols() - (2 * this->horizontalMargin)};
+    }
+
+    template<typename Derived>
+    auto GetValidView(Eigen::DenseBase<Derived> &data) const
+    {
+        auto validSize = this->GetValidSize(data);
+
+        return data.block(
+            this->verticalMargin,
+            this->horizontalMargin,
+            validSize.rows,
+            validSize.columns);
+    }
+
+    template<typename Derived>
+    auto GetValidView(const Eigen::DenseBase<Derived> &data) const
+    {
+        auto validSize = this->GetValidSize(data);
+
+        return data.block(
+            this->verticalMargin,
+            this->horizontalMargin,
+            validSize.rows,
+            validSize.columns);
     }
 
     template<typename Derived>
@@ -222,7 +246,116 @@ struct Margins
             validSize.rows,
             validSize.columns);
     }
+
+    template<typename Derived>
+    void ZeroMargin(Eigen::MatrixBase<Derived> &data) const
+    {
+        using Eigen::last;
+
+        auto valid = this->GetValidSize(data);
+
+        // Set top and bottom regions to zeros.
+        data.block(
+            0,
+            this->horizontalMargin,
+            this->verticalMargin,
+            valid.columns).array() = 0;
+
+        data.block(
+            this->verticalMargin + valid.rows,
+            this->horizontalMargin,
+            this->verticalMargin,
+            valid.columns).array() = 0;
+
+        // Zero out the left and right regions.
+        data.block(
+            this->verticalMargin,
+            0,
+            valid.rows,
+            this->horizontalMargin).array() = 0;
+
+        data.block(
+            this->verticalMargin,
+            this->horizontalMargin + valid.columns,
+            valid.rows,
+            this->horizontalMargin).array() = 0;
+
+        // Corner regions
+        data.block(0, 0, this->verticalMargin, this->horizontalMargin)
+            .array() = 0;
+
+        data.block(
+            this->verticalMargin + valid.rows,
+            0,
+            this->verticalMargin,
+            this->horizontalMargin).array() = 0;
+
+        data.block(
+            0,
+            this->horizontalMargin + valid.columns,
+            this->verticalMargin,
+            this->horizontalMargin).array() = 0;
+
+        data.block(
+            this->verticalMargin + valid.rows,
+            this->horizontalMargin + valid.columns,
+            this->verticalMargin,
+            this->horizontalMargin).array() = 0;
+    }
 };
+
+
+inline tau::Margins ComputeMaximumMargins(const Margins &first)
+{
+    return first;
+}
+
+
+template<typename... Rest>
+Margins ComputeMaximumMargins(
+    const Margins &first,
+    const Rest &...rest)
+{
+    tau::Margins result = first;
+
+    auto update =
+        [&result](const tau::Margins &next)
+        {
+            result.horizontalMargin =
+                std::max(result.horizontalMargin, next.horizontalMargin);
+
+            result.verticalMargin =
+                std::max(result.verticalMargin, next.horizontalMargin);
+        };
+
+    (update(rest), ...);
+
+    return result;
+}
+
+
+inline
+Margins ComputeMaximumMargins(const std::vector<Margins> &margins)
+{
+    if (margins.empty())
+    {
+        throw std::logic_error("margins must not be empty");
+    }
+
+    auto it = std::begin(margins);
+    auto result = *it;
+
+    while (++it != std::end(margins))
+    {
+        result.horizontalMargin =
+            std::max(result.horizontalMargin, it->horizontalMargin);
+
+        result.verticalMargin =
+            std::max(result.verticalMargin, it->verticalMargin);
+    }
+
+    return result;
+}
 
 
 template<typename T>
@@ -236,6 +369,19 @@ concept HasRemoveMargin = requires(T t)
 {
     { t.RemoveMargin(std::declval<Margins>()) };
 };
+
+template<typename T>
+concept HasRemoveMarginVoid = requires(T t)
+{
+    { t.RemoveMargin() };
+};
+
+
+inline bool operator==(const Margins &first, const Margins &second)
+{
+    return (first.horizontalMargin == second.horizontalMargin)
+        && (first.verticalMargin == second.verticalMargin);
+}
 
 
 } // end namespace tau

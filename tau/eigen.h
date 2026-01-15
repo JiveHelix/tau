@@ -37,6 +37,10 @@ template<typename PlainMatrix, int mapOptions, typename Stride>
 struct IsMatrix<Eigen::Map<PlainMatrix, mapOptions, Stride>>: std::true_type {};
 
 
+template<typename T>
+concept IsEigen = std::derived_from<T, Eigen::DenseBase<T>>;
+
+
 template<typename T, typename = std::void_t<>>
 struct HasScalar_: std::false_type {};
 
@@ -217,6 +221,15 @@ struct MatrixTraits<Eigen::DenseBase<Derived>>: MatrixTraits<Derived>
 
 template<typename Derived>
 struct MatrixTraits<Eigen::MatrixBase<Derived>>: MatrixTraits<Derived>
+{
+
+};
+
+
+template<typename Derived>
+struct MatrixTraits<Eigen::Ref<Derived>>
+    :
+    MatrixTraits<std::remove_cvref_t<Derived>>
 {
 
 };
@@ -652,6 +665,11 @@ void Constrain(Input &input, Bound minimum, Bound maximum)
         (Select(input) > typedMaximum) = typedMaximum;
     }
 }
+
+
+template<typename Scalar>
+using RowMajorMatrix =
+    Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 
 } // end namespace tau
