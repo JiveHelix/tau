@@ -44,8 +44,8 @@ public:
         intrinsics_{},
         pose_{},
         cameraPosition_pixels_{},
-        worldToCamera_{},
-        cameraToWorld_{}
+        worldToImage_{},
+        imageToWorld_{}
     {
 
     }
@@ -63,15 +63,15 @@ public:
         Eigen::Matrix<T, 3, 4> topThreeRows =
             extrinsics_m(Eigen::seq(0, 2), Eigen::all);
 
-        this->worldToCamera_ =
+        this->worldToImage_ =
             tau::VerticalStack(
                 (this->intrinsics_.GetArray_pixels() * topThreeRows).eval(),
                 tau::RowVector<4, T>(T(0), T(0), T(0), T(1)));
 
         auto intrinsicsInverse = this->intrinsics_.GetInverse_pixels();
 
-        this->cameraToWorld_ =
-            (this->pose_.GetRotation() * intrinsicsInverse);
+        this->imageToWorld_ =
+            (this->pose_.GetImageInWorld() * intrinsicsInverse);
     }
 
     Extrinsic<T> GetExtrinsic_m() const
@@ -79,27 +79,32 @@ public:
         return this->pose_.GetExtrinsic_m();
     }
 
-    Vector3<T> WorldToCamera(const Point3d<T> &world) const
+    Vector3<T> WorldToImage(const Point3d<T> &world) const
     {
         Vector3<T> scaled =
-            (this->worldToCamera_ * world.GetHomogeneous())(Eigen::seq(0, 2));
+            (this->worldToImage_ * world.GetHomogeneous())(Eigen::seq(0, 2));
 
         return scaled.array() / scaled(2);
     }
 
-    Vector3<T> VectorWorldToCamera(const Eigen::Vector<T, 4> &world) const
+    Vector3<T> VectorWorldToImage(const Eigen::Vector<T, 4> &world) const
     {
         Vector3<T> scaled =
-            (this->worldToCamera_ * world)(Eigen::seq(0, 2));
+            (this->worldToImage_ * world)(Eigen::seq(0, 2));
 
         return scaled.array() / scaled(2);
     }
 
     // The camera only knows the direction to the world point.
     // Use GetLine to get a line that passes through the world point.
-    Vector3<T> CameraToWorld(const Vector3<T> &camera) const
+    Vector3<T> ImageToWorld(const Vector3<T> &camera) const
     {
-        return (this->cameraToWorld_ * camera);
+        return (this->imageToWorld_ * camera);
+    }
+
+    Vector3<T> PixelToWorld(const tau::Point2d<T> &pixel) const
+    {
+        return this->ImageToWorld(pixel.GetHomogeneous()).normalized();
     }
 
     Point3d<T> GetCameraPosition_pixels() const
@@ -111,24 +116,24 @@ public:
     {
         return Line3d<T>(
             this->cameraPosition_pixels_,
-            this->CameraToWorld(pixel.GetHomogeneous()).normalized());
+            this->PixelToWorld(pixel));
     }
 
     Line3d<T> GetLine_m(const tau::Point2d<T> &pixel) const
     {
         return Line3d<T>(
             this->pose_.GetPosition_m(),
-            this->CameraToWorld(pixel.GetHomogeneous()).normalized());
+            this->ImageToWorld(pixel.GetHomogeneous()).normalized());
     }
 
-    Eigen::Matrix<T, 4, 4> GetWorldToCamera() const
+    Eigen::Matrix<T, 4, 4> GetWorldToImage() const
     {
-        return this->worldToCamera_;
+        return this->worldToImage_;
     }
 
-    Eigen::Matrix<T, 3, 3> GetCameraToWorld() const
+    Eigen::Matrix<T, 3, 3> GetImageToWorld() const
     {
-        return this->cameraToWorld_;
+        return this->imageToWorld_;
     }
 
     template<typename>
@@ -157,15 +162,15 @@ private:
     Intrinsics<T> intrinsics_;
     Pose<T> pose_;
     Point3d<T> cameraPosition_pixels_;
-    Eigen::Matrix<T, 4, 4> worldToCamera_;
-    Eigen::Matrix<T, 3, 3> cameraToWorld_;
+    Eigen::Matrix<T, 4, 4> worldToImage_;
+    Eigen::Matrix<T, 3, 3> imageToWorld_;
 
 public:
     static constexpr auto fields = std::make_tuple(
         fields::Field(&Projection::intrinsics_, "intrinsics"),
         fields::Field(&Projection::pose_, "pose"),
-        fields::Field(&Projection::worldToCamera_, "worldToCamera"),
-        fields::Field(&Projection::cameraToWorld_, "cameraToWorld"));
+        fields::Field(&Projection::worldToImage_, "worldToImage"),
+        fields::Field(&Projection::imageToWorld_, "imageToWorld"));
 
 };
 

@@ -110,24 +110,37 @@ struct Pose: public PoseTemplate<T>::template Template<pex::Identity>
         return intrinsics.MetersToPixels(this->GetTranslation_m());
     }
 
-    RotationMatrix<T> GetRotation(
+    RotationMatrix<T> GetImageInWorld(
         PixelOrigin pixelOrigin = PixelOrigin::bottomLeft) const
     {
+        // This class represents the pose of the camera.
+        // The columns of this->rotation.GetRotation() are the camera body axes
+        // expressed in world coordinates (R_WC),
+        // which maps from camera body back to world.
+        //     V_W = R_WC * V_C
+        //
+        // This function returns the virtual image axes expressed in world
+        // coordinates (R_WI)
+        // 
+        // ImageInCameraBody is R_CI, and maps from image to camera body.
+        // 
+        // R_WI = R_WC * R_CI
+
         return this->rotation.GetRotation()
-            * ImageRelativeToWorld<T>(pixelOrigin);
+            * ImageInCameraBody<T>(pixelOrigin);
     }
 
     auto GetArray_pixels(const Intrinsics<T> &intrinsics) const
     {
         return tau::HorizontalStack(
-            this->GetRotation(),
+            this->GetImageInWorld(),
             this->GetTranslation_pixels(intrinsics));
     }
 
     auto GetArray_m() const
     {
         return tau::HorizontalStack(
-            this->GetRotation(),
+            this->GetImageInWorld(),
             this->GetTranslation_m());
     }
 

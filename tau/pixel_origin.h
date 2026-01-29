@@ -182,9 +182,13 @@ RotationMatrix<T> WorldRelativeToSensor(
  *      X positive Forward (roll axis)
  *      Y positive to left (pitch axis)
  *      Z up (yaw axis)
+ *
+ * R_CI -> the image axes expressed in camera body coordinates.
+ *         Maps the from image to camera body.
+ *         V_C = R_CI * V_I
  */
 template<typename T>
-RotationMatrix<T> ImageRelativeToWorld(
+RotationMatrix<T> ImageInCameraBody(
     PixelOrigin pixelOrigin = PixelOrigin::bottomLeft)
 {
     // To move from world coordinates to image coordinates:
@@ -229,7 +233,7 @@ RotationMatrix<T> ImageRelativeToWorld(
 }
 
 template<typename T>
-RotationMatrix<T> WorldRelativeToImage(
+RotationMatrix<T> CameraBodyInImage(
     PixelOrigin pixelOrigin = PixelOrigin::bottomLeft)
 {
     // To move from image coordinates to world coordinates:

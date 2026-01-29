@@ -66,7 +66,7 @@ struct Line3d
         :
         Line3dBase<T>{point_, direction_}
     {
-
+        assert(1.0 - static_cast<double>(direction_.norm()) < 0.001);
     }
 
     static Line3d FromPoints(const Point3d<T> &begin, const Point3d<T> &end)
@@ -171,7 +171,9 @@ struct Line3d
 
     Line3d<T> GetPerpendicularThroughPoint(const Point3d<T> &point_) const
     {
-        Vector3<T> toPoint = point_.ToEigen() - this->point.ToEigen();
+        Vector3<T> toPoint =
+            (point_.ToEigen() - this->point.ToEigen()).normalized();
+
         Vector3<T> normal = this->direction.cross(toPoint);
         Vector3<T> perpendicular = this->direction.cross(normal);
 
@@ -180,7 +182,9 @@ struct Line3d
 
     T DistanceToPoint(const Point3d<T> &point_) const
     {
-        Vector3<T> toPoint = point_.ToEigen() - this->point.ToEigen();
+        Vector3<T> toPoint =
+            (point_.ToEigen() - this->point.ToEigen()).normalized();
+
         Vector3<T> normal = this->direction.cross(toPoint);
         Vector3<T> perpendicular = this->direction.cross(normal);
 

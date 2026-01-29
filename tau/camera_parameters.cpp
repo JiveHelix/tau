@@ -94,7 +94,7 @@ CameraParameters CameraParameters::FromMatrix(
 
     Eigen::Matrix3d backToWorld =
         decompose.q.inverse()
-        * tau::WorldRelativeToImage<double>();
+        * tau::CameraBodyInImage<double>();
 
     Orthonormalize(backToWorld);
 
