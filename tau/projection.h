@@ -87,6 +87,13 @@ public:
         return scaled.array() / scaled(2);
     }
 
+    tau::Point2d<T> WorldToPixel(const Point3d<T> &world) const
+    {
+        auto homogeneous = this->WorldToImage(world);
+
+        return tau::Point2d<T>(homogeneous.template head<2>());
+    }
+
     Vector3<T> VectorWorldToImage(const Eigen::Vector<T, 4> &world) const
     {
         Vector3<T> scaled =
