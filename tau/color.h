@@ -182,10 +182,10 @@ struct Pixels
             this->size.width);
     }
 
-    void SetSize(const Size<Index> &size)
+    void SetSize(const Size<Index> &size_)
     {
-        this->size = size;
-        this->data = Data(size.height, size.width);
+        this->size = size_;
+        this->data = Data(size_.height, size_.width);
     }
 };
 

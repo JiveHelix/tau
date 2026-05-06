@@ -78,8 +78,6 @@ auto GetAddressRange(const Eigen::MatrixBase<Derived> &matrix)
         (Derived::Flags & Eigen::DirectAccessBit) != 0,
         "matrix must have direct access");
 
-    using Scalar = typename Derived::Scalar;
-
     if (matrix.size() == 0)
     {
         return {nullptr, nullptr};

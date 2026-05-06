@@ -635,7 +635,7 @@ ToEigenIndex(T value)
         }
     }
 
-    return static_cast<size_t>(value);
+    return static_cast<Eigen::Index>(value);
 }
 
 
