@@ -199,7 +199,8 @@ const std::vector<std::string> & Csv::GetHeaders() const
 }
 
 
-const std::unordered_map<std::string, Eigen::Index> & Csv::GetHeaderMap() const
+const std::unordered_map<std::string_view, Eigen::Index> &
+Csv::GetHeaderMap() const
 {
     return this->headerMap_;
 }
@@ -217,9 +218,7 @@ std::string Csv::operator()(Eigen::Index row, Eigen::Index column) const
 }
 
 
-std::string Csv::operator()(
-    const std::string &headerName,
-    Eigen::Index row) const
+std::string Csv::operator()(std::string_view headerName, Index row) const
 {
     return this->cells_.at(ToSize(row))
         .at(ToSize(this->headerMap_.at(headerName)));
@@ -288,7 +287,7 @@ Eigen::Index Csv::GetColumnCount() const
 }
 
 
-bool Csv::HasKey(const std::string &key) const
+bool Csv::HasKey(std::string_view key) const
 {
     return this->headerMap_.count(key) == 1;
 }

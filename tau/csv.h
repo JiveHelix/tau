@@ -125,13 +125,13 @@ public:
 
     const std::vector<std::string> & GetHeaders() const;
 
-    const std::unordered_map<std::string, Index> & GetHeaderMap() const;
+    const std::unordered_map<std::string_view, Index> & GetHeaderMap() const;
 
     Size GetSize() const;
 
     std::string operator()(Index row, Index column) const;
 
-    std::string operator()(const std::string &headerName, Index row) const;
+    std::string operator()(std::string_view headerName, Index row) const;
 
     const Cells & GetCells() const;
 
@@ -163,7 +163,7 @@ public:
     }
 
     template<typename T>
-    void AssignCell(const std::string &headerName, Index row, T value)
+    void AssignCell(std::string_view headerName, Index row, T value)
     {
         this->AssignCell(row, this->headerMap_.at(headerName), value);
     }
@@ -182,7 +182,7 @@ public:
     }
 
     template<typename T>
-    T GetNumber(const std::string &headerName, Index row) const
+    T GetNumber(std::string_view headerName, Index row) const
     {
         return this->GetNumber<T>(row, this->headerMap_.at(headerName));
     }
@@ -195,11 +195,11 @@ public:
 
     Index GetColumnCount() const;
 
-    bool HasKey(const std::string &key) const;
+    bool HasKey(std::string_view key) const;
 
 private:
     std::vector<std::string> headers_;
-    std::unordered_map<std::string, Index> headerMap_;
+    std::unordered_map<std::string_view, Index> headerMap_;
     std::vector<std::vector<std::string>> cells_;
     Index rowCount_;
     Index columnCount_;
