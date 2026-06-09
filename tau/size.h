@@ -208,7 +208,7 @@ using SizeGroup =
 
 
 template<typename T>
-using SizeControl = typename SizeGroup<T>::Control;
+using SizeControl = typename SizeGroup<T>::DefaultControl;
 
 
 TEMPLATE_OUTPUT_STREAM(Size)

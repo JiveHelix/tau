@@ -756,20 +756,22 @@ private:
             assert(result.rows() == count);
             assert(result.cols() == size);
 
-            Fill(
-                result,
-                std::get<I>(this->planes)
-                    .template reshaped<Eigen::AutoOrder>(1, size)...);
+            for (Index pixel = 0; pixel < size; ++pixel)
+            {
+                ((result(Index(I), pixel) =
+                    std::get<I>(this->planes)(pixel)), ...);
+            }
         }
         else
         {
             assert(result.rows() == size);
             assert(result.cols() == count);
 
-            Fill(
-                result,
-                std::get<I>(this->planes)
-                    .template reshaped<Eigen::AutoOrder>(size, 1)...);
+            for (Index pixel = 0; pixel < size; ++pixel)
+            {
+                ((result(pixel, Index(I)) =
+                    std::get<I>(this->planes)(pixel)), ...);
+            }
         }
     }
 
