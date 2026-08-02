@@ -140,7 +140,45 @@ template<typename T>
 inline constexpr bool HasStyleCast = HasStyleCast_<T>::value;
 
 
+template<typename Target, typename Style, typename Source, typename Result>
+void Convert(const Source &source, Result &result)
+{
+    if constexpr (jive::IsOptional<Source>)
+    {
+        if (source.has_value())
+        {
+            Convert<Target, Style>(*source, result);
+        }
+    }
+    else if constexpr (HasStyleCast<Source>)
+    {
+        result = source.template Cast<Target, Style>();
+    }
+    else if constexpr (HasCast<Source> && std::is_same_v<Style, Round>)
+    {
+        // Source has Cast function without Style selection.
+        // Allow only because the caller has requested the default style.
+        result = source.template Cast<Target>();
+    }
+    else if constexpr (HasEigenCast<Source>)
+    {
+        result = source.template cast<Target>();
+    }
+    else if constexpr (std::is_compound_v<Source>)
+    {
+        // Compound members without Cast or cast functions will be copied
+        // without any conversion.
+        result = source;
+    }
+    else
+    {
+        result = DoCast<Target, Source, Style>(source);
+    }
+};
+
+
 CONSTEXPR_SHIM_PUSH
+
 
 template
 <
@@ -158,42 +196,14 @@ Result CastFields(const Source &source)
 
     Result result;
 
-    auto convert = [&result, &source] (auto sourceField, auto resultField)
+    auto ConvertFields = [&result, &source] (auto sourceField, auto resultField)
     {
-        using Member = std::remove_reference_t<
-            decltype(source.*(sourceField.member))>;
-
-        if constexpr (HasStyleCast<Member>)
-        {
-            result.*(resultField.member) =
-                (source.*(sourceField.member)).template Cast<T, Style>();
-        }
-        else if constexpr (HasCast<Member> && std::is_same_v<Style, Round>)
-        {
-            // Member has Cast function without Style selection.
-            // Allow only because the caller has requested the default style.
-            result.*(resultField.member) =
-                (source.*(sourceField.member)).template Cast<T>();
-        }
-        else if constexpr (HasEigenCast<Member>)
-        {
-            result.*(resultField.member) =
-                (source.*(sourceField.member)).template cast<T>();
-        }
-        else if constexpr (std::is_compound_v<Member>)
-        {
-            // Compound members without Cast or cast functions will be copied
-            // without any conversion.
-            result.*(resultField.member) = source.*(sourceField.member);
-        }
-        else
-        {
-            result.*(resultField.member) =
-                DoCast<T, Member, Style>(source.*(sourceField.member));
-        }
+        Convert<T, Style>(
+            source.*(sourceField.member),
+            result.*(resultField.member));
     };
 
-    jive::ZipApply(convert, Source::fields, Result::fields);
+    jive::ZipApply(ConvertFields, Source::fields, Result::fields);
 
     return result;
 }

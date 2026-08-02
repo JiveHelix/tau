@@ -152,7 +152,7 @@ public:
 
         auto &cell = this->cells_.at(ToSize(row)).at(ToSize(column));
 
-        if constexpr (std::is_same_v<T, std::string>)
+        if constexpr (std::convertible_to<T, std::string>)
         {
             cell = value;
         }

@@ -51,7 +51,7 @@ struct Base2d
 
     Base2d()
         :
-        Vector2dBase<T>{0, 0}
+        Vector2dBase<T>{T(0), T(0)}
     {
 
     }

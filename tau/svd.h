@@ -17,51 +17,14 @@ SvdSolve(Eigen::MatrixBase<Derived> &factors)
 {
     using Scalar = typename Derived::Scalar;
     using Result = Eigen::VectorX<Scalar>;
+    using Matrix = typename Derived::PlainObject;
 
-#ifdef __GNUG__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
-#endif
+    using Svd = Eigen::JacobiSVD<Matrix>;
 
-    using Svd = Eigen::JacobiSVD<Derived>;
+    Svd svd(factors, Eigen::ComputeFullV);
 
-    Svd svd;
-
-    svd.compute(
-        factors.derived(),
-        Eigen::ColPivHouseholderQRPreconditioner
-            | Eigen::ComputeFullU
-            | Eigen::ComputeFullV);
-
-#ifdef __GNUG__
-#pragma GCC diagnostic pop
-#endif
-
-    Result nullSpace;
-
-    Eigen::MatrixX<Scalar> values = svd.matrixV();
-
-    Eigen::Index solutionIndex = values.cols() - 1;
-
-    while (solutionIndex > 0)
-    {
-        nullSpace = svd.matrixV()(Eigen::all, solutionIndex);
-        Scalar magnitude = nullSpace.transpose() * nullSpace;
-
-        if (jive::Roughly(magnitude, 1e-6) == 1)
-        {
-            return nullSpace;
-        }
-        else
-        {
-            // std::cout << "magnitude not 1: " << magnitude << std::endl;
-            // std::cout << "solutionIndex: " << solutionIndex << std::endl;
-        }
-
-        --solutionIndex;
-    }
-
-    throw TauError("Unable to find solution with magnitude 1");
+    // Return the last column of V.
+    return svd.matrixV().col(svd.matrixV().cols() - 1);
 }
 
 

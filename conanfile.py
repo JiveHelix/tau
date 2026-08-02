@@ -3,9 +3,9 @@ from conan import ConanFile
 
 class TauConan(ConanFile):
     name = "tau"
-    version = "1.14.0"
+    version = "1.15.0"
 
-    python_requires = "boiler/0.1"
+    python_requires = "boiler/0.2"
     python_requires_extend = "boiler.LibraryConanFile"
 
     license = "MIT"

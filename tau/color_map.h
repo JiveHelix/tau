@@ -258,8 +258,11 @@ auto MakeColorMap(const ColorMapSettings<T> &colorMapSettings)
     static constexpr auto maximum =
         static_cast<decltype(low)>(std::numeric_limits<T>::max());
 
+    assert(high > low);
+
+
     high = std::min(maximum, high);
-    low = std::min(high - 1, low);
+    low = std::min(T(high - 1), low);
 
     assert(low < high);
 

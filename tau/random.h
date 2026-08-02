@@ -124,7 +124,7 @@ public:
 
     }
 
-    void SetRange(Scalar low, Scalar high)
+    UniformRandom & SetRange(Scalar low, Scalar high)
     {
         if (low >= high)
         {
@@ -132,6 +132,8 @@ public:
         }
 
         this->distribution_ = Distribution<Scalar>(low, high);
+
+        return *this;
     }
 
     void SetLow(Scalar low)
