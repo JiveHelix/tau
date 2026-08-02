@@ -11,14 +11,10 @@ add_catch2_test(
         convolve_tests.cpp
         color_test.cpp
         eigen_test.cpp
-        extrinsics_tests.cpp
-        intrinsics_tests.cpp
         lens_tests.cpp
         line_tests.cpp
-        normalize_tests.cpp
         percentile_tests.cpp
         polynomial_tests.cpp
-        projection_tests.cpp
         region_tests.cpp
         rotation_tests.cpp
         row_convolve_tests.cpp

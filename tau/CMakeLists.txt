@@ -27,14 +27,12 @@ target_link_libraries(
 target_sources(
     tau
     PRIVATE
-    camera_parameters.cpp
     color_map.cpp
     color_map_settings.cpp
     csv.cpp
     dxf.cpp
     line2d.cpp
     pixel_origin.cpp
-    pose.cpp
     rotation.cpp
     scale.cpp
     size.cpp
