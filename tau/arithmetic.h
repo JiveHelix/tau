@@ -55,7 +55,7 @@ DoCast(V value)
 
 
 template<typename T, typename V, typename>
-std::enable_if_t<std::is_floating_point_v<T>, T>
+std::enable_if_t<!std::is_integral_v<T>, T>
 DoCast(V value)
 {
     // Casting to a floating-point value.
