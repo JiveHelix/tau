@@ -3,7 +3,7 @@ from conan import ConanFile
 
 class TauConan(ConanFile):
     name = "tau"
-    version = "1.15.0"
+    version = "1.15.1"
 
     python_requires = "boiler/0.2"
     python_requires_extend = "boiler.LibraryConanFile"
@@ -22,9 +22,9 @@ class TauConan(ConanFile):
         self.test_requires("catch2/2.13.9")
 
     def requirements(self):
-        self.requires("jive/[>=1.4 <2]", transitive_headers=True)
-        self.requires("fields/[>=1.5 <2]", transitive_headers=True)
-        self.requires("pex/[>=1.1 <2]", transitive_headers=True)
+        self.requires("jive/[>=1.6 <2]", transitive_headers=True)
+        self.requires("fields/[>=1.7.1 <2]", transitive_headers=True)
+        self.requires("pex/[>=1.3 <2]", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("fmt/[~10]", transitive_headers=True)
         self.requires("nlohmann_json/[~3]")
