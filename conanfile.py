@@ -25,6 +25,6 @@ class TauConan(ConanFile):
         self.requires("jive/[>=1.4 <2]", transitive_headers=True)
         self.requires("fields/[>=1.5 <2]", transitive_headers=True)
         self.requires("pex/[>=1.1 <2]", transitive_headers=True)
-        self.requires("eigen/[~3.4]", transitive_headers=True)
+        self.requires("eigen/3.4.0", transitive_headers=True)
         self.requires("fmt/[~10]", transitive_headers=True)
         self.requires("nlohmann_json/[~3]")
