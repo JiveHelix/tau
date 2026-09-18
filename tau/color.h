@@ -21,7 +21,7 @@ using ComponentMatrix =
         T,
         Eigen::Dynamic,
         static_cast<Eigen::Index>(componentCount),
-        Eigen::RowMajor
+        componentCount == 1 ? Eigen::ColMajor : Eigen::RowMajor
     >;
 
 
@@ -33,9 +33,12 @@ template<typename T>
 using RgbaMatrix = ComponentMatrix<T, 4>;
 
 
-template<typename T, size_t componentCount>
+template<typename T, size_t componentCount_>
 struct Pixels
 {
+    static constexpr size_t componentCount = componentCount_;
+    using ComponentType = T;
+
     using Data = ComponentMatrix<T, componentCount>;
     using Index = Eigen::Index;
     static constexpr auto Dynamic = Eigen::Dynamic;

@@ -60,7 +60,7 @@ struct ValueType
 
 
 template<typename T>
-struct ValueType<T, std::enable_if_t<jive::IsValueContainer<T>::value>>
+struct ValueType<T, std::enable_if_t<jive::IsValueContainer<T>>>
 {
     using type = typename T::value_type;
 };
@@ -72,12 +72,12 @@ struct MatrixTraits
     using T = std::remove_cvref_t<T_>;
 
     static_assert(
-        std::is_arithmetic_v<T> || jive::IsValueContainer<T>::value,
+        std::is_arithmetic_v<T> || jive::IsValueContainer<T>,
         "Expected an arithmetic type or a value container.");
 
     static constexpr bool isMatrix = false;
     static constexpr bool isMap = false;
-    static constexpr bool isDynamic = jive::IsValueContainer<T>::value;
+    static constexpr bool isDynamic = jive::IsValueContainer<T>;
     static constexpr bool isFullDynamic = isDynamic;
     using type = typename ValueType<T>::type;
 };
