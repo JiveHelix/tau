@@ -137,7 +137,6 @@ template<typename Value>
 using ColorMapSettingsGroup =
     pex::Group
     <
-        ColorMapSettingsFields,
         ColorMapSettingsTemplate<Value>::template Template,
         ColorMapSettingsCustom<Value>
     >;
@@ -155,7 +154,6 @@ using ColorMapSettingsControl =
 
 extern template struct pex::Group
     <
-        tau::ColorMapSettingsFields,
         tau::ColorMapSettingsTemplate<int32_t>::template Template,
         tau::ColorMapSettingsCustom<int32_t>
     >;

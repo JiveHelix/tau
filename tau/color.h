@@ -836,7 +836,6 @@ template<typename T>
 using HsvGroup =
     pex::Group
     <
-        HsvFields,
         HsvTemplate<T>::template MemberTemplate,
         HsvCustom<T>
     >;
@@ -1061,7 +1060,6 @@ template<typename T>
 using HsvaGroup =
     pex::Group
     <
-        HsvaFields,
         HsvaTemplate<T>::template MemberTemplate,
         pex::PlainT<Hsva<T>>
     >;
@@ -1071,7 +1069,6 @@ template<typename T>
 using RgbGroup =
     pex::Group
     <
-        RgbFields,
         RgbTemplate<T>::template MemberTemplate,
         pex::PlainT<Rgb<T>>
     >;
@@ -1080,7 +1077,6 @@ template<typename T>
 using RgbaGroup =
     pex::Group
     <
-        RgbaFields,
         RgbaTemplate<T>::template MemberTemplate,
         pex::PlainT<Rgba<T>>
     >;

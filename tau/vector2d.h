@@ -258,7 +258,6 @@ template<typename T>
 using Vector2dGroup =
     pex::Group
     <
-        Vector2dFields,
         Vector2dTemplate<T>::template Template,
         Vector2dCustom<T>
     >;
@@ -298,7 +297,6 @@ template<typename T>
 using Point2dGroup =
     pex::Group
     <
-        Vector2dFields,
         Vector2dTemplate<T>::template Template,
         Point2dCustom<T>
     >;

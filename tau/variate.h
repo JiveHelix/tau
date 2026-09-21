@@ -65,7 +65,6 @@ template<typename T>
 using VariateGroup =
     pex::Group
     <
-        VariateFields,
         VariateTemplate<T>::template Template,
         pex::PlainT<Variate<T>>
     >;
@@ -432,7 +431,6 @@ template<typename T>
 using VarianceGroup =
     pex::Group
     <
-        VarianceFields,
         VarianceTemplate<T>::template Template,
         pex::PlainT<Variance<T>>
     >;

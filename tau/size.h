@@ -34,8 +34,8 @@ struct SizeTemplate
         static constexpr auto fields = SizeFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Size";
     };
-
 };
+
 
 template<typename T>
 using SizeBase = typename SizeTemplate<T>::template Template<fields::Identity>;
@@ -201,7 +201,6 @@ template<typename T>
 using SizeGroup =
     pex::Group
     <
-        SizeFields,
         SizeTemplate<T>::template Template,
         SizeCustom<T>
     >;
@@ -237,70 +236,60 @@ namespace pex
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<int8_t>::template Template,
         tau::SizeCustom<int8_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<int16_t>::template Template,
         tau::SizeCustom<int16_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<int32_t>::template Template,
         tau::SizeCustom<int32_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<int64_t>::template Template,
         tau::SizeCustom<int64_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<uint8_t>::template Template,
         tau::SizeCustom<uint8_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<uint16_t>::template Template,
         tau::SizeCustom<uint16_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<uint32_t>::template Template,
         tau::SizeCustom<uint32_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<uint64_t>::template Template,
         tau::SizeCustom<uint64_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<float>::template Template,
         tau::SizeCustom<float>
     >;
 
 extern template struct Group
     <
-        tau::SizeFields,
         tau::SizeTemplate<double>::template Template,
         tau::SizeCustom<double>
     >;

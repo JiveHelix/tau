@@ -474,7 +474,6 @@ template<typename T>
 using RotationAnglesGroup =
     pex::Group
     <
-        RotationAnglesFields,
         RotationAnglesTemplate<T>::template Template,
         RotationAnglesTemplates_<T>
     >;
@@ -578,14 +577,12 @@ RotationMatrix<T> MakePitchYawRoll(T pitch_deg, T yaw_deg, T roll_deg)
 
 extern template struct pex::Group
     <
-        tau::RotationAnglesFields,
         tau::RotationAnglesTemplate<float>::template Template,
         tau::RotationAnglesTemplates_<float>
     >;
 
 extern template struct pex::Group
     <
-        tau::RotationAnglesFields,
         tau::RotationAnglesTemplate<double>::template Template,
         tau::RotationAnglesTemplates_<double>
     >;

@@ -135,7 +135,6 @@ template<typename T>
 using RegionGroup =
     pex::Group
     <
-        RegionFields,
         RegionTemplate<T>::template Template,
         pex::PlainT<Region<T>>
     >;

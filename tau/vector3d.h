@@ -250,7 +250,6 @@ template<typename T>
 using Vector3dGroup =
     pex::Group
     <
-        Vector3dFields,
         Vector3dTemplate<T>::template Template,
         pex::PlainT<Vector3d<T>>
     >;
@@ -260,7 +259,6 @@ template<typename T>
 using Point3dGroup =
     pex::Group
     <
-        Vector3dFields,
         Vector3dTemplate<T>::template Template,
         pex::PlainT<Point3d<T>>
     >;

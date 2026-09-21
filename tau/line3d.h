@@ -287,7 +287,6 @@ template<typename T>
 using Line3dGroup =
     pex::Group
     <
-        Line3dFields,
         Line3dTemplate<T>::template Template,
         pex::PlainT<Line3d<T>>
     >;
