@@ -12,15 +12,6 @@ namespace tau
 
 
 template<typename T>
-struct LensFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::focusDistance_m, "focusDistance (m)"),
-        fields::Field(&T::aperture_fstop, "aperture (f/stop)"));
-};
-
-
-template<typename T>
 struct LensTemplate
 {
     template<template<typename> typename U>
@@ -29,7 +20,6 @@ struct LensTemplate
         U<T> focusDistance_m;
         U<T> aperture_fstop;
 
-        static constexpr auto fields = LensFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Lens";
     };
 };
@@ -118,11 +108,6 @@ private:
     Lens<T> lens_;
     T focalLength_m_;
     T factor_;
-
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&CircleOfConfusion::lens_, "lens"),
-        fields::Field(&CircleOfConfusion::focalLength_m_, "focalLength (m)"),
-        fields::Field(&CircleOfConfusion::factor_, "factor"));
 };
 
 

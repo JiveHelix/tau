@@ -52,16 +52,6 @@ bool IsLinear(const Vector3<T> first, const Vector3<T> second)
 
 
 template<typename T>
-struct Vector3dFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::x, "x"),
-        fields::Field(&T::y, "y"),
-        fields::Field(&T::z, "z"));
-};
-
-
-template<typename T>
 struct Vector3dTemplate
 {
     template<template<typename> typename V>
@@ -70,8 +60,6 @@ struct Vector3dTemplate
         V<T> x;
         V<T> y;
         V<T> z;
-
-        static constexpr auto fields = Vector3dFields<Template>::fields;
     };
 };
 

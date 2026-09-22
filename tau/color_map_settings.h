@@ -36,16 +36,6 @@ struct Grayscale
 } // end namespace colors
 
 
-template<typename T>
-struct ColorMapSettingsFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::turbo, "turbo"),
-        fields::Field(&T::range, "range"),
-        fields::Field(&T::maximum, "maximum"));
-};
-
-
 using DefaultLowColor = pex::Limit<0>;
 using DefaultHighColor = pex::Limit<255>;
 
@@ -71,7 +61,6 @@ struct ColorMapSettingsTemplate
         T<typename ColorRange<Value>::Group> range;
         T<Value> maximum;
 
-        static constexpr auto fields = ColorMapSettingsFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Color";
     };
 };

@@ -187,6 +187,7 @@ template
     typename Style,
     typename Source
 >
+    requires(fields::HasFields<Result> && fields::HasFields<Source>)
 Result CastFields(const Source &source)
 {
     if constexpr (std::is_same_v<Result, Source>)
@@ -196,17 +197,48 @@ Result CastFields(const Source &source)
 
     Result result;
 
-    auto ConvertFields = [&result, &source] (auto sourceField, auto resultField)
+    auto convertFields = [&result, &source] (auto sourceField, auto resultField)
     {
         Convert<T, Style>(
             source.*(sourceField.member),
             result.*(resultField.member));
     };
 
-    jive::ZipApply(ConvertFields, Source::fields, Result::fields);
+    jive::ZipApply(convertFields, Source::fields, Result::fields);
 
     return result;
 }
+
+
+template
+<
+    typename Result,
+    typename T,
+    typename Style,
+    typename Source
+>
+    requires(fields::CanReflect<Result> && fields::CanReflect<Source>)
+Result CastFields(const Source &source)
+{
+    if constexpr (std::is_same_v<Result, Source>)
+    {
+        return source;
+    }
+
+    Result result;
+
+    auto convertMembers = [] (
+        const auto &sourceMember,
+        auto &resultMember)
+    {
+        Convert<T, Style>(sourceMember, resultMember);
+    };
+
+    fields::ForEachZip(source, result, convertMembers);
+
+    return result;
+}
+
 
 CONSTEXPR_SHIM_POP
 
@@ -312,20 +344,75 @@ struct BasicArithmetic
         return *static_cast<const This *>(this);
     }
 
+    template<typename Operator>
+    This & DoOperatorAssign(const This &other)
+    {
+        auto & self = this->Upcast();
+
+        if constexpr (fields::HasFields<This>)
+        {
+            auto operateOnMember = [&self, &other] (auto field)
+            {
+                OpAssign<Operator>(
+                    self.*(field.member),
+                    other.*(field.member));
+            };
+
+            jive::ForEach(This::fields, operateOnMember);
+        }
+        else
+        {
+            static_assert(fields::CanReflect<This>);
+
+            auto operateOnMember = [] (
+                auto &thisMember,
+                const auto &otherMember)
+            {
+                OpAssign<Operator>(thisMember, otherMember);
+            };
+
+            fields::ForEachZip(self, other, operateOnMember);
+        }
+
+        return self;
+    }
+
+    template<typename Operator>
+    This & DoOperatorAssignScalar(T scalar)
+    {
+        auto & self = this->Upcast();
+
+        if constexpr (fields::HasFields<This>)
+        {
+            auto operateOnMember = [&self, scalar] (auto field)
+            {
+                OpAssign<Operator>(
+                    self.*(field.member),
+                    scalar);
+            };
+
+            jive::ForEach(This::fields, operateOnMember);
+        }
+        else
+        {
+            static_assert(fields::CanReflect<This>);
+
+            auto operateOnMember = [scalar] (auto &thisMember)
+            {
+                OpAssign<Operator>(thisMember, scalar);
+            };
+
+            fields::ForEach(self, operateOnMember);
+        }
+
+        return self;
+    }
+
     /***** Element-wise operators *****/
     // TODO: Add assertions (or exceptions?) when operators cause overflow.
     This & operator+=(const This &other)
     {
-        auto & self = this->Upcast();
-
-        auto add = [&self, &other] (auto field)
-        {
-            OpAssign<op::Add>(self.*(field.member), other.*(field.member));
-        };
-
-        jive::ForEach(This::fields, add);
-
-        return self;
+        return this->DoOperatorAssign<op::Add>(other);
     }
 
     This operator+(const This &other) const
@@ -336,16 +423,7 @@ struct BasicArithmetic
 
     This & operator-=(const This &other)
     {
-        auto & self = this->Upcast();
-
-        auto subtract = [&self, &other] (auto field)
-        {
-            OpAssign<op::Subtract>(self.*(field.member), other.*(field.member));
-        };
-
-        jive::ForEach(This::fields, subtract);
-
-        return self;
+        return this->DoOperatorAssign<op::Subtract>(other);
     }
 
     This operator-(const This &other) const
@@ -356,16 +434,7 @@ struct BasicArithmetic
 
     This & operator*=(const This &other)
     {
-        auto & self = this->Upcast();
-
-        auto multiply = [&self, &other] (auto field)
-        {
-            OpAssign<op::Multiply>(self.*(field.member), other.*(field.member));
-        };
-
-        jive::ForEach(This::fields, multiply);
-
-        return self;
+        return this->DoOperatorAssign<op::Multiply>(other);
     }
 
     This operator*(const This &other) const
@@ -376,16 +445,7 @@ struct BasicArithmetic
 
     This & operator/=(const This &other)
     {
-        auto & self = this->Upcast();
-
-        auto divide = [&self, &other] (auto field)
-        {
-            OpAssign<op::Divide>(self.*(field.member), other.*(field.member));
-        };
-
-        jive::ForEach(This::fields, divide);
-
-        return self;
+        return this->DoOperatorAssign<op::Divide>(other);
     }
 
     This operator/(const This &other) const
@@ -399,16 +459,7 @@ struct BasicArithmetic
 
     This & operator+=(T scalar)
     {
-        auto & self = this->Upcast();
-
-        auto add = [&self, scalar] (auto field)
-        {
-            OpAssign<op::Add>(self.*(field.member), scalar);
-        };
-
-        jive::ForEach(This::fields, add);
-
-        return self;
+        return this->DoOperatorAssignScalar<op::Add>(scalar);
     }
 
     This operator+(T scalar) const
@@ -419,16 +470,7 @@ struct BasicArithmetic
 
     This & operator-=(T scalar)
     {
-        auto & self = this->Upcast();
-
-        auto subtract = [&self, scalar] (auto field)
-        {
-            OpAssign<op::Subtract>(self.*(field.member), scalar);
-        };
-
-        jive::ForEach(This::fields, subtract);
-
-        return self;
+        return this->DoOperatorAssignScalar<op::Subtract>(scalar);
     }
 
     This operator-(T scalar) const
@@ -439,16 +481,7 @@ struct BasicArithmetic
 
     This & operator*=(T scalar)
     {
-        auto & self = this->Upcast();
-
-        auto multiply = [&self, scalar] (auto field)
-        {
-            OpAssign<op::Multiply>(self.*(field.member), scalar);
-        };
-
-        jive::ForEach(This::fields, multiply);
-
-        return self;
+        return this->DoOperatorAssignScalar<op::Multiply>(scalar);
     }
 
     This operator*(T scalar) const
@@ -459,18 +492,7 @@ struct BasicArithmetic
 
     This & operator/=(T scalar)
     {
-        auto & self = this->Upcast();
-
-        auto divide = [&self, scalar] (auto field)
-        {
-            // /= would be convenient, but division converts to int,
-            // which triggers a conversion warning.
-            OpAssign<op::Divide>(self.*(field.member), scalar);
-        };
-
-        jive::ForEach(This::fields, divide);
-
-        return self;
+        return this->DoOperatorAssignScalar<op::Divide>(scalar);
     }
 
     This operator/(T scalar) const
@@ -485,29 +507,56 @@ struct BasicArithmetic
 
         const auto & self = this->Upcast();
 
-        auto square = [&self, &result] (auto field)
+        if constexpr (fields::HasFields<This>)
         {
-            auto member = self.*(field.member);
-            auto memberSquared = member * member;
-            assert(memberSquared + result <= std::numeric_limits<T>::max());
-            result = static_cast<T>(result + memberSquared);
-        };
+            auto square = [&self, &result] (auto field)
+            {
+                auto member = self.*(field.member);
+                auto memberSquared = member * member;
+                assert(memberSquared + result <= std::numeric_limits<T>::max());
+                result = static_cast<T>(result + memberSquared);
+            };
 
-        jive::ForEach(This::fields, square);
+            jive::ForEach(This::fields, square);
+        }
+        else
+        {
+            auto square = [&result] (const auto &member)
+            {
+                auto memberSquared = member * member;
+                assert(memberSquared + result <= std::numeric_limits<T>::max());
+                result = static_cast<T>(result + memberSquared);
+            };
+
+            fields::ForEach(self, square);
+        }
 
         return result;
     }
 
     This Squared() const
     {
+        // Copy self
         auto self = this->Upcast();
 
-        auto square = [&self](auto field) -> void
+        if constexpr (fields::HasFields<This>)
         {
-            self.*(field.member) *= self.*(field.member);
-        };
+            auto square = [&self](auto field) -> void
+            {
+                self.*(field.member) *= self.*(field.member);
+            };
 
-        jive::ForEach(This::fields, square);
+            jive::ForEach(This::fields, square);
+        }
+        else
+        {
+            auto square = [](const auto &member) -> void
+            {
+                member *= member;
+            };
+
+            fields::ForEach(self, square);
+        }
 
         return self;
     }
@@ -581,22 +630,44 @@ struct BasicArithmetic
 
        const This &self = this->Upcast();
 
-       auto compare = [&result, &self, &other](auto field) -> void
+       if constexpr (fields::HasFields<This>)
        {
-           using MemberType = typename std::remove_reference_t
-               <
-                   decltype(self.*(field.member))
-               >;
-
-           if (result)
+           auto compare = [&result, &self, &other](auto field) -> void
            {
-               result = Operator<MemberType>{}(
-                   self.*(field.member),
-                   other.*(field.member));
-           }
-       };
+               using MemberType = typename std::remove_reference_t
+                   <
+                       decltype(self.*(field.member))
+                   >;
 
-       jive::ForEach(This::fields, compare);
+               if (result)
+               {
+                   result = Operator<MemberType>{}(
+                       self.*(field.member),
+                       other.*(field.member));
+               }
+           };
+
+           jive::ForEach(This::fields, compare);
+       }
+       else
+       {
+           auto compare = [&result](
+                const auto &member,
+                const auto &other) -> void
+           {
+                using MemberType = typename std::remove_reference_t
+                <
+                   decltype(member)
+                >;
+
+                if (result)
+                {
+                    result = Operator<MemberType>{}(member, other);
+                }
+           };
+
+           fields::ForEachZip(self, other, compare);
+       }
 
        return result;
     }

@@ -771,16 +771,6 @@ auto HsvToRgb(const Planar<count, T, rows, columns, options> &hsv)
 }
 
 
-template<typename T>
-struct HsvFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::hue, "hue"),
-        fields::Field(&T::saturation, "saturation"),
-        fields::Field(&T::value, "value"));
-};
-
-
 template<typename U>
 using HueRange = pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>;
 
@@ -800,7 +790,6 @@ struct HsvTemplate
         V<UnitRange<U>> saturation;
         V<UnitRange<U>> value;
 
-        static constexpr auto fields = HsvFields<MemberTemplate>::fields;
         static constexpr auto fieldsTypeName = "Hsv";
     };
 };
@@ -847,17 +836,6 @@ DECLARE_COMPARISON_OPERATORS(Hsv<float>)
 DECLARE_COMPARISON_OPERATORS(Hsv<double>)
 
 
-template<typename T>
-struct HsvaFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::hue, "hue"),
-        fields::Field(&T::saturation, "saturation"),
-        fields::Field(&T::value, "value"),
-        fields::Field(&T::alpha, "alpha"));
-};
-
-
 template<typename U>
 struct HsvaTemplate
 {
@@ -869,7 +847,6 @@ struct HsvaTemplate
         V<UnitRange<U>> value;
         V<UnitRange<U>> alpha;
 
-        static constexpr auto fields = HsvaFields<MemberTemplate>::fields;
         static constexpr auto fieldsTypeName = "Hsva";
     };
 };
@@ -901,16 +878,6 @@ DECLARE_COMPARISON_OPERATORS(Hsva<float>)
 DECLARE_COMPARISON_OPERATORS(Hsva<double>)
 
 
-template<typename T>
-struct RgbFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::red, "red"),
-        fields::Field(&T::green, "green"),
-        fields::Field(&T::blue, "blue"));
-};
-
-
 template<typename U>
 struct RgbTemplate
 {
@@ -921,7 +888,6 @@ struct RgbTemplate
         V<pex::MakeRange<U>> green;
         V<pex::MakeRange<U>> blue;
 
-        static constexpr auto fields = RgbFields<MemberTemplate>::fields;
         static constexpr auto fieldsTypeName = "Rgb";
     };
 };
@@ -952,17 +918,6 @@ DECLARE_COMPARISON_OPERATORS(Rgb<uint8_t>)
 DECLARE_COMPARISON_OPERATORS(Rgb<uint16_t>)
 
 
-template<typename T>
-struct RgbaFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::red, "red"),
-        fields::Field(&T::green, "green"),
-        fields::Field(&T::blue, "blue"),
-        fields::Field(&T::alpha, "alpha"));
-};
-
-
 template<typename U>
 struct RgbaTemplate
 {
@@ -974,7 +929,6 @@ struct RgbaTemplate
         V<pex::MakeRange<U>> blue;
         V<pex::MakeRange<U>> alpha;
 
-        static constexpr auto fields = RgbaFields<MemberTemplate>::fields;
         static constexpr auto fieldsTypeName = "Rgba";
     };
 };

@@ -69,10 +69,6 @@ struct WaveletFilter
 {
     Eigen::RowVector<T, Eigen::Dynamic> low;
     Eigen::RowVector<T, Eigen::Dynamic> high;
-
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&WaveletFilter::low, "low"),
-        fields::Field(&WaveletFilter::high, "high"));
 };
 
 
@@ -118,11 +114,6 @@ struct Wavelet
 
         return result;
     }
-
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&Wavelet::name, "name"),
-        fields::Field(&Wavelet::decompose, "decompose"),
-        fields::Field(&Wavelet::recompose, "recompose"));
 };
 
 

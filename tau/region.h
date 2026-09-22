@@ -13,15 +13,6 @@ namespace tau
 
 
 template<typename T>
-struct RegionFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::topLeft, "topLeft"),
-        fields::Field(&T::size, "size"));
-};
-
-
-template<typename T>
 struct RegionTemplate
 {
     template<template<typename> typename V>
@@ -30,7 +21,6 @@ struct RegionTemplate
         V<Point2dGroup<T>> topLeft;
         V<SizeGroup<T>> size;
 
-        static constexpr auto fields = RegionFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Region";
     };
 };
@@ -43,10 +33,6 @@ struct Region: public RegionTemplate<T>::template Template<pex::Identity>
     {
         return this->topLeft + this->size.ToPoint2d();
     }
-
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&Region::topLeft, "topLeft"),
-        fields::Field(&Region::size, "size"));
 
     bool Intersects(const Region &other) const
     {

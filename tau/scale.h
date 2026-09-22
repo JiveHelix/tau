@@ -13,15 +13,6 @@ namespace tau
 
 
 template<typename T>
-struct ScaleFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::vertical, "vertical"),
-        fields::Field(&T::horizontal, "horizontal"));
-};
-
-
-template<typename T>
 struct ScaleTemplate
 {
     template<template<typename> typename V>
@@ -30,7 +21,6 @@ struct ScaleTemplate
         V<T> vertical;
         V<T> horizontal;
 
-        static constexpr auto fields = ScaleFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Scale";
     };
 };

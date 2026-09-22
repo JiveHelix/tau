@@ -21,18 +21,6 @@ namespace tau
 {
 
 
-template<typename T>
-struct VariateFields
-{
-    static constexpr auto fields = std::make_tuple(
-        // The mean value
-        fields::Field(&T::value, "value"),
-
-        // The standard deviation
-        fields::Field(&T::sigma, "sigma"));
-};
-
-
 template<typename U>
 struct VariateTemplate
 {
@@ -44,7 +32,6 @@ struct VariateTemplate
         T<U> value;
         T<U> sigma;
 
-        static constexpr auto fields = VariateFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Variate";
     };
 };
@@ -84,17 +71,6 @@ DECLARE_EQUALITY_OPERATORS(Variate<float>)
 DECLARE_EQUALITY_OPERATORS(Variate<double>)
 
 
-template<typename T>
-struct VarianceFields
-{
-    static constexpr auto fields = std::make_tuple(
-        // The mean value
-        fields::Field(&T::value, "value"),
-
-        // The standard deviation squared
-        fields::Field(&T::variance, "variance"));
-};
-
 
 template<typename U>
 struct VarianceTemplate
@@ -107,7 +83,6 @@ struct VarianceTemplate
         T<U> value;
         T<U> variance;
 
-        static constexpr auto fields = VarianceFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Variance";
     };
 };

@@ -14,15 +14,6 @@ namespace tau
 
 
 template<typename T>
-struct Vector2dFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::x, "x"),
-        fields::Field(&T::y, "y"));
-};
-
-
-template<typename T>
 struct Vector2dTemplate
 {
     template<template<typename> typename V>
@@ -30,9 +21,6 @@ struct Vector2dTemplate
     {
         V<T> x;
         V<T> y;
-
-        static constexpr auto fields = Vector2dFields<Template>::fields;
-
     };
 };
 

@@ -13,15 +13,6 @@ namespace tau
 
 
 template<typename T>
-struct Line2dFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::point, "point"),
-        fields::Field(&T::vector, "vector"));
-};
-
-
-template<typename T>
 struct Line2dTemplate
 {
     template<template<typename> typename V>
@@ -29,8 +20,6 @@ struct Line2dTemplate
     {
         V<Point2d<T>> point;
         V<Vector2d<T>> vector;
-
-        static constexpr auto fields = Line2dFields<Template>::fields;
     };
 };
 

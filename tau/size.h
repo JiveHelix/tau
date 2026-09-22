@@ -14,15 +14,6 @@ namespace tau
 
 
 template<typename T>
-struct SizeFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::width, "width"),
-        fields::Field(&T::height, "height"));
-};
-
-
-template<typename T>
 struct SizeTemplate
 {
     template<template<typename> typename V>
@@ -31,7 +22,6 @@ struct SizeTemplate
         V<T> width;
         V<T> height;
 
-        static constexpr auto fields = SizeFields<Template>::fields;
         static constexpr auto fieldsTypeName = "Size";
     };
 };
