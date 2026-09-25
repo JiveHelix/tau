@@ -52,10 +52,10 @@ bool IsLinear(const Vector3<T> first, const Vector3<T> second)
 
 
 template<typename T>
-struct Vector3dTemplate
+struct Vector3dSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<T> x;
         V<T> y;
@@ -66,7 +66,7 @@ struct Vector3dTemplate
 
 template<typename T>
 using Vector3dBase =
-    typename Vector3dTemplate<T>::template Template<pex::Identity>;
+    typename Vector3dSchema<T>::template Schema<pex::Identity>;
 
 
 template<typename T, template<typename> typename Derived>
@@ -238,7 +238,7 @@ template<typename T>
 using Vector3dGroup =
     pex::Group
     <
-        Vector3dTemplate<T>::template Template,
+        Vector3dSchema<T>::template Schema,
         pex::PlainT<Vector3d<T>>
     >;
 
@@ -247,7 +247,7 @@ template<typename T>
 using Point3dGroup =
     pex::Group
     <
-        Vector3dTemplate<T>::template Template,
+        Vector3dSchema<T>::template Schema,
         pex::PlainT<Point3d<T>>
     >;
 

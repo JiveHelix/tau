@@ -779,12 +779,12 @@ using UnitRange = pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>;
 
 
 template<typename U>
-struct HsvTemplate
+struct HsvSchema
 {
     static_assert(std::is_floating_point_v<U>);
 
     template<template<typename> typename V>
-    struct MemberTemplate
+    struct Schema
     {
         V<HueRange<U>> hue;
         V<UnitRange<U>> saturation;
@@ -796,7 +796,7 @@ struct HsvTemplate
 
 
 template<typename T>
-struct Hsv: public HsvTemplate<T>::template MemberTemplate<pex::Identity>
+struct Hsv: public HsvSchema<T>::template Schema<pex::Identity>
 {
     template<typename U>
     static Hsv FromVector(const ColorVector<U> &hsv)
@@ -815,7 +815,7 @@ struct Hsv: public HsvTemplate<T>::template MemberTemplate<pex::Identity>
 
 
 template<typename T>
-struct HsvCustom
+struct HsvFinisher
 {
     using Plain = Hsv<T>;
 };
@@ -825,8 +825,8 @@ template<typename T>
 using HsvGroup =
     pex::Group
     <
-        HsvTemplate<T>::template MemberTemplate,
-        HsvCustom<T>
+        HsvSchema<T>::template Schema,
+        HsvFinisher<T>
     >;
 
 
@@ -837,10 +837,10 @@ DECLARE_COMPARISON_OPERATORS(Hsv<double>)
 
 
 template<typename U>
-struct HsvaTemplate
+struct HsvaSchema
 {
     template<template<typename> typename V>
-    struct MemberTemplate
+    struct Schema
     {
         V<HueRange<U>> hue;
         V<UnitRange<U>> saturation;
@@ -853,7 +853,7 @@ struct HsvaTemplate
 
 
 template<typename T>
-struct Hsva: public HsvaTemplate<T>::template MemberTemplate<pex::Identity>
+struct Hsva: public HsvaSchema<T>::template Schema<pex::Identity>
 {
     template<typename U>
     static Hsva FromVector(const AlphaVector<U> &hsva)
@@ -879,10 +879,10 @@ DECLARE_COMPARISON_OPERATORS(Hsva<double>)
 
 
 template<typename U>
-struct RgbTemplate
+struct RgbSchema
 {
     template<template<typename> typename V>
-    struct MemberTemplate
+    struct Schema
     {
         V<pex::MakeRange<U>> red;
         V<pex::MakeRange<U>> green;
@@ -894,7 +894,7 @@ struct RgbTemplate
 
 
 template<typename T>
-struct Rgb: public RgbTemplate<T>::template MemberTemplate<pex::Identity>
+struct Rgb: public RgbSchema<T>::template Schema<pex::Identity>
 {
     template<typename U>
     static Rgb FromVector(const ColorVector<U> &rgb)
@@ -919,10 +919,10 @@ DECLARE_COMPARISON_OPERATORS(Rgb<uint16_t>)
 
 
 template<typename U>
-struct RgbaTemplate
+struct RgbaSchema
 {
     template<template<typename> typename V>
-    struct MemberTemplate
+    struct Schema
     {
         V<pex::MakeRange<U>> red;
         V<pex::MakeRange<U>> green;
@@ -935,7 +935,7 @@ struct RgbaTemplate
 
 
 template<typename T>
-struct Rgba: public RgbaTemplate<T>::template MemberTemplate<pex::Identity>
+struct Rgba: public RgbaSchema<T>::template Schema<pex::Identity>
 {
     template<typename U>
     static Rgba FromVector(const AlphaVector<U> &rgba)
@@ -1014,7 +1014,7 @@ template<typename T>
 using HsvaGroup =
     pex::Group
     <
-        HsvaTemplate<T>::template MemberTemplate,
+        HsvaSchema<T>::template Schema,
         pex::PlainT<Hsva<T>>
     >;
 
@@ -1023,7 +1023,7 @@ template<typename T>
 using RgbGroup =
     pex::Group
     <
-        RgbTemplate<T>::template MemberTemplate,
+        RgbSchema<T>::template Schema,
         pex::PlainT<Rgb<T>>
     >;
 
@@ -1031,7 +1031,7 @@ template<typename T>
 using RgbaGroup =
     pex::Group
     <
-        RgbaTemplate<T>::template MemberTemplate,
+        RgbaSchema<T>::template Schema,
         pex::PlainT<Rgba<T>>
     >;
 

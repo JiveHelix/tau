@@ -101,12 +101,12 @@ RotationAngles<double> operator-(
 
 template struct pex::Group
     <
-        tau::RotationAnglesTemplate<float>::template Template,
-        tau::RotationAnglesTemplates_<float>
+        tau::RotationAnglesSchema<float>::template Schema,
+        tau::RotationAnglesFinisher<float>
     >;
 
 template struct pex::Group
     <
-        tau::RotationAnglesTemplate<double>::template Template,
-        tau::RotationAnglesTemplates_<double>
+        tau::RotationAnglesSchema<double>::template Schema,
+        tau::RotationAnglesFinisher<double>
     >;

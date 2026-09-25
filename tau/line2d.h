@@ -13,10 +13,10 @@ namespace tau
 
 
 template<typename T>
-struct Line2dTemplate
+struct Line2dSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<Point2d<T>> point;
         V<Vector2d<T>> vector;
@@ -26,7 +26,7 @@ struct Line2dTemplate
 
 template<typename T>
 using Line2dBase =
-    typename Line2dTemplate<T>::template Template<pex::Identity>;
+    typename Line2dSchema<T>::template Schema<pex::Identity>;
 
 
 template<typename T>

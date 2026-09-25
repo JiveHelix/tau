@@ -14,10 +14,10 @@ namespace tau
 
 
 template<typename T>
-struct SizeTemplate
+struct SizeSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<T> width;
         V<T> height;
@@ -28,7 +28,7 @@ struct SizeTemplate
 
 
 template<typename T>
-using SizeBase = typename SizeTemplate<T>::template Template<fields::Identity>;
+using SizeBase = typename SizeSchema<T>::template Schema<fields::Identity>;
 
 
 template<typename T>
@@ -181,7 +181,7 @@ struct Size
 
 
 template<typename T>
-struct SizeCustom
+struct SizeFinisher
 {
     using Plain = Size<T>;
 };
@@ -191,8 +191,8 @@ template<typename T>
 using SizeGroup =
     pex::Group
     <
-        SizeTemplate<T>::template Template,
-        SizeCustom<T>
+        SizeSchema<T>::template Schema,
+        SizeFinisher<T>
     >;
 
 
@@ -226,62 +226,62 @@ namespace pex
 
 extern template struct Group
     <
-        tau::SizeTemplate<int8_t>::template Template,
-        tau::SizeCustom<int8_t>
+        tau::SizeSchema<int8_t>::template Schema,
+        tau::SizeFinisher<int8_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<int16_t>::template Template,
-        tau::SizeCustom<int16_t>
+        tau::SizeSchema<int16_t>::template Schema,
+        tau::SizeFinisher<int16_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<int32_t>::template Template,
-        tau::SizeCustom<int32_t>
+        tau::SizeSchema<int32_t>::template Schema,
+        tau::SizeFinisher<int32_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<int64_t>::template Template,
-        tau::SizeCustom<int64_t>
+        tau::SizeSchema<int64_t>::template Schema,
+        tau::SizeFinisher<int64_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<uint8_t>::template Template,
-        tau::SizeCustom<uint8_t>
+        tau::SizeSchema<uint8_t>::template Schema,
+        tau::SizeFinisher<uint8_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<uint16_t>::template Template,
-        tau::SizeCustom<uint16_t>
+        tau::SizeSchema<uint16_t>::template Schema,
+        tau::SizeFinisher<uint16_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<uint32_t>::template Template,
-        tau::SizeCustom<uint32_t>
+        tau::SizeSchema<uint32_t>::template Schema,
+        tau::SizeFinisher<uint32_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<uint64_t>::template Template,
-        tau::SizeCustom<uint64_t>
+        tau::SizeSchema<uint64_t>::template Schema,
+        tau::SizeFinisher<uint64_t>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<float>::template Template,
-        tau::SizeCustom<float>
+        tau::SizeSchema<float>::template Schema,
+        tau::SizeFinisher<float>
     >;
 
 extern template struct Group
     <
-        tau::SizeTemplate<double>::template Template,
-        tau::SizeCustom<double>
+        tau::SizeSchema<double>::template Schema,
+        tau::SizeFinisher<double>
     >;
 
 

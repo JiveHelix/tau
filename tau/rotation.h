@@ -134,6 +134,9 @@ struct AxisOrder: public BasicArithmetic<size_t, AxisOrder>
     size_t second;
     size_t third;
 
+    // We have a constructor, so this class is not aggregate and cannot
+    // be reflected by fields::Reflect.
+    // Fields must be supplied.
     static constexpr auto fields = std::make_tuple(
         fields::Field(&AxisOrder::first, "first"),
         fields::Field(&AxisOrder::second, "second"),
@@ -208,17 +211,6 @@ struct AxisOrderChoices
 };
 
 
-template<typename T>
-struct RotationAnglesFields
-{
-    static constexpr auto fields = std::make_tuple(
-        fields::Field(&T::yaw_deg, "yaw_deg", "yaw"),
-        fields::Field(&T::pitch_deg, "pitch_deg", "pitch"),
-        fields::Field(&T::roll_deg, "roll_deg", "roll"),
-        fields::Field(&T::axisOrder, "axisOrder"));
-};
-
-
 using AxisOrderSelect = pex::MakeSelect<AxisOrderChoices>;
 
 static_assert(
@@ -232,12 +224,12 @@ static_assert(pex::HasGetChoices<AxisOrderChoices>);
 
 
 template<typename U>
-struct RotationAnglesTemplate
+struct RotationAnglesSchema
 {
     using AngleRange = pex::MakeRange<U, pex::Limit<-180>, pex::Limit<180>>;
 
     template<template<typename> typename T>
-    struct Template
+    struct Schema
     {
         // Rotation angles in degrees.
         T<AngleRange> yaw_deg;
@@ -245,7 +237,14 @@ struct RotationAnglesTemplate
         T<AngleRange> roll_deg;
         T<pex::MakeSelect<AxisOrderChoices>> axisOrder;
 
-        static constexpr auto fields = RotationAnglesFields<Template>::fields;
+        // By supplying alternate names, fields in class can be restructured
+        // from either name.
+        static constexpr auto fields = std::make_tuple(
+            fields::Field(&Schema::yaw_deg, "yaw_deg", "yaw"),
+            fields::Field(&Schema::pitch_deg, "pitch_deg", "pitch"),
+            fields::Field(&Schema::roll_deg, "roll_deg", "roll"),
+            fields::Field(&Schema::axisOrder, "axisOrder"));
+
         static constexpr auto fieldsTypeName = "RotationAngles";
     };
 };
@@ -298,11 +297,11 @@ CanonicalEuler(
 
 template<typename T>
 using RotationAnglesBase =
-    typename RotationAnglesTemplate<T>::template Template<pex::Identity>;
+    typename RotationAnglesSchema<T>::template Schema<pex::Identity>;
 
 
 template<typename T>
-struct RotationAnglesTemplates_
+struct RotationAnglesFinisher
 {
     template<typename Base>
     struct Plain: public Base // , public BasicArithmetic<T, Plain<Base>>
@@ -412,7 +411,7 @@ struct RotationAnglesTemplates_
         auto Cast() const
         {
             using Result =
-                typename RotationAnglesTemplates_<U>
+                typename RotationAnglesFinisher<U>
                     ::template Plain<RotationAnglesBase<U>>;
 
             return CastFields<Result, U, Style>(*this);
@@ -474,8 +473,8 @@ template<typename T>
 using RotationAnglesGroup =
     pex::Group
     <
-        RotationAnglesTemplate<T>::template Template,
-        RotationAnglesTemplates_<T>
+        RotationAnglesSchema<T>::template Schema,
+        RotationAnglesFinisher<T>
     >;
 
 
@@ -577,12 +576,12 @@ RotationMatrix<T> MakePitchYawRoll(T pitch_deg, T yaw_deg, T roll_deg)
 
 extern template struct pex::Group
     <
-        tau::RotationAnglesTemplate<float>::template Template,
-        tau::RotationAnglesTemplates_<float>
+        tau::RotationAnglesSchema<float>::template Schema,
+        tau::RotationAnglesFinisher<float>
     >;
 
 extern template struct pex::Group
     <
-        tau::RotationAnglesTemplate<double>::template Template,
-        tau::RotationAnglesTemplates_<double>
+        tau::RotationAnglesSchema<double>::template Schema,
+        tau::RotationAnglesFinisher<double>
     >;

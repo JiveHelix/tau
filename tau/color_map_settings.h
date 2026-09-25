@@ -52,10 +52,10 @@ using ColorRange =
 
 
 template<typename Value>
-struct ColorMapSettingsTemplate
+struct ColorMapSettingsSchema
 {
     template<template<typename> typename T>
-    struct Template
+    struct Schema
     {
         T<bool> turbo;
         T<typename ColorRange<Value>::Group> range;
@@ -68,11 +68,11 @@ struct ColorMapSettingsTemplate
 
 template<typename Value>
 struct ColorMapSettings:
-    public ColorMapSettingsTemplate<Value>::template Template<pex::Identity>
+    public ColorMapSettingsSchema<Value>::template Schema<pex::Identity>
 {
     ColorMapSettings()
         :
-        ColorMapSettingsTemplate<Value>::template Template<pex::Identity>{
+        ColorMapSettingsSchema<Value>::template Schema<pex::Identity>{
             true,
             typename ColorRange<Value>::Settings{},
             DefaultHighColor::Get<Value>()}
@@ -83,7 +83,7 @@ struct ColorMapSettings:
 
 
 template<typename Value>
-struct ColorMapSettingsCustom
+struct ColorMapSettingsFinisher
 {
     using Plain = ColorMapSettings<Value>;
 
@@ -126,8 +126,8 @@ template<typename Value>
 using ColorMapSettingsGroup =
     pex::Group
     <
-        ColorMapSettingsTemplate<Value>::template Template,
-        ColorMapSettingsCustom<Value>
+        ColorMapSettingsSchema<Value>::template Schema,
+        ColorMapSettingsFinisher<Value>
     >;
 
 template<typename Value>
@@ -143,6 +143,6 @@ using ColorMapSettingsControl =
 
 extern template struct pex::Group
     <
-        tau::ColorMapSettingsTemplate<int32_t>::template Template,
-        tau::ColorMapSettingsCustom<int32_t>
+        tau::ColorMapSettingsSchema<int32_t>::template Schema,
+        tau::ColorMapSettingsFinisher<int32_t>
     >;

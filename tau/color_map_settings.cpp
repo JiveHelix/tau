@@ -3,6 +3,6 @@
 
 template struct pex::Group
     <
-        tau::ColorMapSettingsTemplate<int32_t>::template Template,
-        tau::ColorMapSettingsCustom<int32_t>
+        tau::ColorMapSettingsSchema<int32_t>::template Schema,
+        tau::ColorMapSettingsFinisher<int32_t>
     >;

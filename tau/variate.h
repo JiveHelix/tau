@@ -22,10 +22,10 @@ namespace tau
 
 
 template<typename U>
-struct VariateTemplate
+struct VariateSchema
 {
     template<template<typename> typename T>
-    struct Template
+    struct Schema
     {
         using VariateType = U;
 
@@ -38,7 +38,7 @@ struct VariateTemplate
 
 
 template<typename T>
-struct Variate: public VariateTemplate<T>::template Template<pex::Identity>
+struct Variate: public VariateSchema<T>::template Schema<pex::Identity>
 {
     template<typename U, typename Style>
     Variate<U> Cast() const
@@ -52,7 +52,7 @@ template<typename T>
 using VariateGroup =
     pex::Group
     <
-        VariateTemplate<T>::template Template,
+        VariateSchema<T>::template Schema,
         pex::PlainT<Variate<T>>
     >;
 
@@ -73,10 +73,10 @@ DECLARE_EQUALITY_OPERATORS(Variate<double>)
 
 
 template<typename U>
-struct VarianceTemplate
+struct VarianceSchema
 {
     template<template<typename> typename T>
-    struct Template
+    struct Schema
     {
         using VarianceType = U;
 
@@ -89,9 +89,9 @@ struct VarianceTemplate
 
 
 template<typename T>
-struct Variance: public VarianceTemplate<T>::template Template<pex::Identity>
+struct Variance: public VarianceSchema<T>::template Schema<pex::Identity>
 {
-    using Base = typename VarianceTemplate<T>::template Template<pex::Identity>;
+    using Base = typename VarianceSchema<T>::template Schema<pex::Identity>;
 
     Variance()
         :
@@ -406,7 +406,7 @@ template<typename T>
 using VarianceGroup =
     pex::Group
     <
-        VarianceTemplate<T>::template Template,
+        VarianceSchema<T>::template Schema,
         pex::PlainT<Variance<T>>
     >;
 

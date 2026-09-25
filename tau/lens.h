@@ -12,10 +12,10 @@ namespace tau
 
 
 template<typename T>
-struct LensTemplate
+struct LensSchema
 {
     template<template<typename> typename U>
-    struct Template
+    struct Schema
     {
         U<T> focusDistance_m;
         U<T> aperture_fstop;
@@ -26,9 +26,9 @@ struct LensTemplate
 
 
 template<typename T>
-struct Lens: public LensTemplate<T>::template Template<pex::Identity>
+struct Lens: public LensSchema<T>::template Schema<pex::Identity>
 {
-    using Base = typename LensTemplate<T>::template Template<pex::Identity>;
+    using Base = typename LensSchema<T>::template Schema<pex::Identity>;
 
     Lens()
         :

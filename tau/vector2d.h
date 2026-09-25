@@ -14,10 +14,10 @@ namespace tau
 
 
 template<typename T>
-struct Vector2dTemplate
+struct Vector2dSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<T> x;
         V<T> y;
@@ -27,7 +27,7 @@ struct Vector2dTemplate
 
 template<typename T>
 using Vector2dBase =
-    typename Vector2dTemplate<T>::template Template<pex::Identity>;
+    typename Vector2dSchema<T>::template Schema<pex::Identity>;
 
 
 template<typename T, template<typename> typename Derived>
@@ -213,7 +213,7 @@ TEMPLATE_OUTPUT_STREAM(Vector2d)
 
 
 template<typename T>
-struct Vector2dCustom
+struct Vector2dFinisher
 {
     using Plain = Vector2d<T>;
 
@@ -246,13 +246,13 @@ template<typename T>
 using Vector2dGroup =
     pex::Group
     <
-        Vector2dTemplate<T>::template Template,
-        Vector2dCustom<T>
+        Vector2dSchema<T>::template Schema,
+        Vector2dFinisher<T>
     >;
 
 
 template<typename T>
-struct Point2dCustom
+struct Point2dFinisher
 {
     using Plain = Point2d<T>;
 
@@ -285,8 +285,8 @@ template<typename T>
 using Point2dGroup =
     pex::Group
     <
-        Vector2dTemplate<T>::template Template,
-        Point2dCustom<T>
+        Vector2dSchema<T>::template Schema,
+        Point2dFinisher<T>
     >;
 
 

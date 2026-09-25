@@ -28,62 +28,62 @@ namespace pex
 
 template struct Group
     <
-        tau::SizeTemplate<int8_t>::template Template,
-        tau::SizeCustom<int8_t>
+        tau::SizeSchema<int8_t>::template Schema,
+        tau::SizeFinisher<int8_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<int16_t>::template Template,
-        tau::SizeCustom<int16_t>
+        tau::SizeSchema<int16_t>::template Schema,
+        tau::SizeFinisher<int16_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<int32_t>::template Template,
-        tau::SizeCustom<int32_t>
+        tau::SizeSchema<int32_t>::template Schema,
+        tau::SizeFinisher<int32_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<int64_t>::template Template,
-        tau::SizeCustom<int64_t>
+        tau::SizeSchema<int64_t>::template Schema,
+        tau::SizeFinisher<int64_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<uint8_t>::template Template,
-        tau::SizeCustom<uint8_t>
+        tau::SizeSchema<uint8_t>::template Schema,
+        tau::SizeFinisher<uint8_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<uint16_t>::template Template,
-        tau::SizeCustom<uint16_t>
+        tau::SizeSchema<uint16_t>::template Schema,
+        tau::SizeFinisher<uint16_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<uint32_t>::template Template,
-        tau::SizeCustom<uint32_t>
+        tau::SizeSchema<uint32_t>::template Schema,
+        tau::SizeFinisher<uint32_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<uint64_t>::template Template,
-        tau::SizeCustom<uint64_t>
+        tau::SizeSchema<uint64_t>::template Schema,
+        tau::SizeFinisher<uint64_t>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<float>::template Template,
-        tau::SizeCustom<float>
+        tau::SizeSchema<float>::template Schema,
+        tau::SizeFinisher<float>
     >;
 
 template struct Group
     <
-        tau::SizeTemplate<double>::template Template,
-        tau::SizeCustom<double>
+        tau::SizeSchema<double>::template Schema,
+        tau::SizeFinisher<double>
     >;
 
 

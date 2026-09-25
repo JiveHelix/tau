@@ -13,10 +13,10 @@ namespace tau
 
 
 template<typename T>
-struct RegionTemplate
+struct RegionSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<Point2dGroup<T>> topLeft;
         V<SizeGroup<T>> size;
@@ -27,7 +27,7 @@ struct RegionTemplate
 
 
 template<typename T>
-struct Region: public RegionTemplate<T>::template Template<pex::Identity>
+struct Region: public RegionSchema<T>::template Schema<pex::Identity>
 {
     Point2d<T> GetBottomRight() const
     {
@@ -121,7 +121,7 @@ template<typename T>
 using RegionGroup =
     pex::Group
     <
-        RegionTemplate<T>::template Template,
+        RegionSchema<T>::template Schema,
         pex::PlainT<Region<T>>
     >;
 

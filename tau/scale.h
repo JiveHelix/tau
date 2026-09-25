@@ -3,7 +3,7 @@
 #include <cassert>
 #include <fields/fields.h>
 #include <pex/identity.h>
-#include <pex/selectors.h>
+#include <pex/tailors.h>
 #include "tau/arithmetic.h"
 #include "tau/orthogonal.h"
 
@@ -13,10 +13,10 @@ namespace tau
 
 
 template<typename T>
-struct ScaleTemplate
+struct ScaleSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<T> vertical;
         V<T> horizontal;
@@ -28,7 +28,7 @@ struct ScaleTemplate
 
 template<typename T>
 using ScaleBase =
-    typename ScaleTemplate<T>::template Template<pex::Identity>;
+    typename ScaleSchema<T>::template Schema<pex::Identity>;
 
 
 template<typename T>

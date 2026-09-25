@@ -88,7 +88,7 @@ struct PixelOriginChoices
 };
 
 using PixelOriginSelect = pex::MakeSelect<PixelOriginChoices>;
-using PixelOriginControl = pex::ControlSelector<PixelOriginSelect>;
+using PixelOriginControl = pex::ControlTailor<PixelOriginSelect>;
 static_assert(pex::IsSelectControl<PixelOriginControl>);
 
 std::string GetPixelOriginsString();

@@ -20,10 +20,10 @@ namespace tau
 
 
 template<typename T>
-struct Line3dTemplate
+struct Line3dSchema
 {
     template<template<typename> typename V>
-    struct Template
+    struct Schema
     {
         V<Point3d<T>> point;
         V<Vector3<T>> direction;
@@ -34,7 +34,7 @@ struct Line3dTemplate
 
 
 template<typename T>
-using Line3dBase = typename Line3dTemplate<T>::template Template<pex::Identity>;
+using Line3dBase = typename Line3dSchema<T>::template Schema<pex::Identity>;
 
 template<typename T>
 struct Line3d
@@ -277,7 +277,7 @@ template<typename T>
 using Line3dGroup =
     pex::Group
     <
-        Line3dTemplate<T>::template Template,
+        Line3dSchema<T>::template Schema,
         pex::PlainT<Line3d<T>>
     >;
 
