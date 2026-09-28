@@ -251,6 +251,30 @@ struct RotationAnglesTemplate
 };
 
 
+
+template<typename Derived>
+RotationMatrix<typename Derived::Scalar>
+GetConditionedRotationMatrix(const Eigen::DenseBase<Derived> &matrix)
+{
+    using T = typename Derived::Scalar;
+    using Matrix = RotationMatrix<T>;
+
+    Eigen::JacobiSVD<Matrix> svd(
+        Matrix(matrix),
+        Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+    const Matrix U = svd.matrixU();
+    const Matrix V = svd.matrixV();
+
+    // Correct the sign of the determinant.
+    Matrix diagonal = Matrix::Identity();
+    diagonal(2, 2) = (U * V.transpose()).determinant() < T(0) ? T(-1): T(1);
+
+    return U * diagonal * V.transpose();
+}
+
+
+
 template<typename Derived>
 Eigen::Vector3<typename Derived::Scalar>
 CanonicalEuler(
