@@ -1060,9 +1060,6 @@ void ConvolveSeparable(
 }
 
 
-
-
-
 template<typename Kernel, typename Derived>
 void Convolve2d(
     const Eigen::MatrixBase<Kernel> &kernel,
@@ -1080,6 +1077,11 @@ Derived Convolve2d(
     const Eigen::MatrixBase<Derived> &input)
 {
     Derived output(input.rows(), input.cols());
+
+    // Initialize the output to zero to ensure that the borders will not
+    // be left with uninitialized values.
+    output.setZero(input.rows(), input.cols());
+
     Convolve2d(kernel, input, output);
 
     return output;

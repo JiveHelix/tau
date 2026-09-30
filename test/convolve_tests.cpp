@@ -134,25 +134,25 @@ TEST_CASE("Create an Eigen::Ref", "[convolve]")
 }
 
 
-TEST_CASE("MakeView creates an Eigen::Ref", "[convolve]")
+TEST_CASE("MakeBlockView creates an Eigen::Ref", "[convolve]")
 {
     static constexpr auto D = Eigen::Dynamic;
     using M = Eigen::Matrix<int, D, D>;
     M data = M::Zero(4, 6);
-    auto view = tau::MakeView(data.block(1, 1, 3, 3));
+    auto view = tau::MakeBlockView(data, 1, 1, 3, 3);
     view(1, 1) = 14;
     REQUIRE(data(2, 2) == 14);
 }
 
 
-TEST_CASE("MakeView creates a const Eigen::Ref", "[convolve]")
+TEST_CASE("MakeBlockView creates a const Eigen::Ref", "[convolve]")
 {
     static constexpr auto D = Eigen::Dynamic;
     using M = Eigen::Matrix<int, D, D>;
     M data = M::Zero(4, 6);
     const M &p = data;
 
-    auto view = tau::MakeView(p.block(1, 1, 3, 3));
+    auto view = tau::MakeBlockView(p, 1, 1, 3, 3);
 
     STATIC_REQUIRE(tau::IsEigenConstRef<decltype(view)>);
 }

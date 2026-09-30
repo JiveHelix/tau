@@ -18,8 +18,12 @@ auto Percentile(
     using Eigen::Index;
 
     // Get the appropriate index
+    assert(data.size() > 0);
     auto valueCount = static_cast<double>(data.size());
+    auto lastIndex = static_cast<Index>(data.size() - 1);
     auto index = static_cast<Index>(std::floor(valueCount * percentile));
+    index = std::min<Index>(index, lastIndex);
+    index = std::max<Index>(index, 0);
 
     if (!isSorted)
     {

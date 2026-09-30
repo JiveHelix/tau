@@ -325,7 +325,7 @@ Margins ComputeMaximumMargins(
                 std::max(result.horizontalMargin, next.horizontalMargin);
 
             result.verticalMargin =
-                std::max(result.verticalMargin, next.horizontalMargin);
+                std::max(result.verticalMargin, next.verticalMargin);
         };
 
     (update(rest), ...);

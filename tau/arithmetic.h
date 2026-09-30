@@ -653,7 +653,7 @@ struct BasicArithmetic
        {
            auto compare = [&result](
                 const auto &member,
-                const auto &other) -> void
+                const auto &otherMember) -> void
            {
                 using MemberType = typename std::remove_reference_t
                 <
@@ -662,7 +662,7 @@ struct BasicArithmetic
 
                 if (result)
                 {
-                    result = Operator<MemberType>{}(member, other);
+                    result = Operator<MemberType>{}(member, otherMember);
                 }
            };
 

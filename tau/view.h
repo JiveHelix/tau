@@ -75,13 +75,6 @@ template<IsEigenRef T>
 using RefScalar = typename RefTraits<T>::Scalar;
 
 
-template<typename T>
-concept Viewable =
-    std::derived_from<Clean<T>, Eigen::MatrixBase<Clean<T>>> &&
-    (std::constructible_from<View<Clean<T>>, T>
-     || std::constructible_from<ConstView<Clean<T>>, T>);
-
-
 template<typename Expr, typename = void>
 struct IsWritableExpr_ : std::false_type {};
 
@@ -104,20 +97,26 @@ template<typename Expr>
 inline constexpr bool IsWritableExpr = IsWritableExpr_<Expr>::value;
 
 
-template<Viewable Expr>
-auto MakeView(Expr &&expr)
+template<typename Expr>
+    requires (std::is_lvalue_reference_v<Expr>)
+auto MakeBlockView(
+    Expr &&expr,
+    Eigen::Index row,
+    Eigen::Index column,
+    Eigen::Index rows,
+    Eigen::Index columns)
 {
     // Don't forward expr: we want it as an lvalue for Eigen::Ref
-
-    using C = Clean<Expr>;
+    auto block = expr.block(row, column, rows, columns);
+    using B = Clean<decltype(block)>;
 
     if constexpr (IsWritableExpr<Expr>)
     {
-        return View<C>(expr);
+        return View<B>(block);
     }
     else
     {
-        return ConstView<C>(expr);
+        return ConstView<B>(block);
     }
 }
 
