@@ -76,14 +76,14 @@ struct Base3d
 {
     using Type = T;
 
-    Base3d()
+    constexpr Base3d()
         :
         Vector3dBase<T>{0, 0, 0}
     {
 
     }
 
-    Base3d(T x_, T y_, T z_)
+    constexpr Base3d(T x_, T y_, T z_)
         :
         Vector3dBase<T>{x_, y_, z_}
     {
@@ -96,7 +96,7 @@ struct Base3d
     Base3d & operator=(Base3d &&) = default;
 
     template<typename U>
-    Base3d(const Base3d<U, Derived> &point)
+    constexpr Base3d(const Base3d<U, Derived> &point)
         :
         Base3d(point.template Cast<Type>())
     {
@@ -171,14 +171,14 @@ struct Point3d: public Base3d<T, Point3d>
     // Compare equal to 6 decimal places.
     static constexpr int precision = 6;
 
-    Point3d(const Vector3<T> &vector_)
+    constexpr Point3d(const Vector3<T> &vector_)
         :
         Point3d(vector_(0), vector_(1), vector_(2))
     {
 
     }
 
-    Point3d(const Vector3d<T> &vector3d)
+    constexpr Point3d(const Vector3d<T> &vector3d)
         :
         Base3d<T, Point3d>(vector3d.x, vector3d.y, vector3d.z)
     {

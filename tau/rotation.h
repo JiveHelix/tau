@@ -336,14 +336,14 @@ struct RotationAnglesFinisher
         // default is yaw-pitch-roll
         static constexpr auto defaultAxisOrder = AxisOrder{2, 1, 0};
 
-        Plain()
+        constexpr Plain()
             :
             Base{0, 0, 0, defaultAxisOrder}
         {
 
         }
 
-        Plain(
+        constexpr Plain(
             T first,
             T second,
             T third,
@@ -360,7 +360,7 @@ struct RotationAnglesFinisher
             // (*this)(0) = roll
         }
 
-        Plain(
+        constexpr Plain(
             const RotationMatrix<T> &rotation,
             const AxisOrder &axisOrder_ = defaultAxisOrder)
         {
