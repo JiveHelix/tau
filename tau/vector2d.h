@@ -37,14 +37,14 @@ struct Base2d
 {
     using Type = T;
 
-    Base2d()
+    constexpr Base2d()
         :
         Vector2dBase<T>{T(0), T(0)}
     {
 
     }
 
-    Base2d(T x_, T y_)
+    constexpr Base2d(T x_, T y_)
         :
         Vector2dBase<T>{x_, y_}
     {

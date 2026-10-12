@@ -36,6 +36,7 @@ struct Line3dSchema
 template<typename T>
 using Line3dBase = typename Line3dSchema<T>::template Schema<pex::Identity>;
 
+
 template<typename T>
 struct Line3d
     :
@@ -47,7 +48,7 @@ struct Line3d
 
     Line3d()
         :
-        Line3dBase<T>()
+        Line3dBase<T>{}
     {
 
     }

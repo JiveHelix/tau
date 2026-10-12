@@ -217,7 +217,7 @@ template
     typename Style,
     typename Source
 >
-    requires(fields::CanReflect<Result> && fields::CanReflect<Source>)
+    requires(fields::MustReflect<Result> && fields::MustReflect<Source>)
 Result CastFields(const Source &source)
 {
     if constexpr (std::is_same_v<Result, Source>)
@@ -362,7 +362,7 @@ struct BasicArithmetic
         }
         else
         {
-            static_assert(fields::CanReflect<This>);
+            static_assert(fields::MustReflect<This>);
 
             auto operateOnMember = [] (
                 auto &thisMember,
@@ -395,7 +395,7 @@ struct BasicArithmetic
         }
         else
         {
-            static_assert(fields::CanReflect<This>);
+            static_assert(fields::MustReflect<This>);
 
             auto operateOnMember = [scalar] (auto &thisMember)
             {

@@ -43,11 +43,7 @@ template<typename Value>
 using ColorRange =
     pex::LinkedRanges
     <
-        Value,
-        DefaultLowColor,
-        DefaultLowColor,
-        DefaultHighColor,
-        DefaultHighColor
+        pex::RangeOptions<Value, DefaultLowColor, DefaultHighColor>
     >;
 
 
