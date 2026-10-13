@@ -4,7 +4,7 @@
 #include <fields/fields.h>
 #include <fields/compare.h>
 #include <pex/endpoint.h>
-#include <pex/linked_ranges.h>
+#include <pex/range.h>
 
 
 namespace tau
@@ -41,7 +41,7 @@ using DefaultHighColor = pex::Limit<255>;
 
 template<typename Value>
 using ColorRange =
-    pex::LinkedRanges
+    pex::Range
     <
         pex::BoundedOptions<Value, DefaultLowColor, DefaultHighColor>
     >;
