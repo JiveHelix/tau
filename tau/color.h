@@ -772,10 +772,10 @@ auto HsvToRgb(const Planar<count, T, rows, columns, options> &hsv)
 
 
 template<typename U>
-using HueRange = pex::MakeRange<U, pex::Limit<0>, pex::Limit<360>>;
+using HueBounded = pex::MakeBounded<U, pex::Limit<0>, pex::Limit<360>>;
 
 template<typename U>
-using UnitRange = pex::MakeRange<U, pex::Limit<0>, pex::Limit<1>>;
+using UnitBounded = pex::MakeBounded<U, pex::Limit<0>, pex::Limit<1>>;
 
 
 template<typename U>
@@ -786,9 +786,9 @@ struct HsvSchema
     template<template<typename> typename V>
     struct Schema
     {
-        V<HueRange<U>> hue;
-        V<UnitRange<U>> saturation;
-        V<UnitRange<U>> value;
+        V<HueBounded<U>> hue;
+        V<UnitBounded<U>> saturation;
+        V<UnitBounded<U>> value;
 
         static constexpr auto fieldsTypeName = "Hsv";
     };
@@ -842,10 +842,10 @@ struct HsvaSchema
     template<template<typename> typename V>
     struct Schema
     {
-        V<HueRange<U>> hue;
-        V<UnitRange<U>> saturation;
-        V<UnitRange<U>> value;
-        V<UnitRange<U>> alpha;
+        V<HueBounded<U>> hue;
+        V<UnitBounded<U>> saturation;
+        V<UnitBounded<U>> value;
+        V<UnitBounded<U>> alpha;
 
         static constexpr auto fieldsTypeName = "Hsva";
     };
@@ -884,9 +884,9 @@ struct RgbSchema
     template<template<typename> typename V>
     struct Schema
     {
-        V<pex::MakeRange<U>> red;
-        V<pex::MakeRange<U>> green;
-        V<pex::MakeRange<U>> blue;
+        V<pex::MakeBounded<U>> red;
+        V<pex::MakeBounded<U>> green;
+        V<pex::MakeBounded<U>> blue;
 
         static constexpr auto fieldsTypeName = "Rgb";
     };
@@ -924,10 +924,10 @@ struct RgbaSchema
     template<template<typename> typename V>
     struct Schema
     {
-        V<pex::MakeRange<U>> red;
-        V<pex::MakeRange<U>> green;
-        V<pex::MakeRange<U>> blue;
-        V<pex::MakeRange<U>> alpha;
+        V<pex::MakeBounded<U>> red;
+        V<pex::MakeBounded<U>> green;
+        V<pex::MakeBounded<U>> blue;
+        V<pex::MakeBounded<U>> alpha;
 
         static constexpr auto fieldsTypeName = "Rgba";
     };

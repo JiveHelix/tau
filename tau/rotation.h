@@ -226,15 +226,15 @@ static_assert(pex::HasGetChoices<AxisOrderChoices>);
 template<typename U>
 struct RotationAnglesSchema
 {
-    using AngleRange = pex::MakeRange<U, pex::Limit<-180>, pex::Limit<180>>;
+    using AngleBounded = pex::MakeBounded<U, pex::Limit<-180>, pex::Limit<180>>;
 
     template<template<typename> typename T>
     struct Schema
     {
         // Rotation angles in degrees.
-        T<AngleRange> yaw_deg;
-        T<AngleRange> pitch_deg;
-        T<AngleRange> roll_deg;
+        T<AngleBounded> yaw_deg;
+        T<AngleBounded> pitch_deg;
+        T<AngleBounded> roll_deg;
         T<pex::MakeSelect<AxisOrderChoices>> axisOrder;
 
         // By supplying alternate names, fields in class can be restructured
